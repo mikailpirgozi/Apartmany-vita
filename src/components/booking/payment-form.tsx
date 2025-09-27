@@ -198,7 +198,7 @@ function PaymentElementForm({
         setPaymentError(error.message || 'Platba sa nepodarila');
       } else if (paymentIntent?.status === 'requires_capture') {
         // Payment authorized successfully
-        const bookingId = paymentIntent.metadata?.bookingId;
+        const bookingId = (paymentIntent as any).metadata?.bookingId;
         if (bookingId) {
           onPaymentSuccess(bookingId);
         } else {
@@ -284,7 +284,7 @@ function PaymentElementForm({
             <Checkbox
               id="terms"
               checked={termsAccepted}
-              onCheckedChange={setTermsAccepted}
+              onCheckedChange={(checked) => setTermsAccepted(checked === true)}
               className="mt-1"
             />
             <Label htmlFor="terms" className="text-sm leading-relaxed">
@@ -303,7 +303,7 @@ function PaymentElementForm({
             <Checkbox
               id="cancellation"
               checked={cancellationAccepted}
-              onCheckedChange={setCancellationAccepted}
+              onCheckedChange={(checked) => setCancellationAccepted(checked === true)}
               className="mt-1"
             />
             <Label htmlFor="cancellation" className="text-sm leading-relaxed">

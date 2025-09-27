@@ -128,7 +128,7 @@ export function BookingWidget({
       <CardHeader className="pb-4">
         <div className="flex items-baseline justify-between">
           <div>
-            <CardTitle className="text-2xl">€{apartment.basePrice}</CardTitle>
+            <CardTitle className="text-2xl">€{apartment.basePrice.toString()}</CardTitle>
             <p className="text-muted-foreground">za noc</p>
           </div>
           

@@ -5,12 +5,18 @@ import { Users, Wifi, ChefHat, Car } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Apartment } from '@/types'
+import { Decimal } from '@prisma/client/runtime/library'
 
 interface ApartmentCardProps {
   apartment: Apartment
   startDate?: Date
   endDate?: Date
   guests?: number
+}
+
+// Helper function to convert Decimal to number
+const toNumber = (value: number | Decimal): number => {
+  return typeof value === 'number' ? value : value.toNumber()
 }
 
 export function ApartmentCard({ apartment, startDate, endDate, guests }: ApartmentCardProps) {
@@ -53,7 +59,7 @@ export function ApartmentCard({ apartment, startDate, endDate, guests }: Apartme
         
         <div className="flex items-center justify-between">
           <div>
-            <span className="text-2xl font-bold">€{apartment.basePrice}</span>
+            <span className="text-2xl font-bold">€{toNumber(apartment.basePrice)}</span>
             <span className="text-muted-foreground">/noc</span>
           </div>
           

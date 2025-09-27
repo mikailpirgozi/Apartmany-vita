@@ -9,13 +9,15 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Calendar, Users, Euro, Eye } from 'lucide-react'
 
+import { Decimal } from '@prisma/client/runtime/library'
+
 interface Booking {
   id: string
   checkIn: Date
   checkOut: Date
   guests: number
   children: number
-  totalPrice: number
+  totalPrice: number | Decimal
   status: 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED'
   apartment: {
     name: string
@@ -26,6 +28,11 @@ interface Booking {
 
 interface BookingsListProps {
   bookings: Booking[]
+}
+
+// Helper function to convert Decimal to number
+const toNumber = (value: number | Decimal): number => {
+  return typeof value === 'number' ? value : value.toNumber()
 }
 
 export function BookingsList({ bookings }: BookingsListProps) {
@@ -144,7 +151,7 @@ export function BookingsList({ bookings }: BookingsListProps) {
                   <div className="flex items-center gap-2">
                     <Euro className="h-4 w-4 text-muted-foreground" />
                     <span className="font-semibold text-lg">
-                      €{booking.totalPrice.toFixed(0)}
+                      €{toNumber(booking.totalPrice).toFixed(0)}
                     </span>
                     <span className="text-muted-foreground text-sm">celkom</span>
                   </div>

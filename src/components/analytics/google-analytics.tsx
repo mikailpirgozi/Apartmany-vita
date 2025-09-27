@@ -36,8 +36,8 @@ export function GoogleAnalytics({ gaId }: GoogleAnalyticsProps) {
 export function WebVitalsTracker() {
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      import('web-vitals').then(({ getCLS, getFCP, getFID, getLCP, getTTFB }) => {
-        getCLS((metric) => {
+      import('web-vitals').then(({ onCLS, onFCP, onINP, onLCP, onTTFB }) => {
+        onCLS((metric) => {
           if (window.gtag) {
             window.gtag('event', 'web_vitals', {
               event_category: 'Web Vitals',
@@ -48,7 +48,7 @@ export function WebVitalsTracker() {
           }
         })
         
-        getFCP((metric) => {
+        onFCP((metric) => {
           if (window.gtag) {
             window.gtag('event', 'web_vitals', {
               event_category: 'Web Vitals',
@@ -59,18 +59,18 @@ export function WebVitalsTracker() {
           }
         })
         
-        getFID((metric) => {
+        onINP((metric) => {
           if (window.gtag) {
             window.gtag('event', 'web_vitals', {
               event_category: 'Web Vitals',
-              event_label: 'FID',
+              event_label: 'INP',
               value: Math.round(metric.value),
               non_interaction: true,
             })
           }
         })
         
-        getLCP((metric) => {
+        onLCP((metric) => {
           if (window.gtag) {
             window.gtag('event', 'web_vitals', {
               event_category: 'Web Vitals',
@@ -81,7 +81,7 @@ export function WebVitalsTracker() {
           }
         })
         
-        getTTFB((metric) => {
+        onTTFB((metric) => {
           if (window.gtag) {
             window.gtag('event', 'web_vitals', {
               event_category: 'Web Vitals',

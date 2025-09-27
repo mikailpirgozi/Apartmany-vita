@@ -148,7 +148,7 @@ export async function getChatbotResponse(
     }
 
     // Generate contextual suggestions based on the response
-    const suggestions = generateSuggestions(message, response)
+    const suggestions = generateSuggestions(message)
 
     return {
       message: response,
@@ -167,7 +167,7 @@ export async function getChatbotResponse(
   }
 }
 
-function generateSuggestions(userMessage: string, botResponse: string): string[] {
+function generateSuggestions(userMessage: string): string[] {
   const message = userMessage.toLowerCase()
 
   // Common suggestions based on message content

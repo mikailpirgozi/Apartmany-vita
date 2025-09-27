@@ -53,6 +53,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // First, create or find user
+    const user = await prisma.user.upsert({
+      where: { email: validatedData.guestInfo.email },
+      create: {
+        email: validatedData.guestInfo.email,
+        name: `${validatedData.guestInfo.firstName} ${validatedData.guestInfo.lastName}`,
+        phone: validatedData.guestInfo.phone
+      },
+      update: {}
+    });
+
     // Create booking record in database
     const booking = await prisma.booking.create({
       data: {
@@ -64,19 +75,10 @@ export async function POST(request: NextRequest) {
         discount: validatedData.pricing.loyaltyDiscount,
         status: 'PENDING',
         apartmentId: validatedData.apartmentId,
-        // Create user if doesn't exist or link to existing user
-        user: {
-          connectOrCreate: {
-            where: { email: validatedData.guestInfo.email },
-            create: {
-              email: validatedData.guestInfo.email,
-              name: `${validatedData.guestInfo.firstName} ${validatedData.guestInfo.lastName}`,
-              phone: validatedData.guestInfo.phone,
-              country: validatedData.guestInfo.country,
-              city: validatedData.guestInfo.city
-            }
-          }
-        }
+        userId: user.id,
+        guestName: `${validatedData.guestInfo.firstName} ${validatedData.guestInfo.lastName}`,
+        guestEmail: validatedData.guestInfo.email,
+        guestPhone: validatedData.guestInfo.phone
       },
       include: {
         user: true

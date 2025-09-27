@@ -1,3 +1,5 @@
+import { Decimal } from '@prisma/client/runtime/library'
+
 // Database types
 export interface User {
   id: string
@@ -7,7 +9,7 @@ export interface User {
   emailVerified?: Date
   phone?: string
   dateOfBirth?: Date
-  preferences?: Record<string, any>
+  preferences?: Record<string, string | number | boolean>
   createdAt: Date
   updatedAt: Date
   bookings?: Booking[]
@@ -25,7 +27,7 @@ export interface Apartment {
   maxChildren: number
   images: string[]
   amenities: string[]
-  basePrice: number
+  basePrice: number | Decimal
   isActive: boolean
   createdAt: Date
   updatedAt: Date
@@ -38,8 +40,8 @@ export interface Booking {
   checkOut: Date
   guests: number
   children: number
-  totalPrice: number
-  discount: number
+  totalPrice: number | Decimal
+  discount: number | Decimal
   status: BookingStatus
   paymentId?: string
   userId: string
@@ -54,7 +56,7 @@ export interface Booking {
 export interface BookingExtra {
   id: string
   name: string
-  price: number
+  price: number | Decimal
   quantity: number
   bookingId: string
 }
@@ -117,15 +119,15 @@ export interface BookingData {
     specialRequests?: string
   }
   extras?: BookingExtra[]
-  totalPrice?: number
-  discount?: number
+  totalPrice?: number | Decimal
+  discount?: number | Decimal
 }
 
 // Pricing calculation types
 export interface PricingBreakdown {
-  basePrice: number
-  discount: number
-  total: number
+  basePrice: number | Decimal
+  discount: number | Decimal
+  total: number | Decimal
   nights: number
   loyaltyTier?: LoyaltyTier
   discountPercentage?: number

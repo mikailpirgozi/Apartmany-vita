@@ -46,7 +46,7 @@ const guestInfoSchema = z.object({
   city: z.string().min(2, "Zadajte mesto"),
   specialRequests: z.string().optional(),
   arrivalTime: z.string().optional(),
-  marketingConsent: z.boolean().default(false)
+  marketingConsent: z.boolean()
 });
 
 const extrasSchema = z.object({
@@ -286,6 +286,7 @@ export function BookingFlow({ apartment, bookingData, pricing, onComplete }: Boo
                   apartment={apartment}
                   bookingData={bookingData}
                   guestInfo={guestInfo!}
+                  pricing={pricing}
                   selectedExtras={selectedExtras}
                   totalPrice={totalPrice}
                   onBack={goToPrevStep}
@@ -714,6 +715,7 @@ function PaymentStep({
   apartment, 
   bookingData, 
   guestInfo, 
+  pricing,
   selectedExtras, 
   totalPrice, 
   onBack, 
@@ -722,6 +724,7 @@ function PaymentStep({
   apartment: Apartment;
   bookingData: any;
   guestInfo: any;
+  pricing: BookingPricing;
   selectedExtras: ExtrasFormData;
   totalPrice: number;
   onBack: () => void; 
@@ -729,6 +732,12 @@ function PaymentStep({
 }) {
   const [paymentCompleted, setPaymentCompleted] = useState(false);
   const [completedBookingId, setCompletedBookingId] = useState<string | null>(null);
+
+  const calculateExtrasTotal = () => {
+    return EXTRA_SERVICES.reduce((total, service) => {
+      return total + (selectedExtras[service.id] ? service.price : 0);
+    }, 0);
+  };
 
   const handlePaymentSuccess = (bookingId: string) => {
     setCompletedBookingId(bookingId);
