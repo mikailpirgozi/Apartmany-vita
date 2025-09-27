@@ -4,9 +4,11 @@
  */
 
 export interface Beds24Config {
-  longLifeToken: string;
+  accessToken: string;
+  refreshToken: string;
   baseUrl: string;
   propId: string;
+  tokenExpiresAt?: number;
 }
 
 export interface AvailabilityRequest {
@@ -54,20 +56,86 @@ class Beds24Service {
 
   constructor() {
     this.config = {
-      longLifeToken: process.env.BEDS24_LONG_LIFE_TOKEN || 'PhvqHilqz7fKf5HT8Rq3Ks0zCLwrBOlyBfZ/BqyEKt8HfdfJYLRudz2/v2+WoZZdl7DPIyaPsd6nSGVzedFdVhYoFQn/oZTrX9xVrajrkwKBInhZ9fA9VXIRYEagRsVb6oqylGGn+PtnE+qDhNFAvA==',
+      accessToken: process.env.BEDS24_ACCESS_TOKEN || 'Q3PuTuxgj6Qmm5/Rfvb+A4EhRS+1TIQUVoBJr3OUUHkAQhy2pw7HaKqnlqa9YdmFHTqSZrf4RUJQ3AwtSvu6ygq9PiFMX85Qiji64k7U9D016gmpgNm09HC58AGc9bfJZcKpBZ1diWotIQT6yCnmUDRLwNZz8tf1fJYgs3XzHjk=',
+      refreshToken: process.env.BEDS24_REFRESH_TOKEN || 'ho1+r9D5VpRkMe3iibOAOuVcRwPvnsELK39UDu7XjiyRGvbnirpbZ67dj4rLejPZ0Lxh2jKAQG29U2ihlpeBvO337Ag5+W+/x58tvI9jrb9Wc/5IKZioc5Uwzog5RSYyiQYTju0dwU8GTWJPhxmRFdud7E75N1QNIl5ZtRa89Sk=',
       baseUrl: process.env.BEDS24_BASE_URL || 'https://api.beds24.com/v2',
-      propId: process.env.BEDS24_PROP_ID || '357931'
+      propId: process.env.BEDS24_PROP_ID || '357931',
+      tokenExpiresAt: Date.now() + (86400 * 1000) // 24 hours from now
     };
 
     // Debug logging
     console.log('Beds24Service config:', {
       baseUrl: this.config.baseUrl,
-      tokenLength: this.config.longLifeToken?.length,
-      tokenStart: this.config.longLifeToken?.substring(0, 20) + '...'
+      accessTokenLength: this.config.accessToken?.length,
+      refreshTokenLength: this.config.refreshToken?.length,
+      accessTokenStart: this.config.accessToken?.substring(0, 20) + '...',
+      tokenExpiresAt: new Date(this.config.tokenExpiresAt || 0).toISOString()
     });
 
-    if (!this.config.longLifeToken) {
-      throw new Error('BEDS24_LONG_LIFE_TOKEN is required');
+    if (!this.config.accessToken || !this.config.refreshToken) {
+      throw new Error('BEDS24_ACCESS_TOKEN and BEDS24_REFRESH_TOKEN are required');
+    }
+  }
+
+  /**
+   * Check if access token is expired and refresh if needed
+   */
+  private async ensureValidToken(): Promise<string> {
+    const now = Date.now();
+    const expiresAt = this.config.tokenExpiresAt || 0;
+    
+    // If token expires in next 5 minutes, refresh it
+    if (now >= (expiresAt - 5 * 60 * 1000)) {
+      console.log('Access token expired or expiring soon, refreshing...');
+      await this.refreshAccessToken();
+    }
+    
+    return this.config.accessToken;
+  }
+
+  /**
+   * Refresh access token using refresh token
+   */
+  private async refreshAccessToken(): Promise<void> {
+    try {
+      console.log('Refreshing Beds24 access token...');
+      
+      const response = await fetch(`${this.config.baseUrl}/auth/refresh`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          refreshToken: this.config.refreshToken
+        })
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Token refresh failed:', errorText);
+        throw new Error(`Token refresh failed: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      
+      if (data.success && data.data) {
+        // Update config with new tokens
+        const config = this.config as Beds24Config & { 
+          accessToken: string; 
+          refreshToken: string; 
+          tokenExpiresAt: number; 
+        };
+        config.accessToken = data.data.accessToken;
+        config.refreshToken = data.data.refreshToken;
+        config.tokenExpiresAt = Date.now() + (data.data.expiresIn * 1000);
+        
+        console.log('Access token refreshed successfully');
+      } else {
+        throw new Error('Invalid refresh response format');
+      }
+    } catch (error) {
+      console.error('Error refreshing access token:', error);
+      throw new Error('Failed to refresh access token');
     }
   }
 
@@ -76,17 +144,19 @@ class Beds24Service {
    */
   async getAvailability(request: AvailabilityRequest): Promise<AvailabilityResponse> {
     try {
+      const accessToken = await this.ensureValidToken();
+      
       console.log('Fetching availability:', {
         url: `${this.config.baseUrl}/bookings`,
         request
       });
 
-      // API V2 format with long-life token
+      // API V2 format with access token
       const response = await fetch(`${this.config.baseUrl}/bookings`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          'token': this.config.longLifeToken
+          'token': accessToken
         }
       });
 
@@ -111,13 +181,15 @@ class Beds24Service {
   /**
    * Get dynamic room rates for date range - API V2
    */
-  async getRoomRates(propId: string, roomId: string, startDate: string, endDate: string): Promise<Record<string, number>> {
+  async getRoomRates(propId: string, roomId: string, _startDate: string, _endDate: string): Promise<Record<string, number>> {
     try {
+      const accessToken = await this.ensureValidToken();
+      
       const response = await fetch(`${this.config.baseUrl}/rates`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          'token': this.config.longLifeToken
+          'token': accessToken
         }
       });
 
@@ -138,6 +210,8 @@ class Beds24Service {
    */
   async createBooking(bookingData: BookingData): Promise<Beds24Booking> {
     try {
+      const accessToken = await this.ensureValidToken();
+      
       const requestBody = [{
         propId: bookingData.propId,
         roomId: bookingData.roomId,
@@ -164,7 +238,7 @@ class Beds24Service {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'token': this.config.longLifeToken
+          'token': accessToken
         },
         body: JSON.stringify(requestBody)
       });
@@ -203,13 +277,14 @@ class Beds24Service {
    */
   async updateBookingStatus(bookId: string, status: 'confirmed' | 'cancelled'): Promise<void> {
     try {
+      const accessToken = await this.ensureValidToken();
       const statusCode = status === 'confirmed' ? 2 : 3;
       
       const response = await fetch(`${this.config.baseUrl}/bookings/${bookId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'token': this.config.longLifeToken
+          'token': accessToken
         },
         body: JSON.stringify({
           status: statusCode
@@ -230,6 +305,8 @@ class Beds24Service {
    */
   async getBooking(bookId: string): Promise<Beds24Booking | null> {
     try {
+      const accessToken = await this.ensureValidToken();
+      
       console.log('Fetching booking:', {
         url: `${this.config.baseUrl}/bookings/${bookId}`,
         bookId
@@ -239,7 +316,7 @@ class Beds24Service {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          'token': this.config.longLifeToken
+          'token': accessToken
         }
       });
 
