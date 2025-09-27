@@ -12,15 +12,20 @@ export async function GET(request: NextRequest) {
     console.log('Testing Beds24 API V1 with:', { apiKey, propId });
 
     // Test 1: Basic API connection - Beds24 API V1 format
-    const testUrl = `https://beds24.com/api/getBookings.php?apiKey=${apiKey}&startDate=2024-12-01&endDate=2024-12-07`;
-    
-    const response = await fetch(testUrl, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'User-Agent': 'ApartmanyVita/1.0'
-      }
-    });
+          const testUrl = `https://beds24.com/api/json/getBookings`;
+          
+          const response = await fetch(testUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'User-Agent': 'ApartmanyVita/1.0'
+            },
+            body: JSON.stringify({
+              apiKey: apiKey,
+              startDate: '2024-12-01',
+              endDate: '2024-12-07'
+            })
+          });
 
     const responseText = await response.text();
     

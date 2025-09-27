@@ -69,23 +69,24 @@ class Beds24Service {
    */
   async getAvailability(request: AvailabilityRequest): Promise<AvailabilityResponse> {
     try {
-      // API V1 format - Beds24 uses apiKey as parameter
-      const params = new URLSearchParams({
+      // API V1 JSON format - Beds24 uses JSON POST requests
+      const requestBody = {
         apiKey: this.config.apiKey,
         startDate: request.startDate,
         endDate: request.endDate
-      });
+      };
 
       // Add roomId if provided
       if (request.roomId) {
-        params.append('roomId', request.roomId);
+        requestBody.roomId = request.roomId;
       }
 
-      const response = await fetch(`${this.config.baseUrl}/getBookings.php?${params}`, {
-        method: 'GET',
+      const response = await fetch(`${this.config.baseUrl}/json/getBookings`, {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json'
-        }
+        },
+        body: JSON.stringify(requestBody)
       });
 
       if (!response.ok) {
