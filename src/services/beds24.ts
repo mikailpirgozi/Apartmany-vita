@@ -179,7 +179,21 @@ class Beds24Service {
       const data = await response.json();
       console.log('Availability data received:', data);
       
-      return this.parseAvailabilityResponseV2(data, request);
+      // Parse availability first
+      const availability = this.parseAvailabilityResponseV2(data, request);
+      
+      // Try to get rates for available dates
+      try {
+        const rates = await this.getRoomRates(request.propId, request.roomId, request.startDate, request.endDate);
+        console.log('Rates fetched:', Object.keys(rates).length, 'dates');
+        
+        // Merge rates into availability prices
+        Object.assign(availability.prices, rates);
+      } catch (ratesError) {
+        console.warn('Failed to fetch rates, continuing without them:', ratesError);
+      }
+      
+      return availability;
     } catch (error) {
       console.error('Error fetching availability from Beds24:', error);
       throw new Error('Failed to fetch availability data');
@@ -189,13 +203,39 @@ class Beds24Service {
   /**
    * Get dynamic room rates for date range - API V2
    */
-  async getRoomRates(): Promise<Record<string, number>> {
+  async getRoomRates(propId?: string, roomId?: string, startDate?: string, endDate?: string): Promise<Record<string, number>> {
     try {
-      // Beds24 V2 API doesn't have a separate rates endpoint
-      // Rates are included in the bookings response
-      // For now, return empty rates object
-      console.log('Rates endpoint not available in Beds24 V2 API');
-      return {};
+      const accessToken = await this.ensureValidToken();
+      
+      // Try to get rates from inventory endpoint
+      const url = new URL(`${this.config.baseUrl}/inventory`);
+      if (propId) url.searchParams.append('propId', propId);
+      if (roomId) url.searchParams.append('roomId', roomId);
+      if (startDate) url.searchParams.append('startDate', startDate);
+      if (endDate) url.searchParams.append('endDate', endDate);
+      
+      console.log('Fetching rates from inventory:', url.toString());
+      
+      const response = await fetch(url.toString(), {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'token': accessToken
+        }
+      });
+
+      console.log('Rates response status:', response.status);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Rates API error:', errorText);
+        return {};
+      }
+
+      const data = await response.json();
+      console.log('Rates data received:', data);
+      
+      return this.parseRatesResponseV2(data, propId || '', roomId || '');
     } catch (error) {
       console.error('Error fetching rates from Beds24:', error);
       return {};
@@ -373,7 +413,8 @@ class Beds24Service {
     for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
       const dateStr = d.toISOString().split('T')[0];
       
-      // Check if date is booked
+      // Check if date is booked and extract price
+      let datePrice: number | undefined;
       const isBooked = bookings.some((booking: unknown) => {
         if (booking && typeof booking === 'object') {
           // Try different date field names
@@ -399,7 +440,15 @@ class Beds24Service {
           }
           
           if (arrival && departure && !isNaN(arrival.getTime()) && !isNaN(departure.getTime())) {
-            return d >= arrival && d < departure;
+            const isInRange = d >= arrival && d < departure;
+            
+            // Extract price for this date range
+            if (isInRange && 'price' in bookingObj && typeof bookingObj.price === 'number') {
+              const nights = Math.ceil((departure.getTime() - arrival.getTime()) / (1000 * 60 * 60 * 24));
+              datePrice = nights > 0 ? bookingObj.price / nights : bookingObj.price;
+            }
+            
+            return isInRange;
           }
         }
         return false;
@@ -407,8 +456,20 @@ class Beds24Service {
       
       if (isBooked) {
         booked.push(dateStr);
+        if (datePrice) {
+          prices[dateStr] = datePrice;
+        }
       } else {
         available.push(dateStr);
+        // Set default price for available dates based on property
+        const defaultPrices: Record<string, number> = {
+          '227484': 120, // Design apartmán
+          '168900': 90,  // Lite apartmán  
+          '161445': 150, // Deluxe apartmán
+          '357931': 100  // Default
+        };
+        const defaultPrice = defaultPrices[request.propId] || 100;
+        prices[dateStr] = defaultPrice;
       }
     }
 
@@ -434,23 +495,71 @@ class Beds24Service {
   private parseRatesResponseV2(data: unknown, propId: string, roomId: string): Record<string, number> {
     const rates: Record<string, number> = {};
 
-    // Parse Beds24 V2 rates response format
-    if (data && typeof data === 'object' && 'rates' in data && Array.isArray((data as { rates: unknown[] }).rates)) {
-      (data as { rates: unknown[] }).rates.forEach((rateData: unknown) => {
-        if (rateData && typeof rateData === 'object' && 'date' in rateData && 'price' in rateData) {
-          const rateDataObj = rateData as { date: string; price: number; propId?: string; roomId?: string };
+    console.log('Parsing rates response:', { data, propId, roomId });
+
+    // Handle different possible response formats
+    if (data && typeof data === 'object') {
+      // Try different possible formats
+      let inventoryData: unknown[] = [];
+      
+      if ('data' in data && Array.isArray((data as { data: unknown[] }).data)) {
+        inventoryData = (data as { data: unknown[] }).data;
+      } else if ('inventory' in data && Array.isArray((data as { inventory: unknown[] }).inventory)) {
+        inventoryData = (data as { inventory: unknown[] }).inventory;
+      } else if ('rates' in data && Array.isArray((data as { rates: unknown[] }).rates)) {
+        inventoryData = (data as { rates: unknown[] }).rates;
+      } else if (Array.isArray(data)) {
+        inventoryData = data;
+      }
+
+      console.log('Found inventory data:', inventoryData.length, 'items');
+
+      inventoryData.forEach((item: unknown) => {
+        if (item && typeof item === 'object') {
+          const itemObj = item as Record<string, unknown>;
           
-          // Filter by property and room if specified
-          if (propId && rateDataObj.propId && rateDataObj.propId !== propId) return;
-          if (roomId && rateDataObj.roomId && rateDataObj.roomId !== roomId) return;
+          // Try different field names for date and price
+          let date: string | null = null;
+          let price: number | null = null;
           
-          if (rateDataObj.date && rateDataObj.price) {
-            rates[rateDataObj.date] = rateDataObj.price;
+          // Date field variations
+          if ('date' in itemObj && typeof itemObj.date === 'string') {
+            date = itemObj.date;
+          } else if ('day' in itemObj && typeof itemObj.day === 'string') {
+            date = itemObj.day;
+          }
+          
+          // Price field variations
+          if ('price' in itemObj && typeof itemObj.price === 'number') {
+            price = itemObj.price;
+          } else if ('rate' in itemObj && typeof itemObj.rate === 'number') {
+            price = itemObj.rate;
+          } else if ('amount' in itemObj && typeof itemObj.amount === 'number') {
+            price = itemObj.amount;
+          }
+          
+          // Property/Room filtering
+          let matchesProperty = !propId;
+          let matchesRoom = !roomId;
+          
+          if (propId && 'propId' in itemObj) {
+            matchesProperty = itemObj.propId === propId;
+          } else if (propId && 'propertyId' in itemObj) {
+            matchesProperty = itemObj.propertyId === propId;
+          }
+          
+          if (roomId && 'roomId' in itemObj) {
+            matchesRoom = itemObj.roomId === roomId;
+          }
+          
+          if (date && price && matchesProperty && matchesRoom) {
+            rates[date] = price;
           }
         }
       });
     }
 
+    console.log('Parsed rates:', Object.keys(rates).length, 'dates');
     return rates;
   }
 
