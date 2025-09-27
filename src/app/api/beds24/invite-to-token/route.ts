@@ -52,11 +52,14 @@ export async function POST(request: NextRequest) {
 
     // Step 2: Exchange refresh token for access token
     const tokenResponse = await fetch('https://api.beds24.com/v2/authentication/token', {
-      method: 'GET',
+      method: 'POST',
       headers: {
         'accept': 'application/json',
-        'refresh': refreshToken
-      }
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        refreshToken: refreshToken
+      })
     });
 
     console.log('Token response status:', tokenResponse.status);
