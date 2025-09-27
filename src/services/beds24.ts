@@ -185,20 +185,11 @@ class Beds24Service {
     try {
       const accessToken = await this.ensureValidToken();
       
-      const response = await fetch(`${this.config.baseUrl}/rates`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'token': accessToken
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error(`Beds24 rates API error: ${response.status}`);
-      }
-
-      const data = await response.json();
-      return this.parseRatesResponseV2(data, propId, roomId);
+      // Beds24 V2 API doesn't have a separate rates endpoint
+      // Rates are included in the bookings response
+      // For now, return empty rates object
+      console.log('Rates endpoint not available in Beds24 V2 API');
+      return {};
     } catch (error) {
       console.error('Error fetching rates from Beds24:', error);
       return {};
