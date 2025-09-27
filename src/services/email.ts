@@ -8,8 +8,15 @@ import { format, differenceInDays } from 'date-fns';
 import { sk } from 'date-fns/locale';
 import type { Booking, User, Apartment } from '@prisma/client';
 
-// Initialize Resend
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Lazy initialization of Resend client
+let resend: Resend | null = null;
+
+function getResendClient(): Resend {
+  if (!resend && process.env.RESEND_API_KEY) {
+    resend = new Resend(process.env.RESEND_API_KEY);
+  }
+  return resend!;
+}
 
 // Email configuration
 const FROM_EMAIL = 'Apartmány Vita <reservations@apartmanyvita.sk>';
@@ -39,7 +46,12 @@ export interface SimpleEmailOptions {
  */
 export async function sendEmail(options: SimpleEmailOptions): Promise<boolean> {
   try {
-    const { data, error } = await resend.emails.send({
+    if (!process.env.RESEND_API_KEY) {
+      console.warn('Resend API key not configured, email not sent:', options.subject);
+      return false;
+    }
+
+    const { data, error } = await getResendClient().emails.send({
       from: FROM_EMAIL,
       to: options.to,
       replyTo: REPLY_TO_EMAIL,
@@ -71,7 +83,7 @@ export async function sendBookingConfirmation(
   try {
     const template = generateBookingConfirmationTemplate(booking);
     
-    const { data, error } = await resend.emails.send({
+    const { data, error } = await getResendClient().emails.send({
       from: FROM_EMAIL,
       to: user.email,
       replyTo: REPLY_TO_EMAIL,
@@ -108,7 +120,7 @@ export async function sendCheckInInstructions(
   try {
     const template = generateCheckInInstructionsTemplate(booking);
     
-    const { data, error } = await resend.emails.send({
+    const { data, error } = await getResendClient().emails.send({
       from: FROM_EMAIL,
       to: booking.user.email,
       replyTo: REPLY_TO_EMAIL,
@@ -140,7 +152,7 @@ export async function sendCancellationConfirmation(
   try {
     const template = generateCancellationTemplate(booking, refundAmount);
     
-    const { data, error } = await resend.emails.send({
+    const { data, error } = await getResendClient().emails.send({
       from: FROM_EMAIL,
       to: booking.user.email,
       replyTo: REPLY_TO_EMAIL,
@@ -171,7 +183,7 @@ export async function sendPaymentReminder(
   try {
     const template = generatePaymentReminderTemplate(booking);
     
-    const { data, error } = await resend.emails.send({
+    const { data, error } = await getResendClient().emails.send({
       from: FROM_EMAIL,
       to: booking.user.email,
       replyTo: REPLY_TO_EMAIL,
@@ -202,7 +214,7 @@ export async function sendAdminBookingNotification(
   try {
     const template = generateAdminBookingTemplate(booking);
     
-    const { data, error } = await resend.emails.send({
+    const { data, error } = await getResendClient().emails.send({
       from: FROM_EMAIL,
       to: ADMIN_EMAIL,
       subject: template.subject,
