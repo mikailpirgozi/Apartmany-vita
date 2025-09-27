@@ -18,24 +18,26 @@ if (typeof globalThis.crypto === 'undefined') {
 // Polyfill for URL and other Web APIs
 if (typeof globalThis.URL === 'undefined') {
   try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { URL } = require('url')
     globalThis.URL = URL
   } catch {
     globalThis.URL = class URL {
-      constructor(public href: string, base?: string) {
+      constructor(public href: string) {
         this.href = href
       }
-    } as any
+    } as typeof URL
   }
 }
 
 // Mock webidl-conversions
 if (typeof globalThis.WeakMap === 'undefined') {
-  globalThis.WeakMap = Map as any
+  globalThis.WeakMap = Map as typeof WeakMap
 }
 
 // Mock TextEncoder/TextDecoder for Node.js compatibility
 if (typeof globalThis.TextEncoder === 'undefined') {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { TextEncoder, TextDecoder } = require('util')
   globalThis.TextEncoder = TextEncoder
   globalThis.TextDecoder = TextDecoder
