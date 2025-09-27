@@ -351,15 +351,15 @@ export async function getApartmentAvailability(
   const apartmentMapping: Record<string, { propId: string; roomId: string }> = {
     'design-apartman': {
       propId: process.env.BEDS24_PROP_ID_DESIGN || '227484',
-      roomId: process.env.BEDS24_ROOM_ID_DESIGN || '1'
+      roomId: process.env.BEDS24_ROOM_ID_DESIGN || '483027'
     },
     'lite-apartman': {
       propId: process.env.BEDS24_PROP_ID_LITE || '168900', 
-      roomId: process.env.BEDS24_ROOM_ID_LITE || '1'
+      roomId: process.env.BEDS24_ROOM_ID_LITE || '357932'
     },
     'deluxe-apartman': {
       propId: process.env.BEDS24_PROP_ID_DELUXE || '161445',
-      roomId: process.env.BEDS24_ROOM_ID_DELUXE || '1'
+      roomId: process.env.BEDS24_ROOM_ID_DELUXE || '357931'
     }
   };
 
@@ -383,15 +383,15 @@ export async function createApartmentBooking(
   const apartmentMapping: Record<string, { propId: string; roomId: string }> = {
     'design-apartman': {
       propId: process.env.BEDS24_PROP_ID_DESIGN || '227484',
-      roomId: process.env.BEDS24_ROOM_ID_DESIGN || '1'
+      roomId: process.env.BEDS24_ROOM_ID_DESIGN || '483027'
     },
     'lite-apartman': {
       propId: process.env.BEDS24_PROP_ID_LITE || '168900', 
-      roomId: process.env.BEDS24_ROOM_ID_LITE || '1'
+      roomId: process.env.BEDS24_ROOM_ID_LITE || '357932'
     },
     'deluxe-apartman': {
       propId: process.env.BEDS24_PROP_ID_DELUXE || '161445',
-      roomId: process.env.BEDS24_ROOM_ID_DELUXE || '1'
+      roomId: process.env.BEDS24_ROOM_ID_DELUXE || '357931'
     }
   };
 
