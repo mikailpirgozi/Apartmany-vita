@@ -5,18 +5,18 @@ import { useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import type { Session } from "next-auth";
 import { format, addDays, differenceInDays } from "date-fns";
-import { Calendar, Users, Minus, Plus, Star, Info, ArrowRight } from "lucide-react";
+import { Calendar, Users, Minus, Plus, Info, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+// import { Badge } from "@/components/ui/badge"; // Removed - not using loyalty badges
 import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { calculateBookingPrice, BookingPricing, LoyaltyTier } from "@/services/pricing";
+// import { calculateBookingPrice, BookingPricing, LoyaltyTier } from "@/services/pricing"; // Now using Beds24 API pricing
 import type { Apartment } from "@/types";
 
 interface BookingWidgetProps {
@@ -66,7 +66,17 @@ export function BookingWidget({
     queryFn: async () => {
       if (!checkIn || !checkOut) return null;
       
-      const url = `/api/beds24/availability?apartment=${apartment.slug}&checkIn=${checkIn.toISOString().split('T')[0]}&checkOut=${checkOut.toISOString().split('T')[0]}`;
+      // Format dates in local timezone to avoid UTC conversion issues
+      const formatDate = (date: Date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      };
+      
+      const checkInStr = formatDate(checkIn);
+      const checkOutStr = formatDate(checkOut);
+      const url = `/api/beds24/availability?apartment=${apartment.slug}&checkIn=${checkInStr}&checkOut=${checkOutStr}`;
       console.log('Fetching availability from:', url);
       
       const response = await fetch(url);
@@ -94,46 +104,32 @@ export function BookingWidget({
     enabled: !!(checkIn && checkOut && checkIn < checkOut)
   });
 
-  // Calculate pricing when dates and guests are selected
-  const { data: pricing, isLoading: isPricingLoading, error: pricingError } = useQuery({
-    queryKey: ['booking-pricing', apartment.id, checkIn, checkOut, guests, children, session?.user?.id],
-    queryFn: async () => {
-      if (!checkIn || !checkOut) return null;
-      
-      return calculateBookingPrice({
-        apartmentId: apartment.id,
-        checkIn,
-        checkOut,
-        guests,
-        children,
-        userId: session?.user?.id
-      });
-    },
-    enabled: !!(checkIn && checkOut && checkIn < checkOut),
-    staleTime: 2 * 60 * 1000 // 2 minutes
-  });
+  // Note: Pricing is now handled by Beds24 API in availability response
+  // const { data: pricing, isLoading: isPricingLoading, error: pricingError } = useQuery({
+  //   queryKey: ['booking-pricing', apartment.id, checkIn, checkOut, guests, children, session?.user?.id],
+  //   queryFn: async () => {
+  //     if (!checkIn || !checkOut) return null;
+  //     
+  //     return calculateBookingPrice({
+  //       apartmentId: apartment.id,
+  //       checkIn,
+  //       checkOut,
+  //       guests,
+  //       children,
+  //       userId: session?.user?.id
+  //     });
+  //   },
+  //   enabled: !!(checkIn && checkOut && checkIn < checkOut),
+  //   staleTime: 2 * 60 * 1000 // 2 minutes
+  // });
 
   const nights = checkIn && checkOut ? differenceInDays(checkOut, checkIn) : 0;
   const totalGuests = guests + children;
   
-  // Check if selected dates are available
-  const isDateRangeAvailable = availability && checkIn && checkOut ? 
-    (() => {
-      // Generate all dates in the range (excluding checkout date)
-      const datesInRange: string[] = [];
-      const currentDate = new Date(checkIn);
-      while (currentDate < checkOut) {
-        datesInRange.push(format(currentDate, 'yyyy-MM-dd'));
-        currentDate.setDate(currentDate.getDate() + 1);
-      }
-      
-      // Check if ALL dates in range are available
-      return datesInRange.every(date => 
-        availability.available && availability.available.includes(date)
-      );
-    })() : true;
+  // Check if selected dates are available based on API response
+  const isDateRangeAvailable = availability ? availability.isAvailable : true;
   
-  const isValidBooking = checkIn && checkOut && nights > 0 && totalGuests <= apartment.maxGuests && isDateRangeAvailable;
+  const isValidBooking = checkIn && checkOut && nights > 0 && totalGuests <= apartment.maxGuests && isDateRangeAvailable && availability?.totalPrice;
 
   const handleCheckInSelect = (date: Date | undefined) => {
     setCheckIn(date);
@@ -184,9 +180,7 @@ export function BookingWidget({
             <p className="text-muted-foreground">za noc</p>
           </div>
           
-          {session?.user && pricing?.loyaltyTier && (
-            <LoyaltyBadge tier={pricing.loyaltyTier} discount={pricing.loyaltyDiscountPercent} />
-          )}
+          {/* Loyalty badge removed - using Beds24 pricing */}
         </div>
       </CardHeader>
 
@@ -267,17 +261,27 @@ export function BookingWidget({
           <div className="space-y-3">
             <Separator />
             
-            {isPricingLoading ? (
+            {isAvailabilityLoading ? (
               <PricingSkeleton />
-            ) : pricingError ? (
+            ) : availabilityError ? (
               <Alert>
                 <Info className="h-4 w-4" />
                 <AlertDescription>
                   Nepodarilo sa načítať cenu. Skúste to znovu.
                 </AlertDescription>
               </Alert>
-            ) : pricing ? (
-              <PricingBreakdown pricing={pricing} nights={nights} />
+            ) : availability?.totalPrice ? (
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <span>€{availability.pricePerNight} × {nights} noc{nights > 1 ? 'í' : ''}</span>
+                  <span>€{availability.totalPrice}</span>
+                </div>
+                <Separator />
+                <div className="flex justify-between font-semibold text-lg">
+                  <span>Celkom</span>
+                  <span>€{availability.totalPrice}</span>
+                </div>
+              </div>
             ) : null}
           </div>
         )}
@@ -322,17 +326,17 @@ export function BookingWidget({
         {/* Book Now Button */}
         <Button 
           onClick={handleBookNow}
-          disabled={!isValidBooking || isPricingLoading || isAvailabilityLoading}
+          disabled={!isValidBooking || isAvailabilityLoading}
           className="w-full"
           size="lg"
         >
-          {isPricingLoading || isAvailabilityLoading ? (
+          {isAvailabilityLoading ? (
             "Kontrolujem dostupnosť..."
           ) : !isDateRangeAvailable ? (
             "Vybrané dátumy nie sú dostupné"
-          ) : pricing ? (
+          ) : availability?.totalPrice ? (
             <>
-              Rezervovať za €{pricing.total}
+              Rezervovať za €{availability.totalPrice}
               <ArrowRight className="ml-2 h-4 w-4" />
             </>
           ) : (
@@ -437,62 +441,9 @@ function GuestSelector({
   );
 }
 
-function PricingBreakdown({ pricing, nights }: { pricing: BookingPricing; nights: number }) {
-  return (
-    <div className="space-y-2">
-      <div className="flex justify-between">
-        <span>€{pricing.basePrice} × {nights} noc{nights > 1 ? 'í' : ''}</span>
-        <span>€{pricing.subtotal}</span>
-      </div>
+// PricingBreakdown function removed - now using Beds24 API pricing directly
 
-      {pricing.loyaltyDiscount > 0 && (
-        <div className="flex justify-between text-green-600">
-          <span>Loyalty zľava ({Math.round(pricing.loyaltyDiscountPercent * 100)}%)</span>
-          <span>-€{pricing.loyaltyDiscount}</span>
-        </div>
-      )}
-
-      {pricing.seasonalAdjustment > 0 && (
-        <div className="flex justify-between">
-          <span>Sezónny príplatok</span>
-          <span>€{pricing.seasonalAdjustment}</span>
-        </div>
-      )}
-
-      <div className="flex justify-between">
-        <span>Upratovací poplatok</span>
-        <span>€{pricing.cleaningFee}</span>
-      </div>
-
-      <div className="flex justify-between">
-        <span>Mestská daň</span>
-        <span>€{pricing.cityTax}</span>
-      </div>
-
-      <Separator />
-
-      <div className="flex justify-between font-semibold text-lg">
-        <span>Celkom</span>
-        <span>€{pricing.total}</span>
-      </div>
-    </div>
-  );
-}
-
-function LoyaltyBadge({ tier, discount }: { tier: LoyaltyTier; discount: number }) {
-  const tierColors = {
-    [LoyaltyTier.BRONZE]: "bg-amber-100 text-amber-800",
-    [LoyaltyTier.SILVER]: "bg-gray-100 text-gray-800", 
-    [LoyaltyTier.GOLD]: "bg-yellow-100 text-yellow-800"
-  };
-
-  return (
-    <Badge className={cn("flex items-center gap-1", tierColors[tier])}>
-      <Star className="h-3 w-3" />
-      {tier} -{Math.round(discount * 100)}%
-    </Badge>
-  );
-}
+// LoyaltyBadge function removed - now using Beds24 API pricing directly
 
 function PricingSkeleton() {
   return (
