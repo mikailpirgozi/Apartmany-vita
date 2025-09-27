@@ -69,13 +69,17 @@ class Beds24Service {
    */
   async getAvailability(request: AvailabilityRequest): Promise<AvailabilityResponse> {
     try {
-      // API V1 format
+      // API V1 format - Beds24 uses propKey as parameter
       const params = new URLSearchParams({
         propKey: this.config.apiKey,
-        roomId: request.roomId || '',
         startDate: request.startDate,
         endDate: request.endDate
       });
+
+      // Add roomId if provided
+      if (request.roomId) {
+        params.append('roomId', request.roomId);
+      }
 
       const response = await fetch(`${this.config.baseUrl}/getBookings.php?${params}`, {
         method: 'GET',

@@ -11,8 +11,8 @@ export async function GET(request: NextRequest) {
     
     console.log('Testing Beds24 API V1 with:', { apiKey, propId });
 
-    // Test 1: Basic API connection
-    const testUrl = `https://beds24.com/api/getProperties.php?propKey=${apiKey}`;
+    // Test 1: Basic API connection - Beds24 API V1 format
+    const testUrl = `https://beds24.com/api/getBookings.php?propKey=${apiKey}&startDate=2024-12-01&endDate=2024-12-07`;
     
     const response = await fetch(testUrl, {
       method: 'GET',
