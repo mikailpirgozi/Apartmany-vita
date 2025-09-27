@@ -81,7 +81,7 @@ export async function sendBookingConfirmation(
       attachments: [
         {
           filename: `rezervacia-${booking.id}.pdf`,
-          content: await generateBookingPDF(booking)
+          content: await generateBookingPDF()
         }
       ]
     });

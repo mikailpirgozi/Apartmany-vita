@@ -17,7 +17,7 @@ export interface AutomationTrigger {
 
 export async function sendBookingConfirmationEmail(booking: Booking, user: User): Promise<boolean> {
   try {
-    const template = generateBookingConfirmationTemplate(booking, user)
+    const template = generateBookingConfirmationTemplate(booking)
     
     await resend.emails.send({
       from: 'Apartmány Vita <reservations@apartmanyvita.sk>',
@@ -41,7 +41,7 @@ export async function sendBookingConfirmationEmail(booking: Booking, user: User)
 
 export async function sendCheckInInstructionsEmail(booking: Booking, user: User): Promise<boolean> {
   try {
-    const template = generateCheckInInstructionsTemplate(booking, user)
+    const template = generateCheckInInstructionsTemplate(booking)
     
     await resend.emails.send({
       from: 'Apartmány Vita <info@apartmanyvita.sk>',
@@ -65,7 +65,7 @@ export async function sendCheckInInstructionsEmail(booking: Booking, user: User)
 
 export async function sendCheckOutFollowupEmail(booking: Booking, user: User): Promise<boolean> {
   try {
-    const template = generateCheckOutFollowupTemplate(booking, user)
+    const template = generateCheckOutFollowupTemplate()
     
     await resend.emails.send({
       from: 'Apartmány Vita <info@apartmanyvita.sk>',

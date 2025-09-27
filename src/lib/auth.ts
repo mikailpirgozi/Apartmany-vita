@@ -1,6 +1,7 @@
 import NextAuth from 'next-auth'
 import { getServerSession } from 'next-auth/next'
-import type { NextAuthOptions, Session } from 'next-auth'
+import type { Session, User } from 'next-auth'
+import type { JWT } from 'next-auth/jwt'
 import GoogleProvider from 'next-auth/providers/google'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import { PrismaAdapter } from '@auth/prisma-adapter'
@@ -13,7 +14,7 @@ const loginSchema = z.object({
   password: z.string().min(6)
 })
 
-export const authOptions: NextAuthOptions = {
+export const authOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     GoogleProvider({
@@ -64,16 +65,17 @@ export const authOptions: NextAuthOptions = {
   ],
   
   callbacks: {
-    jwt: async ({ token, user }: { token: any; user: any }) => {
+    jwt: async ({ token, user }: { token: JWT; user?: User }) => {
       if (user) {
         token.id = user.id
       }
       return token
     },
     
-    session: async ({ session, token }: { session: any; token: any }) => {
+    session: async ({ session, token }: { session: Session; token: JWT }) => {
       if (token && session.user) {
-        session.user.id = token.id as string
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (session.user as any).id = token.id as string
       }
       return session
     }
@@ -85,13 +87,16 @@ export const authOptions: NextAuthOptions = {
   },
   
   session: {
-    strategy: 'jwt'
+    strategy: 'jwt' as const
   },
   
   secret: process.env.NEXTAUTH_SECRET
 }
 
 export const auth = async (): Promise<Session | null> => {
-  return await getServerSession(authOptions)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return await getServerSession(authOptions as any)
 }
-export default NextAuth(authOptions)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const NextAuthHandler = NextAuth as any
+export default NextAuthHandler(authOptions)

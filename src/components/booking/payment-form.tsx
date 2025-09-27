@@ -171,7 +171,9 @@ export function PaymentForm(props: PaymentFormProps) {
 function PaymentElementForm({
   guestInfo,
   onPaymentSuccess,
-  onBack
+  onBack,
+  totalPrice,
+  bookingData
 }: PaymentElementFormProps) {
   const stripe = useStripe();
   const elements = useElements();
@@ -205,7 +207,7 @@ function PaymentElementForm({
         setPaymentError(error.message || 'Platba sa nepodarila');
       } else if (paymentIntent?.status === 'requires_capture') {
         // Payment authorized successfully
-        const bookingId = paymentIntent?.metadata?.bookingId;
+        const bookingId = (paymentIntent as any)?.metadata?.bookingId;
         if (bookingId) {
           onPaymentSuccess(bookingId);
         } else {

@@ -27,7 +27,7 @@ export interface PaymentIntentData {
 export interface BookingPaymentResult {
   paymentIntentId: string;
   clientSecret: string;
-  status: 'requires_payment_method' | 'requires_confirmation' | 'requires_action' | 'processing' | 'requires_capture' | 'canceled' | 'succeeded';
+  status: string;
 }
 
 /**
@@ -62,7 +62,7 @@ export async function createBookingPaymentIntent(data: PaymentIntentData): Promi
     return {
       paymentIntentId: paymentIntent.id,
       clientSecret: paymentIntent.client_secret!,
-      status: paymentIntent.status as string
+      status: paymentIntent.status
     };
   } catch (error) {
     console.error('Error creating payment intent:', error);

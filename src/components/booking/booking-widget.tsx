@@ -61,7 +61,7 @@ export function BookingWidget({
 
   // Calculate pricing when dates and guests are selected
   const { data: pricing, isLoading: isPricingLoading, error: pricingError } = useQuery({
-    queryKey: ['booking-pricing', apartment.id, checkIn, checkOut, guests, children, session?.user?.id],
+    queryKey: ['booking-pricing', apartment.id, checkIn, checkOut, guests, children, (session?.user as any)?.id],
     queryFn: async () => {
       if (!checkIn || !checkOut) return null;
       
@@ -71,7 +71,7 @@ export function BookingWidget({
         checkOut,
         guests,
         children,
-        userId: session?.user?.id
+        userId: (session?.user as any)?.id
       });
     },
     enabled: !!(checkIn && checkOut && checkIn < checkOut),
