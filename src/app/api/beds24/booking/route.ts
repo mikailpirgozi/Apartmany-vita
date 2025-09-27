@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const {
-      apartment,
+      apartment: apartmentSlug,
       checkIn,
       checkOut,
       numAdult,
@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
     } = body;
 
     // Validate required fields
-    if (!apartment || !checkIn || !checkOut || !numAdult || !guestFirstName || !guestName || !guestEmail || !totalPrice) {
+    if (!apartmentSlug || !checkIn || !checkOut || !numAdult || !guestFirstName || !guestName || !guestEmail || !totalPrice) {
       return NextResponse.json({
         success: false,
         message: 'Missing required fields'
@@ -45,17 +45,17 @@ export async function POST(request: NextRequest) {
       }
     };
 
-    const apartment = apartmentMapping[apartment];
-    if (!apartment) {
+    const apartmentData = apartmentMapping[apartmentSlug];
+    if (!apartmentData) {
       return NextResponse.json({
         success: false,
-        message: `Unknown apartment: ${apartment}`
+        message: `Unknown apartment: ${apartmentSlug}`
       }, { status: 400 });
     }
 
     const booking = await beds24Service.createBooking({
-      propId: apartment.propId,
-      roomId: apartment.roomId,
+      propId: apartmentData.propId,
+      roomId: apartmentData.roomId,
       checkIn,
       checkOut,
       numAdult,

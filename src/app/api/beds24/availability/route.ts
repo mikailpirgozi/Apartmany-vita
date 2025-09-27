@@ -8,11 +8,11 @@ import { beds24Service } from '@/services/beds24';
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const apartment = searchParams.get('apartment');
+    const apartmentSlug = searchParams.get('apartment');
     const startDate = searchParams.get('startDate');
     const endDate = searchParams.get('endDate');
 
-    if (!apartment || !startDate || !endDate) {
+    if (!apartmentSlug || !startDate || !endDate) {
       return NextResponse.json({
         success: false,
         message: 'Missing required parameters: apartment, startDate, endDate'
@@ -35,17 +35,17 @@ export async function GET(request: NextRequest) {
       }
     };
 
-    const apartment = apartmentMapping[apartment];
-    if (!apartment) {
+    const apartmentData = apartmentMapping[apartmentSlug];
+    if (!apartmentData) {
       return NextResponse.json({
         success: false,
-        message: `Unknown apartment: ${apartment}`
+        message: `Unknown apartment: ${apartmentSlug}`
       }, { status: 400 });
     }
 
     const availability = await beds24Service.getAvailability({
-      propId: apartment.propId,
-      roomId: apartment.roomId,
+      propId: apartmentData.propId,
+      roomId: apartmentData.roomId,
       startDate,
       endDate
     });
@@ -53,9 +53,9 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       data: availability,
-      apartment,
-      propId: apartment.propId,
-      roomId: apartment.roomId,
+      apartment: apartmentSlug,
+      propId: apartmentData.propId,
+      roomId: apartmentData.roomId,
       startDate,
       endDate
     });
