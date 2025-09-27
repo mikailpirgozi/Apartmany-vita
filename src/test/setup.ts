@@ -20,7 +20,7 @@ vi.mock('next/navigation', () => ({
 // Mock Next.js image
 vi.mock('next/image', () => ({
   default: (props: any) => {
-    // eslint-disable-next-line @next/next/no-img-element
+     
     return React.createElement('img', props)
   },
 }))

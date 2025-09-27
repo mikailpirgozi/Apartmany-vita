@@ -17,7 +17,7 @@ interface ToastState {
 let toastCounter = 0
 
 const toastListeners: Array<(toasts: Toast[]) => void> = []
-let toastState: ToastState = { toasts: [] }
+const toastState: ToastState = { toasts: [] }
 
 const addToast = (toast: Omit<Toast, 'id'>) => {
   const id = (++toastCounter).toString()

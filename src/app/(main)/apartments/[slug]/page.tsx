@@ -8,7 +8,6 @@ import { Metadata } from 'next'
 
 interface ApartmentPageProps {
   params: Promise<{ slug: string }>
-  searchParams: Promise<{ checkIn?: string; checkOut?: string; guests?: string }>
 }
 
 export async function generateMetadata({ params }: ApartmentPageProps): Promise<Metadata> {
@@ -45,7 +44,7 @@ export async function generateMetadata({ params }: ApartmentPageProps): Promise<
   }
 }
 
-export default async function ApartmentPage({ params, searchParams }: ApartmentPageProps) {
+export default async function ApartmentPage({ params }: ApartmentPageProps) {
   const { slug } = await params
   const apartment = await getApartmentBySlug(slug)
   

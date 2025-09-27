@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import { format, addDays, differenceInDays } from "date-fns";
-import { sk } from "date-fns/locale";
 import { Calendar, Users, Minus, Plus, Star, Info, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -38,11 +37,11 @@ interface BookingData {
 
 interface GuestSelectorProps {
   adults: number;
-  children: number;
   maxGuests: number;
   maxChildren: number;
   onAdultsChange: (count: number) => void;
   onChildrenChange: (count: number) => void;
+  children: React.ReactNode;
 }
 
 export function BookingWidget({
@@ -201,12 +200,13 @@ export function BookingWidget({
           <Label className="text-sm font-medium">Hostia</Label>
           <GuestSelector
             adults={guests}
-            children={children}
             maxGuests={apartment.maxGuests}
             maxChildren={apartment.maxChildren}
             onAdultsChange={setGuests}
             onChildrenChange={setChildren}
-          />
+          >
+            {children}
+          </GuestSelector>
         </div>
 
         {/* Pricing Display */}
@@ -282,11 +282,11 @@ export function BookingWidget({
 
 function GuestSelector({
   adults,
-  children,
   maxGuests,
   maxChildren,
   onAdultsChange,
-  onChildrenChange
+  onChildrenChange,
+  children: childrenCount
 }: GuestSelectorProps) {
   return (
     <Popover>
@@ -296,7 +296,7 @@ function GuestSelector({
             <Users className="mr-2 h-4 w-4" />
             <span>
               {adults} dospalý{adults !== 1 ? 'ch' : ''}
-              {children > 0 && `, ${children} dieťa${children > 1 ? 'ť' : ''}`}
+              {Number(childrenCount) > 0 && `, ${childrenCount} dieťa${Number(childrenCount) > 1 ? 'ť' : ''}`}
             </span>
           </div>
         </Button>
@@ -322,7 +322,7 @@ function GuestSelector({
                 variant="outline"
                 size="sm"
                 onClick={() => onAdultsChange(adults + 1)}
-                disabled={adults + children >= maxGuests}
+                disabled={adults + Number(childrenCount) >= maxGuests}
               >
                 <Plus className="h-4 w-4" />
               </Button>
@@ -338,17 +338,17 @@ function GuestSelector({
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => onChildrenChange(Math.max(0, children - 1))}
-                disabled={children <= 0}
+                onClick={() => onChildrenChange(Math.max(0, Number(childrenCount) - 1))}
+                disabled={Number(childrenCount) <= 0}
               >
                 <Minus className="h-4 w-4" />
               </Button>
-              <span className="w-8 text-center">{children}</span>
+              <span className="w-8 text-center">{childrenCount}</span>
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => onChildrenChange(children + 1)}
-                disabled={children >= maxChildren || adults + children >= maxGuests}
+                onClick={() => onChildrenChange(Number(childrenCount) + 1)}
+                disabled={Number(childrenCount) >= maxChildren || adults + Number(childrenCount) >= maxGuests}
               >
                 <Plus className="h-4 w-4" />
               </Button>

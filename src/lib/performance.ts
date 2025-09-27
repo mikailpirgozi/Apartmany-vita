@@ -89,7 +89,7 @@ export function measureWebVitals() {
   
   // Measure CLS (Cumulative Layout Shift)
   let clsValue = 0
-  let clsEntries: LayoutShift[] = []
+  const clsEntries: LayoutShift[] = []
   
   const observer = new PerformanceObserver((list) => {
     for (const entry of list.getEntries()) {
