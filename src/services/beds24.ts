@@ -121,13 +121,14 @@ class Beds24Service {
    */
   async createBooking(bookingData: BookingData): Promise<Beds24Booking> {
     try {
+      // API V2 expects array format for bookings
       const response = await fetch(`${this.config.baseUrl}/bookings`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'token': this.config.longLifeToken
         },
-        body: JSON.stringify({
+        body: JSON.stringify([{
           propId: bookingData.propId,
           roomId: bookingData.roomId,
           arrival: bookingData.checkIn,
@@ -141,7 +142,7 @@ class Beds24Service {
           price: bookingData.totalPrice,
           status: 1, // New booking
           apiReference: bookingData.bookingId
-        })
+        }])
       });
 
       if (!response.ok) {
@@ -151,8 +152,11 @@ class Beds24Service {
 
       const data = await response.json();
       
+      // Handle array response
+      const booking = Array.isArray(data) ? data[0] : data;
+      
       return {
-        bookId: data.bookId,
+        bookId: booking.bookId,
         status: 'new',
         checkIn: bookingData.checkIn,
         checkOut: bookingData.checkOut,
