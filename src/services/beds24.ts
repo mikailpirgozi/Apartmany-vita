@@ -4,7 +4,7 @@
  */
 
 export interface Beds24Config {
-  apiKey: string;
+  longLifeToken: string;
   baseUrl: string;
   propId: string;
 }
@@ -54,39 +54,28 @@ class Beds24Service {
 
   constructor() {
     this.config = {
-      apiKey: process.env.BEDS24_API_KEY || 'AbDalfEtyekmentOsVeb',
-      baseUrl: process.env.BEDS24_BASE_URL || 'https://beds24.com/api',
+      longLifeToken: process.env.BEDS24_LONG_LIFE_TOKEN || 'PhvqHilqz7fKf5HT8Rq3Ks0zCLwrBOlyBfZ/BqyEKt8HfdfJYLRudz2/v2+WoZZdl7DPIyaPsd6nSGVzedFdVhYoFQn/oZTrX9xVrajrkwKBInhZ9fA9VXIRYEagRsVb6oqylGGn+PtnE+qDhNFAvA==',
+      baseUrl: process.env.BEDS24_BASE_URL || 'https://api.beds24.com/v2',
       propId: process.env.BEDS24_PROP_ID || '357931'
     };
 
-    if (!this.config.apiKey) {
-      throw new Error('BEDS24_API_KEY is required');
+    if (!this.config.longLifeToken) {
+      throw new Error('BEDS24_LONG_LIFE_TOKEN is required');
     }
   }
 
   /**
-   * Get availability for specific date range - API V1
+   * Get availability for specific date range - API V2
    */
   async getAvailability(request: AvailabilityRequest): Promise<AvailabilityResponse> {
     try {
-      // API V1 JSON format - Beds24 uses JSON POST requests
-      const requestBody = {
-        apiKey: this.config.apiKey,
-        startDate: request.startDate,
-        endDate: request.endDate
-      };
-
-      // Add roomId if provided
-      if (request.roomId) {
-        requestBody.roomId = request.roomId;
-      }
-
-      const response = await fetch(`${this.config.baseUrl}/json/getBookings`, {
-        method: 'POST',
+      // API V2 format with long-life token
+      const response = await fetch(`${this.config.baseUrl}/bookings`, {
+        method: 'GET',
         headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(requestBody)
+          'Content-Type': 'application/json',
+          'token': this.config.longLifeToken
+        }
       });
 
       if (!response.ok) {
@@ -95,7 +84,7 @@ class Beds24Service {
 
       const data = await response.json();
       
-      return this.parseAvailabilityResponse(data);
+      return this.parseAvailabilityResponseV2(data, request);
     } catch (error) {
       console.error('Error fetching availability from Beds24:', error);
       throw new Error('Failed to fetch availability data');
@@ -103,27 +92,16 @@ class Beds24Service {
   }
 
   /**
-   * Get dynamic room rates for date range
+   * Get dynamic room rates for date range - API V2
    */
   async getRoomRates(propId: string, roomId: string, startDate: string, endDate: string): Promise<Record<string, number>> {
     try {
       const response = await fetch(`${this.config.baseUrl}/rates`, {
-        method: 'POST',
+        method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          'token': this.config.apiKey
-        },
-        body: JSON.stringify({
-          authentication: {
-            apiKey: this.config.apiKey,
-            propKey: propId
-          },
-          request: {
-            startDate,
-            endDate,
-            roomId
-          }
-        })
+          'token': this.config.longLifeToken
+        }
       });
 
       if (!response.ok) {
@@ -131,7 +109,7 @@ class Beds24Service {
       }
 
       const data = await response.json();
-      return this.parseRatesResponse(data);
+      return this.parseRatesResponseV2(data, propId, roomId);
     } catch (error) {
       console.error('Error fetching rates from Beds24:', error);
       return {};
@@ -139,7 +117,7 @@ class Beds24Service {
   }
 
   /**
-   * Create new booking in Beds24
+   * Create new booking in Beds24 - API V2
    */
   async createBooking(bookingData: BookingData): Promise<Beds24Booking> {
     try {
@@ -147,27 +125,22 @@ class Beds24Service {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'token': this.config.apiKey
+          'token': this.config.longLifeToken
         },
         body: JSON.stringify({
-          authentication: {
-            apiKey: this.config.apiKey,
-            propKey: bookingData.propId
-          },
-          booking: {
-            roomId: bookingData.roomId,
-            arrival: bookingData.checkIn,
-            departure: bookingData.checkOut,
-            numAdult: bookingData.numAdult,
-            numChild: bookingData.numChild,
-            guestFirstName: bookingData.guestFirstName,
-            guestName: bookingData.guestName,
-            guestEmail: bookingData.guestEmail,
-            guestPhone: bookingData.guestPhone,
-            price: bookingData.totalPrice,
-            status: 1, // New booking
-            apiReference: bookingData.bookingId
-          }
+          propId: bookingData.propId,
+          roomId: bookingData.roomId,
+          arrival: bookingData.checkIn,
+          departure: bookingData.checkOut,
+          numAdult: bookingData.numAdult,
+          numChild: bookingData.numChild,
+          guestFirstName: bookingData.guestFirstName,
+          guestName: bookingData.guestName,
+          guestEmail: bookingData.guestEmail,
+          guestPhone: bookingData.guestPhone,
+          price: bookingData.totalPrice,
+          status: 1, // New booking
+          apiReference: bookingData.bookingId
         })
       });
 
@@ -194,7 +167,7 @@ class Beds24Service {
   }
 
   /**
-   * Update booking status in Beds24
+   * Update booking status in Beds24 - API V2
    */
   async updateBookingStatus(bookId: string, status: 'confirmed' | 'cancelled'): Promise<void> {
     try {
@@ -204,15 +177,10 @@ class Beds24Service {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'token': this.config.apiKey
+          'token': this.config.longLifeToken
         },
         body: JSON.stringify({
-          authentication: {
-            apiKey: this.config.apiKey
-          },
-          booking: {
-            status: statusCode
-          }
+          status: statusCode
         })
       });
 
@@ -226,14 +194,15 @@ class Beds24Service {
   }
 
   /**
-   * Get booking details from Beds24
+   * Get booking details from Beds24 - API V2
    */
   async getBooking(bookId: string): Promise<Beds24Booking | null> {
     try {
       const response = await fetch(`${this.config.baseUrl}/bookings/${bookId}`, {
         method: 'GET',
         headers: {
-          'token': this.config.apiKey
+          'Content-Type': 'application/json',
+          'token': this.config.longLifeToken
         }
       });
 
@@ -245,7 +214,7 @@ class Beds24Service {
       }
 
       const data = await response.json();
-      return this.parseBookingResponse(data);
+      return this.parseBookingResponseV2(data);
     } catch (error) {
       console.error('Error fetching booking from Beds24:', error);
       throw error;
@@ -253,55 +222,70 @@ class Beds24Service {
   }
 
   /**
-   * Parse availability response from Beds24
+   * Parse availability response from Beds24 V2
    */
-  private parseAvailabilityResponse(data: unknown): AvailabilityResponse {
+  private parseAvailabilityResponseV2(data: unknown, request: AvailabilityRequest): AvailabilityResponse {
     const available: string[] = [];
     const booked: string[] = [];
     const prices: Record<string, number> = {};
 
-    // Parse Beds24 response format
-    if (data && typeof data === 'object' && 'data' in data && Array.isArray((data as { data: unknown[] }).data)) {
-      (data as { data: unknown[] }).data.forEach((dayData: unknown) => {
-        if (dayData && typeof dayData === 'object' && 'date' in dayData) {
-          const dayDataObj = dayData as { date: string; avail: number; price?: string };
-          const date = dayDataObj.date;
-          const isAvailable = dayDataObj.avail > 0;
-          
-          if (isAvailable) {
-            available.push(date);
-            if (dayDataObj.price) {
-              prices[date] = parseFloat(dayDataObj.price);
-            }
-          } else {
-            booked.push(date);
+    // Parse Beds24 V2 response format
+    if (data && typeof data === 'object' && 'bookings' in data && Array.isArray((data as { bookings: unknown[] }).bookings)) {
+      const bookings = (data as { bookings: unknown[] }).bookings;
+      
+      // Generate date range
+      const startDate = new Date(request.startDate);
+      const endDate = new Date(request.endDate);
+      
+      for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+        const dateStr = d.toISOString().split('T')[0];
+        
+        // Check if date is booked
+        const isBooked = bookings.some((booking: unknown) => {
+          if (booking && typeof booking === 'object' && 'arrival' in booking && 'departure' in booking) {
+            const bookingObj = booking as { arrival: string; departure: string };
+            const arrival = new Date(bookingObj.arrival);
+            const departure = new Date(bookingObj.departure);
+            return d >= arrival && d < departure;
           }
+          return false;
+        });
+        
+        if (isBooked) {
+          booked.push(dateStr);
+        } else {
+          available.push(dateStr);
         }
-      });
+      }
     }
 
-    const dataObj = data as { minStay?: number; maxStay?: number };
     return {
       available,
       booked,
       prices,
-      minStay: dataObj.minStay || 1,
-      maxStay: dataObj.maxStay || 30
+      minStay: 1,
+      maxStay: 30
     };
   }
 
   /**
-   * Parse rates response from Beds24
+   * Parse rates response from Beds24 V2
    */
-  private parseRatesResponse(data: unknown): Record<string, number> {
+  private parseRatesResponseV2(data: unknown, propId: string, roomId: string): Record<string, number> {
     const rates: Record<string, number> = {};
 
-    if (data && typeof data === 'object' && 'data' in data && Array.isArray((data as { data: unknown[] }).data)) {
-      (data as { data: unknown[] }).data.forEach((rateData: unknown) => {
+    // Parse Beds24 V2 rates response format
+    if (data && typeof data === 'object' && 'rates' in data && Array.isArray((data as { rates: unknown[] }).rates)) {
+      (data as { rates: unknown[] }).rates.forEach((rateData: unknown) => {
         if (rateData && typeof rateData === 'object' && 'date' in rateData && 'price' in rateData) {
-          const rateDataObj = rateData as { date: string; price: string };
+          const rateDataObj = rateData as { date: string; price: number; propId?: string; roomId?: string };
+          
+          // Filter by property and room if specified
+          if (propId && rateDataObj.propId && rateDataObj.propId !== propId) return;
+          if (roomId && rateDataObj.roomId && rateDataObj.roomId !== roomId) return;
+          
           if (rateDataObj.date && rateDataObj.price) {
-            rates[rateDataObj.date] = parseFloat(rateDataObj.price);
+            rates[rateDataObj.date] = rateDataObj.price;
           }
         }
       });
@@ -311,9 +295,9 @@ class Beds24Service {
   }
 
   /**
-   * Parse booking response from Beds24
+   * Parse booking response from Beds24 V2
    */
-  private parseBookingResponse(data: unknown): Beds24Booking {
+  private parseBookingResponseV2(data: unknown): Beds24Booking {
     const statusMap: Record<number, 'new' | 'confirmed' | 'cancelled'> = {
       1: 'new',
       2: 'confirmed',
@@ -325,7 +309,7 @@ class Beds24Service {
       status: number;
       arrival: string;
       departure: string;
-      price?: string;
+      price?: number;
       guestFirstName?: string;
       guestName?: string;
       guestEmail?: string;
@@ -336,7 +320,7 @@ class Beds24Service {
       status: statusMap[dataObj.status] || 'new',
       checkIn: dataObj.arrival,
       checkOut: dataObj.departure,
-      totalPrice: parseFloat(dataObj.price || '0'),
+      totalPrice: dataObj.price || 0,
       guestName: `${dataObj.guestFirstName || ''} ${dataObj.guestName || ''}`.trim(),
       guestEmail: dataObj.guestEmail || ''
     };
