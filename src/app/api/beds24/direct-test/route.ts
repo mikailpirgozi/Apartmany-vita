@@ -1,91 +1,54 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 /**
- * Direct Beds24 API test - simulates exactly what our service does
+ * Direct Beds24 API V1 test endpoint
  * GET /api/beds24/direct-test
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const apiKey = process.env.BEDS24_API_KEY || 'VitaAPI2024mikipiki';
-    const baseUrl = process.env.BEDS24_BASE_URL || 'https://beds24.com/api/v2';
-    const propId = process.env.BEDS24_PROP_ID || '161445';
+    const apiKey = process.env.BEDS24_API_KEY || 'AbDalfEtyekmentOsVeb';
+    const propId = process.env.BEDS24_PROP_ID || '357931';
+    
+    console.log('Testing Beds24 API V1 with:', { apiKey, propId });
 
-    console.log('Direct Beds24 API test with:', { apiKey, baseUrl, propId });
-
-    // Test 1: Basic properties endpoint
-    const propertiesResponse = await fetch(`${baseUrl}/properties`, {
+    // Test 1: Basic API connection
+    const testUrl = `https://beds24.com/api/getProperties.php?propKey=${apiKey}`;
+    
+    const response = await fetch(testUrl, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'token': apiKey
+        'User-Agent': 'ApartmanyVita/1.0'
       }
     });
 
-    console.log('Properties response status:', propertiesResponse.status);
-
-    if (!propertiesResponse.ok) {
-      const errorText = await propertiesResponse.text();
-      console.log('Properties error response:', errorText);
-      
-      return NextResponse.json({
-        success: false,
-        message: 'Direct API test failed',
-        error: `HTTP ${propertiesResponse.status}: ${propertiesResponse.statusText}`,
-        details: errorText,
-        testData: {
-          apiKey: apiKey.substring(0, 10) + '...',
-          baseUrl,
-          propId
-        }
-      });
-    }
-
-    const propertiesData = await propertiesResponse.json();
-    console.log('Properties data received:', propertiesData);
-
-    // Test 2: Specific property access
-    const propertyResponse = await fetch(`${baseUrl}/properties/${propId}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'token': apiKey
-      }
-    });
-
-    console.log('Property response status:', propertyResponse.status);
-
-    let propertyData = null;
-    if (propertyResponse.ok) {
-      propertyData = await propertyResponse.json();
-      console.log('Property data received:', propertyData);
-    }
-
+    const responseText = await response.text();
+    
     return NextResponse.json({
       success: true,
-      message: 'Direct API test successful',
-      data: {
-        properties: propertiesData,
-        property: propertyData
+      message: 'Beds24 API V1 direct test completed',
+      test: {
+        url: testUrl,
+        status: response.status,
+        statusText: response.statusText,
+        headers: Object.fromEntries(response.headers.entries()),
+        response: responseText
       },
-      testData: {
-        apiKey: apiKey.substring(0, 10) + '...',
-        baseUrl,
-        propId
-      }
+      config: {
+        apiKey,
+        propId,
+        baseUrl: 'https://beds24.com/api'
+      },
+      timestamp: new Date().toISOString()
     });
-
   } catch (error) {
-    console.error('Direct Beds24 API test error:', error);
+    console.error('Beds24 direct test error:', error);
     
     return NextResponse.json({
       success: false,
-      message: 'Direct API test failed',
+      message: 'Beds24 API V1 direct test failed',
       error: error instanceof Error ? error.message : 'Unknown error',
-      testData: {
-        apiKey: (process.env.BEDS24_API_KEY || 'VitaAPI2024mikipiki').substring(0, 10) + '...',
-        baseUrl: process.env.BEDS24_BASE_URL || 'https://beds24.com/api/v2',
-        propId: process.env.BEDS24_PROP_ID || '161445'
-      }
+      timestamp: new Date().toISOString()
     }, { status: 500 });
   }
 }
