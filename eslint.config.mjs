@@ -18,7 +18,16 @@ const eslintConfig = [
       "out/**",
       "build/**",
       "next-env.d.ts",
+      ".github/**",
     ],
+  },
+  {
+    files: [".github/**/*.yml", ".github/**/*.yaml"],
+    rules: {
+      "github/array-foreach": "off",
+      "github/no-then": "off",
+      "github/authenticity-token": "off",
+    },
   },
 ];
 

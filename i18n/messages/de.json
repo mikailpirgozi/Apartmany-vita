@@ -1,0 +1,161 @@
+{
+  "navigation": {
+    "home": "Startseite",
+    "apartments": "Apartments",
+    "about": "Über uns",
+    "contact": "Kontakt",
+    "account": "Mein Konto",
+    "signin": "Anmelden",
+    "signup": "Registrieren",
+    "signout": "Abmelden"
+  },
+  "hero": {
+    "title": "Luxus-Apartments im Herzen von Trenčín",
+    "subtitle": "Erleben Sie Komfort und Eleganz am historischen Štúr-Platz",
+    "cta": {
+      "book": "Jetzt buchen",
+      "explore": "Apartments erkunden"
+    }
+  },
+  "search": {
+    "checkin": "Anreise",
+    "checkout": "Abreise", 
+    "guests": "Gäste",
+    "adults": "Erwachsene",
+    "children": "Kinder",
+    "searchButton": "Apartments suchen",
+    "filters": "Filter",
+    "priceRange": "Preisspanne",
+    "size": "Größe",
+    "floor": "Stockwerk",
+    "amenities": "Ausstattung"
+  },
+  "apartment": {
+    "details": "Apartment-Details",
+    "size": "Größe",
+    "maxGuests": "Max. Gäste",
+    "maxChildren": "Max. Kinder", 
+    "floor": "Stockwerk",
+    "amenities": "Ausstattung",
+    "gallery": "Fotogalerie",
+    "booking": "Buchung",
+    "pricePerNight": "/Nacht",
+    "bookNow": "Jetzt buchen",
+    "available": "Verfügbar",
+    "booked": "Gebucht"
+  },
+  "booking": {
+    "title": "Apartment-Buchung",
+    "steps": {
+      "details": "Buchungsdetails",
+      "guestInfo": "Gast-Informationen", 
+      "extras": "Extra-Services",
+      "payment": "Zahlung",
+      "confirmation": "Bestätigung"
+    },
+    "guestInfo": {
+      "firstName": "Vorname",
+      "lastName": "Nachname",
+      "email": "E-Mail",
+      "phone": "Telefon",
+      "specialRequests": "Besondere Wünsche"
+    },
+    "pricing": {
+      "basePrice": "Grundpreis",
+      "discount": "Rabatt",
+      "total": "Gesamt",
+      "nights": "Nächte"
+    },
+    "payment": {
+      "cardNumber": "Kartennummer",
+      "expiryDate": "Gültig bis",
+      "cvc": "CVC",
+      "payButton": "Jetzt zahlen"
+    }
+  },
+  "features": {
+    "location": {
+      "title": "Perfekte Lage",
+      "description": "Im Herzen der historischen Altstadt von Trenčín, am Štúr-Platz"
+    },
+    "comfort": {
+      "title": "Moderne Ausstattung", 
+      "description": "Klimaanlage, WLAN, voll ausgestattete Küche und alles was Sie brauchen"
+    },
+    "access": {
+      "title": "24/7 Zugang",
+      "description": "Flexibler Check-in und Check-out nach Ihren Bedürfnissen"
+    }
+  },
+  "footer": {
+    "description": "Luxus-Apartments im Zentrum von Trenčín mit Blick auf den historischen Platz.",
+    "quickLinks": "Schnelle Links",
+    "contact": "Kontakt",
+    "address": "Štúrovo námestie 132/16, 911 01 Trenčín",
+    "phone": "Telefon",
+    "email": "E-Mail",
+    "followUs": "Folgen Sie uns",
+    "newsletter": {
+      "title": "Newsletter-Anmeldung",
+      "description": "Erhalten Sie exklusive Angebote und Event-Informationen",
+      "placeholder": "ihre@email.de",
+      "subscribe": "Abonnieren"
+    },
+    "rights": "Alle Rechte vorbehalten"
+  },
+  "auth": {
+    "signin": {
+      "title": "Anmelden",
+      "subtitle": "Melden Sie sich an und erhalten Sie 5% Rabatt auf alle Buchungen",
+      "email": "E-Mail",
+      "password": "Passwort",
+      "signinButton": "Anmelden",
+      "googleSignin": "Mit Google anmelden",
+      "noAccount": "Haben Sie kein Konto?",
+      "register": "Registrieren"
+    },
+    "signup": {
+      "title": "Registrieren",
+      "subtitle": "Erstellen Sie ein Konto und erhalten Sie Treue-Vorteile",
+      "name": "Vollständiger Name",
+      "email": "E-Mail",
+      "password": "Passwort",
+      "confirmPassword": "Passwort bestätigen",
+      "signupButton": "Registrieren",
+      "haveAccount": "Haben Sie bereits ein Konto?",
+      "signin": "Anmelden"
+    }
+  },
+  "account": {
+    "dashboard": {
+      "title": "Mein Konto",
+      "subtitle": "Verwalten Sie Ihre Buchungen und Ihr Profil",
+      "stats": {
+        "totalBookings": "Gesamte Buchungen",
+        "totalSavings": "Gesamte Ersparnisse", 
+        "loyaltyStatus": "Treue-Status"
+      },
+      "recentBookings": "Aktuelle Buchungen"
+    },
+    "profile": {
+      "title": "Persönliche Informationen",
+      "name": "Vollständiger Name",
+      "email": "E-Mail",
+      "phone": "Telefon",
+      "saveChanges": "Änderungen speichern"
+    }
+  },
+  "common": {
+    "loading": "Lädt...",
+    "error": "Ein Fehler ist aufgetreten",
+    "tryAgain": "Erneut versuchen",
+    "cancel": "Abbrechen",
+    "continue": "Weiter",
+    "back": "Zurück",
+    "next": "Weiter",
+    "save": "Speichern",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "confirm": "Bestätigen"
+  }
+}

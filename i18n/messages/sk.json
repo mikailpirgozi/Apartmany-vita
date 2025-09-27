@@ -1,0 +1,161 @@
+{
+  "navigation": {
+    "home": "Domov",
+    "apartments": "Apartmány",
+    "about": "O nás",
+    "contact": "Kontakt",
+    "account": "Môj účet",
+    "signin": "Prihlásenie",
+    "signup": "Registrácia",
+    "signout": "Odhlásiť sa"
+  },
+  "hero": {
+    "title": "Luxusné apartmány v srdci Trenčína",
+    "subtitle": "Zažite pohodlie a eleganciu na historickom Štúrovom námestí",
+    "cta": {
+      "book": "Rezervovať teraz",
+      "explore": "Preskúmať apartmány"
+    }
+  },
+  "search": {
+    "checkin": "Príchod",
+    "checkout": "Odchod", 
+    "guests": "Hostia",
+    "adults": "Dospelí",
+    "children": "Deti",
+    "searchButton": "Vyhľadať apartmány",
+    "filters": "Filtre",
+    "priceRange": "Cenové rozpätie",
+    "size": "Veľkosť",
+    "floor": "Poschodie",
+    "amenities": "Vybavenie"
+  },
+  "apartment": {
+    "details": "Detaily apartmánu",
+    "size": "Rozloha",
+    "maxGuests": "Max hostí",
+    "maxChildren": "Max detí", 
+    "floor": "Poschodie",
+    "amenities": "Vybavenie",
+    "gallery": "Fotogaléria",
+    "booking": "Rezervácia",
+    "pricePerNight": "/noc",
+    "bookNow": "Rezervovať teraz",
+    "available": "Dostupné",
+    "booked": "Rezervované"
+  },
+  "booking": {
+    "title": "Rezervácia apartmánu",
+    "steps": {
+      "details": "Detaily rezervácie",
+      "guestInfo": "Informácie o hosťovi", 
+      "extras": "Extra služby",
+      "payment": "Platba",
+      "confirmation": "Potvrdenie"
+    },
+    "guestInfo": {
+      "firstName": "Meno",
+      "lastName": "Priezvisko",
+      "email": "Email",
+      "phone": "Telefón",
+      "specialRequests": "Špeciálne požiadavky"
+    },
+    "pricing": {
+      "basePrice": "Základná cena",
+      "discount": "Zľava",
+      "total": "Celkom",
+      "nights": "nocí"
+    },
+    "payment": {
+      "cardNumber": "Číslo karty",
+      "expiryDate": "Platnosť do",
+      "cvc": "CVC",
+      "payButton": "Zaplatiť"
+    }
+  },
+  "features": {
+    "location": {
+      "title": "Ideálna poloha",
+      "description": "V srdci historického centra Trenčína, na Štúrovom námestí"
+    },
+    "comfort": {
+      "title": "Moderné vybavenie", 
+      "description": "Klimatizácia, WiFi, plne vybavená kuchyňa a všetko potrebné"
+    },
+    "access": {
+      "title": "24/7 prístup",
+      "description": "Flexibilný check-in a check-out podľa vašich potrieb"
+    }
+  },
+  "footer": {
+    "description": "Luxusné apartmány v centre Trenčína s výhľadom na historické námestie.",
+    "quickLinks": "Rýchle odkazy",
+    "contact": "Kontakt",
+    "address": "Štúrovo námestie 132/16, 911 01 Trenčín",
+    "phone": "Telefón",
+    "email": "Email",
+    "followUs": "Sledujte nás",
+    "newsletter": {
+      "title": "Prihlásenie k odberu",
+      "description": "Dostávajte exkluzívne ponuky a informácie o akciách",
+      "placeholder": "váš@email.sk",
+      "subscribe": "Prihlásiť"
+    },
+    "rights": "Všetky práva vyhradené"
+  },
+  "auth": {
+    "signin": {
+      "title": "Prihlásenie",
+      "subtitle": "Prihláste sa a získajte 5% zľavu na všetky rezervácie",
+      "email": "Email",
+      "password": "Heslo",
+      "signinButton": "Prihlásiť sa",
+      "googleSignin": "Prihlásenie cez Google",
+      "noAccount": "Nemáte účet?",
+      "register": "Zaregistrujte sa"
+    },
+    "signup": {
+      "title": "Registrácia",
+      "subtitle": "Vytvorte si účet a získajte výhody verného zákazníka",
+      "name": "Meno a priezvisko",
+      "email": "Email",
+      "password": "Heslo",
+      "confirmPassword": "Potvrdiť heslo",
+      "signupButton": "Zaregistrovať sa",
+      "haveAccount": "Už máte účet?",
+      "signin": "Prihláste sa"
+    }
+  },
+  "account": {
+    "dashboard": {
+      "title": "Môj účet",
+      "subtitle": "Spravujte svoje rezervácie a profil",
+      "stats": {
+        "totalBookings": "Celkom rezervácií",
+        "totalSavings": "Ušetrené na zľavách", 
+        "loyaltyStatus": "Loyalty status"
+      },
+      "recentBookings": "Nedávne rezervácie"
+    },
+    "profile": {
+      "title": "Osobné informácie",
+      "name": "Meno a priezvisko",
+      "email": "Email",
+      "phone": "Telefón",
+      "saveChanges": "Uložiť zmeny"
+    }
+  },
+  "common": {
+    "loading": "Načítavam...",
+    "error": "Nastala chyba",
+    "tryAgain": "Skúsiť znovu",
+    "cancel": "Zrušiť",
+    "continue": "Pokračovať",
+    "back": "Späť",
+    "next": "Ďalej",
+    "save": "Uložiť",
+    "edit": "Upraviť",
+    "delete": "Vymazať",
+    "confirm": "Potvrdiť"
+  }
+}

@@ -1,0 +1,161 @@
+{
+  "navigation": {
+    "home": "Home",
+    "apartments": "Apartments",
+    "about": "About",
+    "contact": "Contact",
+    "account": "My Account",
+    "signin": "Sign In",
+    "signup": "Sign Up",
+    "signout": "Sign Out"
+  },
+  "hero": {
+    "title": "Luxury Apartments in the Heart of Trenčín",
+    "subtitle": "Experience comfort and elegance at the historic Štúr Square",
+    "cta": {
+      "book": "Book Now",
+      "explore": "Explore Apartments"
+    }
+  },
+  "search": {
+    "checkin": "Check-in",
+    "checkout": "Check-out", 
+    "guests": "Guests",
+    "adults": "Adults",
+    "children": "Children",
+    "searchButton": "Search Apartments",
+    "filters": "Filters",
+    "priceRange": "Price Range",
+    "size": "Size",
+    "floor": "Floor",
+    "amenities": "Amenities"
+  },
+  "apartment": {
+    "details": "Apartment Details",
+    "size": "Size",
+    "maxGuests": "Max Guests",
+    "maxChildren": "Max Children", 
+    "floor": "Floor",
+    "amenities": "Amenities",
+    "gallery": "Photo Gallery",
+    "booking": "Booking",
+    "pricePerNight": "/night",
+    "bookNow": "Book Now",
+    "available": "Available",
+    "booked": "Booked"
+  },
+  "booking": {
+    "title": "Apartment Booking",
+    "steps": {
+      "details": "Booking Details",
+      "guestInfo": "Guest Information", 
+      "extras": "Extra Services",
+      "payment": "Payment",
+      "confirmation": "Confirmation"
+    },
+    "guestInfo": {
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email",
+      "phone": "Phone",
+      "specialRequests": "Special Requests"
+    },
+    "pricing": {
+      "basePrice": "Base Price",
+      "discount": "Discount",
+      "total": "Total",
+      "nights": "nights"
+    },
+    "payment": {
+      "cardNumber": "Card Number",
+      "expiryDate": "Expiry Date",
+      "cvc": "CVC",
+      "payButton": "Pay Now"
+    }
+  },
+  "features": {
+    "location": {
+      "title": "Perfect Location",
+      "description": "In the heart of Trenčín's historic center, at Štúr Square"
+    },
+    "comfort": {
+      "title": "Modern Amenities", 
+      "description": "Air conditioning, WiFi, fully equipped kitchen and everything you need"
+    },
+    "access": {
+      "title": "24/7 Access",
+      "description": "Flexible check-in and check-out according to your needs"
+    }
+  },
+  "footer": {
+    "description": "Luxury apartments in the center of Trenčín with views of the historic square.",
+    "quickLinks": "Quick Links",
+    "contact": "Contact",
+    "address": "Štúrovo námestie 132/16, 911 01 Trenčín",
+    "phone": "Phone",
+    "email": "Email",
+    "followUs": "Follow Us",
+    "newsletter": {
+      "title": "Newsletter Signup",
+      "description": "Get exclusive offers and event information",
+      "placeholder": "your@email.com",
+      "subscribe": "Subscribe"
+    },
+    "rights": "All rights reserved"
+  },
+  "auth": {
+    "signin": {
+      "title": "Sign In",
+      "subtitle": "Sign in and get 5% discount on all bookings",
+      "email": "Email",
+      "password": "Password",
+      "signinButton": "Sign In",
+      "googleSignin": "Sign in with Google",
+      "noAccount": "Don't have an account?",
+      "register": "Sign up"
+    },
+    "signup": {
+      "title": "Sign Up",
+      "subtitle": "Create an account and get loyalty benefits",
+      "name": "Full Name",
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "signupButton": "Sign Up",
+      "haveAccount": "Already have an account?",
+      "signin": "Sign in"
+    }
+  },
+  "account": {
+    "dashboard": {
+      "title": "My Account",
+      "subtitle": "Manage your bookings and profile",
+      "stats": {
+        "totalBookings": "Total Bookings",
+        "totalSavings": "Total Savings", 
+        "loyaltyStatus": "Loyalty Status"
+      },
+      "recentBookings": "Recent Bookings"
+    },
+    "profile": {
+      "title": "Personal Information",
+      "name": "Full Name",
+      "email": "Email",
+      "phone": "Phone",
+      "saveChanges": "Save Changes"
+    }
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "tryAgain": "Try Again",
+    "cancel": "Cancel",
+    "continue": "Continue",
+    "back": "Back",
+    "next": "Next",
+    "save": "Save",
+    "edit": "Edit",
+    "delete": "Delete",
+    "confirm": "Confirm"
+  }
+}

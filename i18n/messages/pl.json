@@ -1,0 +1,161 @@
+{
+  "navigation": {
+    "home": "Strona główna",
+    "apartments": "Apartamenty",
+    "about": "O nas",
+    "contact": "Kontakt",
+    "account": "Moje konto",
+    "signin": "Zaloguj się",
+    "signup": "Zarejestruj się",
+    "signout": "Wyloguj się"
+  },
+  "hero": {
+    "title": "Luksusowe apartamenty w sercu Trenčína",
+    "subtitle": "Doświadcz komfortu i elegancji na historycznym Placu Štúra",
+    "cta": {
+      "book": "Zarezerwuj teraz",
+      "explore": "Odkryj apartamenty"
+    }
+  },
+  "search": {
+    "checkin": "Zameldowanie",
+    "checkout": "Wymeldowanie", 
+    "guests": "Goście",
+    "adults": "Dorośli",
+    "children": "Dzieci",
+    "searchButton": "Szukaj apartamentów",
+    "filters": "Filtry",
+    "priceRange": "Zakres cen",
+    "size": "Rozmiar",
+    "floor": "Piętro",
+    "amenities": "Udogodnienia"
+  },
+  "apartment": {
+    "details": "Szczegóły apartamentu",
+    "size": "Rozmiar",
+    "maxGuests": "Maks. gości",
+    "maxChildren": "Maks. dzieci", 
+    "floor": "Piętro",
+    "amenities": "Udogodnienia",
+    "gallery": "Galeria zdjęć",
+    "booking": "Rezerwacja",
+    "pricePerNight": "/noc",
+    "bookNow": "Zarezerwuj teraz",
+    "available": "Dostępne",
+    "booked": "Zarezerwowane"
+  },
+  "booking": {
+    "title": "Rezerwacja apartamentu",
+    "steps": {
+      "details": "Szczegóły rezerwacji",
+      "guestInfo": "Informacje o gościu", 
+      "extras": "Dodatkowe usługi",
+      "payment": "Płatność",
+      "confirmation": "Potwierdzenie"
+    },
+    "guestInfo": {
+      "firstName": "Imię",
+      "lastName": "Nazwisko",
+      "email": "E-mail",
+      "phone": "Telefon",
+      "specialRequests": "Specjalne życzenia"
+    },
+    "pricing": {
+      "basePrice": "Cena podstawowa",
+      "discount": "Zniżka",
+      "total": "Razem",
+      "nights": "nocy"
+    },
+    "payment": {
+      "cardNumber": "Numer karty",
+      "expiryDate": "Data ważności",
+      "cvc": "CVC",
+      "payButton": "Zapłać teraz"
+    }
+  },
+  "features": {
+    "location": {
+      "title": "Idealna lokalizacja",
+      "description": "W sercu historycznego centrum Trenčína, na Placu Štúra"
+    },
+    "comfort": {
+      "title": "Nowoczesne udogodnienia", 
+      "description": "Klimatyzacja, WiFi, w pełni wyposażona kuchnia i wszystko czego potrzebujesz"
+    },
+    "access": {
+      "title": "Dostęp 24/7",
+      "description": "Elastyczne zameldowanie i wymeldowanie zgodnie z Twoimi potrzebami"
+    }
+  },
+  "footer": {
+    "description": "Luksusowe apartamenty w centrum Trenčína z widokiem na historyczny plac.",
+    "quickLinks": "Szybkie linki",
+    "contact": "Kontakt",
+    "address": "Štúrovo námestie 132/16, 911 01 Trenčín",
+    "phone": "Telefon",
+    "email": "E-mail",
+    "followUs": "Śledź nas",
+    "newsletter": {
+      "title": "Zapisz się do newslettera",
+      "description": "Otrzymuj ekskluzywne oferty i informacje o wydarzeniach",
+      "placeholder": "twoj@email.pl",
+      "subscribe": "Zapisz się"
+    },
+    "rights": "Wszystkie prawa zastrzeżone"
+  },
+  "auth": {
+    "signin": {
+      "title": "Zaloguj się",
+      "subtitle": "Zaloguj się i otrzymaj 5% zniżki na wszystkie rezerwacje",
+      "email": "E-mail",
+      "password": "Hasło",
+      "signinButton": "Zaloguj się",
+      "googleSignin": "Zaloguj się z Google",
+      "noAccount": "Nie masz konta?",
+      "register": "Zarejestruj się"
+    },
+    "signup": {
+      "title": "Zarejestruj się",
+      "subtitle": "Utwórz konto i otrzymaj korzyści programu lojalnościowego",
+      "name": "Pełne imię i nazwisko",
+      "email": "E-mail",
+      "password": "Hasło",
+      "confirmPassword": "Potwierdź hasło",
+      "signupButton": "Zarejestruj się",
+      "haveAccount": "Masz już konto?",
+      "signin": "Zaloguj się"
+    }
+  },
+  "account": {
+    "dashboard": {
+      "title": "Moje konto",
+      "subtitle": "Zarządzaj swoimi rezerwacjami i profilem",
+      "stats": {
+        "totalBookings": "Łączne rezerwacje",
+        "totalSavings": "Łączne oszczędności", 
+        "loyaltyStatus": "Status lojalnościowy"
+      },
+      "recentBookings": "Ostatnie rezerwacje"
+    },
+    "profile": {
+      "title": "Informacje osobiste",
+      "name": "Pełne imię i nazwisko",
+      "email": "E-mail",
+      "phone": "Telefon",
+      "saveChanges": "Zapisz zmiany"
+    }
+  },
+  "common": {
+    "loading": "Ładowanie...",
+    "error": "Wystąpił błąd",
+    "tryAgain": "Spróbuj ponownie",
+    "cancel": "Anuluj",
+    "continue": "Kontynuuj",
+    "back": "Wstecz",
+    "next": "Dalej",
+    "save": "Zapisz",
+    "edit": "Edytuj",
+    "delete": "Usuń",
+    "confirm": "Potwierdź"
+  }
+}

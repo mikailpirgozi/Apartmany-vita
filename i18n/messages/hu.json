@@ -1,0 +1,161 @@
+{
+  "navigation": {
+    "home": "Főoldal",
+    "apartments": "Apartmanok",
+    "about": "Rólunk",
+    "contact": "Kapcsolat",
+    "account": "Fiókom",
+    "signin": "Bejelentkezés",
+    "signup": "Regisztráció",
+    "signout": "Kijelentkezés"
+  },
+  "hero": {
+    "title": "Luxus apartmanok Trenčín szívében",
+    "subtitle": "Tapasztalja meg a kényelmet és eleganciát a történelmi Štúr téren",
+    "cta": {
+      "book": "Foglalás most",
+      "explore": "Apartmanok felfedezése"
+    }
+  },
+  "search": {
+    "checkin": "Érkezés",
+    "checkout": "Távozás", 
+    "guests": "Vendégek",
+    "adults": "Felnőttek",
+    "children": "Gyerekek",
+    "searchButton": "Apartmanok keresése",
+    "filters": "Szűrők",
+    "priceRange": "Ártartomány",
+    "size": "Méret",
+    "floor": "Emelet",
+    "amenities": "Felszereltség"
+  },
+  "apartment": {
+    "details": "Apartman részletek",
+    "size": "Méret",
+    "maxGuests": "Max vendégek",
+    "maxChildren": "Max gyerekek", 
+    "floor": "Emelet",
+    "amenities": "Felszereltség",
+    "gallery": "Fotógaléria",
+    "booking": "Foglalás",
+    "pricePerNight": "/éjszaka",
+    "bookNow": "Foglalás most",
+    "available": "Elérhető",
+    "booked": "Foglalt"
+  },
+  "booking": {
+    "title": "Apartman foglalás",
+    "steps": {
+      "details": "Foglalás részletei",
+      "guestInfo": "Vendég információk", 
+      "extras": "Extra szolgáltatások",
+      "payment": "Fizetés",
+      "confirmation": "Megerősítés"
+    },
+    "guestInfo": {
+      "firstName": "Keresztnév",
+      "lastName": "Vezetéknév",
+      "email": "E-mail",
+      "phone": "Telefon",
+      "specialRequests": "Különleges kérések"
+    },
+    "pricing": {
+      "basePrice": "Alapár",
+      "discount": "Kedvezmény",
+      "total": "Összesen",
+      "nights": "éjszaka"
+    },
+    "payment": {
+      "cardNumber": "Kártyaszám",
+      "expiryDate": "Lejárat",
+      "cvc": "CVC",
+      "payButton": "Fizetés most"
+    }
+  },
+  "features": {
+    "location": {
+      "title": "Tökéletes helyszín",
+      "description": "Trenčín történelmi központjában, a Štúr téren"
+    },
+    "comfort": {
+      "title": "Modern felszereltség", 
+      "description": "Légkondicionálás, WiFi, teljesen felszerelt konyha és minden ami kell"
+    },
+    "access": {
+      "title": "24/7 hozzáférés",
+      "description": "Rugalmas be- és kijelentkezés az Ön igényei szerint"
+    }
+  },
+  "footer": {
+    "description": "Luxus apartmanok Trenčín központjában, kilátással a történelmi térre.",
+    "quickLinks": "Gyors linkek",
+    "contact": "Kapcsolat",
+    "address": "Štúrovo námestie 132/16, 911 01 Trenčín",
+    "phone": "Telefon",
+    "email": "E-mail",
+    "followUs": "Kövessen minket",
+    "newsletter": {
+      "title": "Hírlevél feliratkozás",
+      "description": "Kapjon exkluzív ajánlatokat és esemény információkat",
+      "placeholder": "az@email.hu",
+      "subscribe": "Feliratkozás"
+    },
+    "rights": "Minden jog fenntartva"
+  },
+  "auth": {
+    "signin": {
+      "title": "Bejelentkezés",
+      "subtitle": "Jelentkezzen be és kapjon 5% kedvezményt minden foglalásra",
+      "email": "E-mail",
+      "password": "Jelszó",
+      "signinButton": "Bejelentkezés",
+      "googleSignin": "Bejelentkezés Google-lel",
+      "noAccount": "Nincs fiókja?",
+      "register": "Regisztráció"
+    },
+    "signup": {
+      "title": "Regisztráció",
+      "subtitle": "Hozzon létre fiókot és kapjon hűségprogrami előnyöket",
+      "name": "Teljes név",
+      "email": "E-mail",
+      "password": "Jelszó",
+      "confirmPassword": "Jelszó megerősítése",
+      "signupButton": "Regisztráció",
+      "haveAccount": "Már van fiókja?",
+      "signin": "Bejelentkezés"
+    }
+  },
+  "account": {
+    "dashboard": {
+      "title": "Fiókom",
+      "subtitle": "Kezelje foglalásait és profilját",
+      "stats": {
+        "totalBookings": "Összes foglalás",
+        "totalSavings": "Összes megtakarítás", 
+        "loyaltyStatus": "Hűségprogram státusz"
+      },
+      "recentBookings": "Legutóbbi foglalások"
+    },
+    "profile": {
+      "title": "Személyes információk",
+      "name": "Teljes név",
+      "email": "E-mail",
+      "phone": "Telefon",
+      "saveChanges": "Változások mentése"
+    }
+  },
+  "common": {
+    "loading": "Betöltés...",
+    "error": "Hiba történt",
+    "tryAgain": "Próbálja újra",
+    "cancel": "Mégse",
+    "continue": "Folytatás",
+    "back": "Vissza",
+    "next": "Következő",
+    "save": "Mentés",
+    "edit": "Szerkesztés",
+    "delete": "Törlés",
+    "confirm": "Megerősítés"
+  }
+}

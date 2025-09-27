@@ -1,0 +1,235 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  phone         String?
+  dateOfBirth   DateTime?
+  preferences   Json?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts Account[]
+  sessions Session[]
+  bookings Booking[]
+  reviews  Review[]
+
+  @@map("users")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verificationtokens")
+}
+
+model Apartment {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String   @db.Text
+  floor       Int
+  size        Int
+  maxGuests   Int
+  maxChildren Int
+  images      String[]
+  amenities   String[]
+  basePrice   Decimal  @db.Decimal(10, 2)
+  isActive    Boolean  @default(true)
+  beds24Id    String?  @unique // Beds24 property ID
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  bookings Booking[]
+  reviews  Review[]
+
+  @@map("apartments")
+}
+
+model Booking {
+  id          String        @id @default(cuid())
+  checkIn     DateTime
+  checkOut    DateTime
+  guests      Int
+  children    Int           @default(0)
+  totalPrice  Decimal       @db.Decimal(10, 2)
+  discount    Decimal       @default(0) @db.Decimal(10, 2)
+  status      BookingStatus @default(PENDING)
+  paymentId   String?       @unique
+  beds24Id    String?       @unique // Beds24 booking ID
+  
+  // Guest information
+  guestName   String
+  guestEmail  String
+  guestPhone  String
+  specialRequests String?
+
+  userId      String
+  apartmentId String
+
+  user      User           @relation(fields: [userId], references: [id])
+  apartment Apartment      @relation(fields: [apartmentId], references: [id])
+  extras    BookingExtra[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("bookings")
+}
+
+model BookingExtra {
+  id        String  @id @default(cuid())
+  name      String
+  price     Decimal @db.Decimal(10, 2)
+  quantity  Int     @default(1)
+  bookingId String
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@map("booking_extras")
+}
+
+model Review {
+  id          String   @id @default(cuid())
+  rating      Int      @db.SmallInt
+  comment     String   @db.Text
+  isApproved  Boolean  @default(false)
+  userId      String
+  apartmentId String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user      User      @relation(fields: [userId], references: [id])
+  apartment Apartment @relation(fields: [apartmentId], references: [id])
+
+  @@map("reviews")
+}
+
+model NewsletterSubscriber {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  isActive     Boolean  @default(true)
+  subscribedAt DateTime @default(now())
+  unsubscribedAt DateTime?
+
+  @@map("newsletter_subscribers")
+}
+
+model ContactMessage {
+  id        String            @id @default(cuid())
+  name      String
+  email     String
+  subject   String
+  message   String            @db.Text
+  status    ContactStatus     @default(UNREAD)
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+
+  @@map("contact_messages")
+}
+
+model ChatConversation {
+  id        String   @id @default(cuid())
+  sessionId String   @unique
+  userId    String?  // Optional - for logged in users
+  language  String   @default("sk")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  messages ChatMessage[]
+
+  @@map("chat_conversations")
+}
+
+model ChatMessage {
+  id             String   @id @default(cuid())
+  conversationId String
+  text           String   @db.Text
+  isBot          Boolean
+  timestamp      DateTime @default(now())
+  
+  // Learning data
+  userSatisfaction Int?     // 1-5 rating from user
+  wasHelpful       Boolean? // User feedback
+  needsImprovement String?  @db.Text // User suggestions
+  
+  conversation ChatConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@map("chat_messages")
+}
+
+model ChatLearning {
+  id          String   @id @default(cuid())
+  question    String   @db.Text
+  answer      String   @db.Text
+  context     String?  @db.Text
+  language    String   @default("sk")
+  source      String   // "customer", "owner", "system"
+  isApproved  Boolean  @default(false)
+  usageCount  Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("chat_learning")
+}
+
+// Enums
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+enum ContactStatus {
+  UNREAD
+  READ
+  REPLIED
+}
