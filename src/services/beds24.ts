@@ -347,21 +347,30 @@ export async function getApartmentAvailability(
   startDate: Date, 
   endDate: Date
 ): Promise<AvailabilityResponse> {
-  // Map apartment slugs to Beds24 room IDs - 3 existujúce apartmány
-  const apartmentRoomMapping: Record<string, string> = {
-    'design-apartman': process.env.BEDS24_ROOM_DESIGN || '227484',
-    'lite-apartman': process.env.BEDS24_ROOM_LITE || '168900',
-    'deluxe-apartman': process.env.BEDS24_ROOM_DELUXE || '161445'
+  // Map apartment slugs to Beds24 Property ID + Room ID - 3 samostatné Properties
+  const apartmentMapping: Record<string, { propId: string; roomId: string }> = {
+    'design-apartman': {
+      propId: process.env.BEDS24_PROP_ID_DESIGN || '227484',
+      roomId: process.env.BEDS24_ROOM_ID_DESIGN || '1'
+    },
+    'lite-apartman': {
+      propId: process.env.BEDS24_PROP_ID_LITE || '168900', 
+      roomId: process.env.BEDS24_ROOM_ID_LITE || '1'
+    },
+    'deluxe-apartman': {
+      propId: process.env.BEDS24_PROP_ID_DELUXE || '161445',
+      roomId: process.env.BEDS24_ROOM_ID_DELUXE || '1'
+    }
   };
 
-  const roomId = apartmentRoomMapping[apartmentSlug];
-  if (!roomId) {
-    throw new Error(`No Beds24 room mapping found for apartment: ${apartmentSlug}`);
+  const apartment = apartmentMapping[apartmentSlug];
+  if (!apartment) {
+    throw new Error(`No Beds24 mapping found for apartment: ${apartmentSlug}`);
   }
 
   return beds24Service.getAvailability({
-    propId: process.env.BEDS24_PROP_ID!,
-    roomId,
+    propId: apartment.propId,
+    roomId: apartment.roomId,
     startDate: startDate.toISOString().split('T')[0],
     endDate: endDate.toISOString().split('T')[0]
   });
@@ -371,20 +380,29 @@ export async function createApartmentBooking(
   apartmentSlug: string,
   bookingData: Omit<BookingData, 'propId' | 'roomId'>
 ): Promise<Beds24Booking> {
-  const apartmentRoomMapping: Record<string, string> = {
-    'design-apartman': process.env.BEDS24_ROOM_DESIGN || '227484',
-    'lite-apartman': process.env.BEDS24_ROOM_LITE || '168900',
-    'deluxe-apartman': process.env.BEDS24_ROOM_DELUXE || '161445'
+  const apartmentMapping: Record<string, { propId: string; roomId: string }> = {
+    'design-apartman': {
+      propId: process.env.BEDS24_PROP_ID_DESIGN || '227484',
+      roomId: process.env.BEDS24_ROOM_ID_DESIGN || '1'
+    },
+    'lite-apartman': {
+      propId: process.env.BEDS24_PROP_ID_LITE || '168900', 
+      roomId: process.env.BEDS24_ROOM_ID_LITE || '1'
+    },
+    'deluxe-apartman': {
+      propId: process.env.BEDS24_PROP_ID_DELUXE || '161445',
+      roomId: process.env.BEDS24_ROOM_ID_DELUXE || '1'
+    }
   };
 
-  const roomId = apartmentRoomMapping[apartmentSlug];
-  if (!roomId) {
-    throw new Error(`No Beds24 room mapping found for apartment: ${apartmentSlug}`);
+  const apartment = apartmentMapping[apartmentSlug];
+  if (!apartment) {
+    throw new Error(`No Beds24 mapping found for apartment: ${apartmentSlug}`);
   }
 
   return beds24Service.createBooking({
     ...bookingData,
-    propId: process.env.BEDS24_PROP_ID!,
-    roomId
+    propId: apartment.propId,
+    roomId: apartment.roomId
   });
 }

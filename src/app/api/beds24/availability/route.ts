@@ -19,15 +19,24 @@ export async function GET(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Map apartment slug to room ID - 3 existujúce apartmány
-    const apartmentRoomMapping: Record<string, string> = {
-      'design-apartman': process.env.BEDS24_ROOM_DESIGN || '227484',
-      'lite-apartman': process.env.BEDS24_ROOM_LITE || '168900',
-      'deluxe-apartman': process.env.BEDS24_ROOM_DELUXE || '161445'
+    // Map apartment slug to Property ID + Room ID - 3 samostatné Properties
+    const apartmentMapping: Record<string, { propId: string; roomId: string }> = {
+      'design-apartman': {
+        propId: process.env.BEDS24_PROP_ID_DESIGN || '227484',
+        roomId: process.env.BEDS24_ROOM_ID_DESIGN || '1'
+      },
+      'lite-apartman': {
+        propId: process.env.BEDS24_PROP_ID_LITE || '168900', 
+        roomId: process.env.BEDS24_ROOM_ID_LITE || '1'
+      },
+      'deluxe-apartman': {
+        propId: process.env.BEDS24_PROP_ID_DELUXE || '161445',
+        roomId: process.env.BEDS24_ROOM_ID_DELUXE || '1'
+      }
     };
 
-    const roomId = apartmentRoomMapping[apartment];
-    if (!roomId) {
+    const apartment = apartmentMapping[apartment];
+    if (!apartment) {
       return NextResponse.json({
         success: false,
         message: `Unknown apartment: ${apartment}`
@@ -35,8 +44,8 @@ export async function GET(request: NextRequest) {
     }
 
     const availability = await beds24Service.getAvailability({
-      propId: process.env.BEDS24_PROP_ID || '357931',
-      roomId,
+      propId: apartment.propId,
+      roomId: apartment.roomId,
       startDate,
       endDate
     });
@@ -45,7 +54,8 @@ export async function GET(request: NextRequest) {
       success: true,
       data: availability,
       apartment,
-      roomId,
+      propId: apartment.propId,
+      roomId: apartment.roomId,
       startDate,
       endDate
     });
