@@ -27,12 +27,12 @@ vi.mock('next/image', () => ({
 // Mock framer-motion
 vi.mock('framer-motion', () => ({
   motion: {
-    div: ({ children, ...props }: any) => React.createElement('div', props, children),
-    section: ({ children, ...props }: any) => React.createElement('section', props, children),
-    h1: ({ children, ...props }: any) => React.createElement('h1', props, children),
-    p: ({ children, ...props }: any) => React.createElement('p', props, children),
+    div: ({ children, ...props }: React.ComponentProps<'div'>) => React.createElement('div', props, children),
+    section: ({ children, ...props }: React.ComponentProps<'section'>) => React.createElement('section', props, children),
+    h1: ({ children, ...props }: React.ComponentProps<'h1'>) => React.createElement('h1', props, children),
+    p: ({ children, ...props }: React.ComponentProps<'p'>) => React.createElement('p', props, children),
   },
-  AnimatePresence: ({ children }: any) => children,
+  AnimatePresence: ({ children }: { children: React.ReactNode }) => children,
 }))
 
 // Mock next-auth
@@ -57,7 +57,7 @@ vi.mock('@tanstack/react-query', () => ({
     isPending: false,
   }),
   QueryClient: vi.fn(),
-  QueryClientProvider: ({ children }: any) => children,
+  QueryClientProvider: ({ children }: { children: React.ReactNode }) => children,
 }))
 
 // Cleanup after each test

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
+import type { Session } from "next-auth";
 import { format, addDays, differenceInDays } from "date-fns";
 import { Calendar, Users, Minus, Plus, Star, Info, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -52,7 +53,7 @@ export function BookingWidget({
   onBookingStart,
   className
 }: BookingWidgetProps) {
-  const { data: session } = useSession();
+  const { data: session } = useSession() as { data: Session | null };
   const [checkIn, setCheckIn] = useState<Date | undefined>(initialCheckIn);
   const [checkOut, setCheckOut] = useState<Date | undefined>(initialCheckOut);
   const [guests, setGuests] = useState(initialGuests);
@@ -61,7 +62,7 @@ export function BookingWidget({
 
   // Calculate pricing when dates and guests are selected
   const { data: pricing, isLoading: isPricingLoading, error: pricingError } = useQuery({
-    queryKey: ['booking-pricing', apartment.id, checkIn, checkOut, guests, children, (session?.user as any)?.id],
+    queryKey: ['booking-pricing', apartment.id, checkIn, checkOut, guests, children, session?.user?.id],
     queryFn: async () => {
       if (!checkIn || !checkOut) return null;
       
@@ -71,7 +72,7 @@ export function BookingWidget({
         checkOut,
         guests,
         children,
-        userId: (session?.user as any)?.id
+        userId: session?.user?.id
       });
     },
     enabled: !!(checkIn && checkOut && checkIn < checkOut),

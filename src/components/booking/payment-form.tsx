@@ -207,7 +207,7 @@ function PaymentElementForm({
         setPaymentError(error.message || 'Platba sa nepodarila');
       } else if (paymentIntent?.status === 'requires_capture') {
         // Payment authorized successfully
-        const bookingId = (paymentIntent as any)?.metadata?.bookingId;
+        const bookingId = (paymentIntent as { metadata?: { bookingId?: string } })?.metadata?.bookingId;
         if (bookingId) {
           onPaymentSuccess(bookingId);
         } else {

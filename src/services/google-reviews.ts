@@ -1,4 +1,4 @@
-import { Client } from '@googlemaps/google-maps-services-js'
+import { Client, PlaceReview } from '@googlemaps/google-maps-services-js'
 
 export interface GoogleReview {
   author_name: string
@@ -39,8 +39,7 @@ export async function getGoogleReviews(): Promise<GoogleReviewsResponse> {
       params: {
         place_id: placeId,
         fields: ['reviews', 'rating', 'user_ratings_total'],
-        key: apiKey,
-        language: 'sk' as any
+        key: apiKey
       }
     })
 
@@ -48,8 +47,14 @@ export async function getGoogleReviews(): Promise<GoogleReviewsResponse> {
       const result = response.data.result
       
       return {
-        reviews: (result.reviews || []).map((review: any) => ({
-          ...review,
+        reviews: (result.reviews || []).map((review: PlaceReview) => ({
+          author_name: review.author_name,
+          author_url: review.author_url,
+          language: review.language || 'sk',
+          profile_photo_url: review.profile_photo_url,
+          rating: review.rating,
+          relative_time_description: review.relative_time_description,
+          text: review.text,
           time: typeof review.time === 'string' ? Date.parse(review.time) : review.time
         })) as GoogleReview[],
         averageRating: result.rating || 4.8,
