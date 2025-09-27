@@ -16,8 +16,8 @@ export async function GET(request: NextRequest) {
         // Test availability endpoint
         const availabilityResult = await beds24Service.getAvailability({
           propId: '357931',
-          startDate: '2024-12-01',
-          endDate: '2024-12-31'
+          startDate: '2025-01-01',
+          endDate: '2025-01-31'
         });
         
         return NextResponse.json({
@@ -32,8 +32,8 @@ export async function GET(request: NextRequest) {
         const ratesResult = await beds24Service.getRoomRates(
           '357931',
           '357931',
-          '2024-12-01',
-          '2024-12-31'
+          '2025-01-01',
+          '2025-01-31'
         );
         
         return NextResponse.json({
@@ -84,8 +84,8 @@ export async function POST(request: NextRequest) {
     const bookingResult = await beds24Service.createBooking({
       propId: body.propId || '357931',
       roomId: body.roomId || '357931',
-      checkIn: body.checkIn || '2024-12-15',
-      checkOut: body.checkOut || '2024-12-17',
+      checkIn: body.checkIn || '2025-01-15',
+      checkOut: body.checkOut || '2025-01-17',
       numAdult: body.numAdult || 2,
       numChild: body.numChild || 0,
       guestFirstName: body.guestFirstName || 'Test',

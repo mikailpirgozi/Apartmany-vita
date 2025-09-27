@@ -72,34 +72,22 @@ class Beds24Service {
   }
 
   /**
-   * Get availability for specific date range - Hybrid V1/V2
+   * Get availability for specific date range - API V2
    */
   async getAvailability(request: AvailabilityRequest): Promise<AvailabilityResponse> {
     try {
-      // Use V1 endpoint for availability as V2 might not have this endpoint
-      const v1BaseUrl = 'https://beds24.com/api';
-      
       console.log('Fetching availability:', {
-        url: `${v1BaseUrl}/json/getBookings`,
+        url: `${this.config.baseUrl}/bookings`,
         request
       });
 
-      const requestBody: Record<string, unknown> = {
-        apiKey: this.config.longLifeToken, // Use long-life token as API key for V1
-        startDate: request.startDate,
-        endDate: request.endDate
-      };
-
-      if (request.roomId) {
-        requestBody.roomId = request.roomId;
-      }
-
-      const response = await fetch(`${v1BaseUrl}/json/getBookings`, {
-        method: 'POST',
+      // API V2 format with long-life token
+      const response = await fetch(`${this.config.baseUrl}/bookings`, {
+        method: 'GET',
         headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(requestBody)
+          'Content-Type': 'application/json',
+          'token': this.config.longLifeToken
+        }
       });
 
       console.log('Availability response status:', response.status);
@@ -121,30 +109,16 @@ class Beds24Service {
   }
 
   /**
-   * Get dynamic room rates for date range - Hybrid V1/V2
+   * Get dynamic room rates for date range - API V2
    */
-  async getRoomRates(propId: string, roomId: string, _startDate: string, _endDate: string): Promise<Record<string, number>> {
+  async getRoomRates(propId: string, roomId: string, startDate: string, endDate: string): Promise<Record<string, number>> {
     try {
-      // Use V1 endpoint for rates as it's working
-      const v1BaseUrl = 'https://beds24.com/api';
-      
-      const response = await fetch(`${v1BaseUrl}/rates`, {
-        method: 'POST',
+      const response = await fetch(`${this.config.baseUrl}/rates`, {
+        method: 'GET',
         headers: {
           'Content-Type': 'application/json',
           'token': this.config.longLifeToken
-        },
-        body: JSON.stringify({
-          authentication: {
-            apiKey: this.config.longLifeToken,
-            propKey: propId
-          },
-          request: {
-            startDate: _startDate,
-            endDate: _endDate,
-            roomId
-          }
-        })
+        }
       });
 
       if (!response.ok) {
@@ -252,19 +226,16 @@ class Beds24Service {
   }
 
   /**
-   * Get booking details from Beds24 - Hybrid V1/V2
+   * Get booking details from Beds24 - API V2
    */
   async getBooking(bookId: string): Promise<Beds24Booking | null> {
     try {
-      // Use V1 endpoint for getting booking details
-      const v1BaseUrl = 'https://beds24.com/api';
-      
       console.log('Fetching booking:', {
-        url: `${v1BaseUrl}/bookings/${bookId}`,
+        url: `${this.config.baseUrl}/bookings/${bookId}`,
         bookId
       });
 
-      const response = await fetch(`${v1BaseUrl}/bookings/${bookId}`, {
+      const response = await fetch(`${this.config.baseUrl}/bookings/${bookId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

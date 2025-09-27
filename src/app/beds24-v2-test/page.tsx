@@ -19,8 +19,8 @@ export default function Beds24V2TestPage() {
   const [bookingData, setBookingData] = useState({
     propId: '357931',
     roomId: '357931',
-    checkIn: '2024-12-15',
-    checkOut: '2024-12-17',
+    checkIn: '2025-01-15',
+    checkOut: '2025-01-17',
     numAdult: 2,
     numChild: 0,
     guestFirstName: 'Test',
