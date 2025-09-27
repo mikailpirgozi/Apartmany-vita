@@ -148,11 +148,17 @@ class Beds24Service {
       
       console.log('Fetching availability:', {
         url: `${this.config.baseUrl}/bookings`,
-        request
+        request,
+        propId: request.propId,
+        roomId: request.roomId
       });
 
-      // API V2 format with access token
-      const response = await fetch(`${this.config.baseUrl}/bookings`, {
+      // API V2 format with access token and query parameters
+      const url = new URL(`${this.config.baseUrl}/bookings`);
+      url.searchParams.append('propId', request.propId);
+      url.searchParams.append('roomId', request.roomId);
+      
+      const response = await fetch(url.toString(), {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -181,10 +187,8 @@ class Beds24Service {
   /**
    * Get dynamic room rates for date range - API V2
    */
-  async getRoomRates(propId: string, roomId: string, _startDate: string, _endDate: string): Promise<Record<string, number>> {
+  async getRoomRates(): Promise<Record<string, number>> {
     try {
-      const accessToken = await this.ensureValidToken();
-      
       // Beds24 V2 API doesn't have a separate rates endpoint
       // Rates are included in the bookings response
       // For now, return empty rates object
@@ -339,13 +343,18 @@ class Beds24Service {
     const booked: string[] = [];
     const prices: Record<string, number> = {};
 
+    console.log('Parsing availability response:', { data, request });
+
     // Parse Beds24 V2 response format
     if (data && typeof data === 'object' && 'bookings' in data && Array.isArray((data as { bookings: unknown[] }).bookings)) {
       const bookings = (data as { bookings: unknown[] }).bookings;
+      console.log('Found bookings:', bookings.length);
       
       // Generate date range
       const startDate = new Date(request.startDate);
       const endDate = new Date(request.endDate);
+      
+      console.log('Date range:', { startDate: startDate.toISOString(), endDate: endDate.toISOString() });
       
       for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
         const dateStr = d.toISOString().split('T')[0];
@@ -367,7 +376,19 @@ class Beds24Service {
           available.push(dateStr);
         }
       }
+    } else {
+      console.log('No bookings found or invalid data format');
+      // If no bookings data, assume all dates are available
+      const startDate = new Date(request.startDate);
+      const endDate = new Date(request.endDate);
+      
+      for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+        const dateStr = d.toISOString().split('T')[0];
+        available.push(dateStr);
+      }
     }
+
+    console.log('Parsed availability:', { available: available.length, booked: booked.length });
 
     return {
       available,

@@ -16,6 +16,7 @@ export async function GET(request: NextRequest) {
         // Test availability endpoint
         const availabilityResult = await beds24Service.getAvailability({
           propId: '357931',
+          roomId: '357931',
           startDate: '2025-01-01',
           endDate: '2025-01-31'
         });
