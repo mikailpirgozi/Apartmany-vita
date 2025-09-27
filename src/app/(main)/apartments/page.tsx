@@ -37,7 +37,7 @@ export default async function ApartmentsPage({ searchParams }: ApartmentsPagePro
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-4">Naše apartmány</h1>
         <p className="text-muted-foreground max-w-2xl">
-          Vyberte si z našich 4 krásne zariadených apartmánov v historickom centre Trenčína. 
+          Vyberte si z našich krásne zariadených apartmánov v historickom centre Trenčína. 
           Každý apartmán ponúka jedinečné vybavenie a komfort pre váš pobyt.
         </p>
       </div>

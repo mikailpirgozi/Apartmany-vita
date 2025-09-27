@@ -28,7 +28,7 @@ export default async function HomePage() {
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-4">Naše apartmány</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Vyberte si z našich 4 krásne zariadených apartmánov v centre Trenčína
+              Vyberte si z našich krásne zariadených apartmánov v centre Trenčína
             </p>
           </div>
           
