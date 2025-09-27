@@ -9,19 +9,11 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 export default defineConfig({
   plugins: [react()],
   test: {
-    environment: 'jsdom',
+    environment: 'node',
     setupFiles: ['./src/test/setup.ts'],
     globals: true,
-    css: true,
-    pool: 'forks',
-    poolOptions: {
-      forks: {
-        singleFork: true,
-      },
-    },
-    env: {
-      NODE_ENV: 'test',
-    },
+    css: false,
+    isolate: true,
     exclude: [
       '**/node_modules/**',
       '**/dist/**',

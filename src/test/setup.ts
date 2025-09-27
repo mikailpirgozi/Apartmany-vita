@@ -3,6 +3,19 @@ import { afterEach, vi } from 'vitest'
 import { cleanup } from '@testing-library/react'
 import React from 'react'
 
+// Mock problematic modules before they get loaded
+vi.mock('webidl-conversions', () => ({
+  default: {},
+  __esModule: true,
+}))
+
+vi.mock('whatwg-url', () => ({
+  URL: globalThis.URL || class MockURL {
+    constructor(public href: string) {}
+  },
+  __esModule: true,
+}))
+
 // Polyfill for Node.js environment
 if (typeof globalThis.crypto === 'undefined') {
   globalThis.crypto = {
@@ -42,6 +55,24 @@ if (typeof globalThis.TextEncoder === 'undefined') {
   globalThis.TextEncoder = TextEncoder
   globalThis.TextDecoder = TextDecoder
 }
+
+// Mock DOM APIs for Node environment
+Object.defineProperty(globalThis, 'document', {
+  value: {
+    createElement: () => ({}),
+    getElementById: () => null,
+    querySelector: () => null,
+  },
+  writable: true,
+})
+
+Object.defineProperty(globalThis, 'window', {
+  value: {
+    location: { href: 'http://localhost:3000' },
+    document: globalThis.document,
+  },
+  writable: true,
+})
 
 // Mock Next.js router
 vi.mock('next/navigation', () => ({
