@@ -13,6 +13,7 @@ interface ApartmentCardProps {
   endDate?: Date
   guests?: number
   variant?: 'default' | 'compact'
+  priority?: boolean // Pre LCP optimization
 }
 
 // Helper function to convert Decimal to number
@@ -20,7 +21,7 @@ const toNumber = (value: number | Decimal): number => {
   return typeof value === 'number' ? value : value.toNumber()
 }
 
-export function ApartmentCard({ apartment, startDate, endDate, guests, variant = 'default' }: ApartmentCardProps) {
+export function ApartmentCard({ apartment, startDate, endDate, guests, variant = 'default', priority = false }: ApartmentCardProps) {
   return (
     <Card className={`overflow-hidden transition-all hover:shadow-lg ${variant === 'compact' ? 'compact' : ''}`} data-testid="apartment-card">
       <div className="relative">
@@ -31,6 +32,7 @@ export function ApartmentCard({ apartment, startDate, endDate, guests, variant =
             width={400}
             height={250}
             className="aspect-[16/10] object-cover"
+            priority={priority}
           />
         ) : (
           <div className="aspect-[16/10] bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">

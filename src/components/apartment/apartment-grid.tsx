@@ -30,13 +30,14 @@ export function ApartmentGrid({
 
   return (
     <div className={className || gridClass}>
-      {apartments.map((apartment) => (
+      {apartments.map((apartment, index) => (
         <ApartmentCard
           key={apartment.id}
           apartment={apartment}
           startDate={startDate}
           endDate={endDate}
           guests={guests}
+          priority={index === 0} // Prvý apartmán má priority pre LCP
         />
       ))}
     </div>
