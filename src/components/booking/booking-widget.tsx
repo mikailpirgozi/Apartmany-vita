@@ -17,6 +17,7 @@ import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { calculateBookingPrice, BookingPricing, LoyaltyTier } from "@/services/pricing";
+import { getApartmentAvailability } from "@/services/beds24";
 import type { Apartment } from "@/types";
 
 interface BookingWidgetProps {
@@ -60,6 +61,18 @@ export function BookingWidget({
   const [children, setChildren] = useState(0);
   const [showCalendar, setShowCalendar] = useState<'checkin' | 'checkout' | null>(null);
 
+  // Check availability when dates are selected
+  const { data: availability, isLoading: isAvailabilityLoading } = useQuery({
+    queryKey: ['availability', apartment.slug, checkIn, checkOut],
+    queryFn: async () => {
+      if (!checkIn || !checkOut) return null;
+      
+      return getApartmentAvailability(apartment.slug, checkIn, checkOut);
+    },
+    enabled: !!(checkIn && checkOut && checkIn < checkOut),
+    staleTime: 2 * 60 * 1000 // 2 minutes
+  });
+
   // Calculate pricing when dates and guests are selected
   const { data: pricing, isLoading: isPricingLoading, error: pricingError } = useQuery({
     queryKey: ['booking-pricing', apartment.id, checkIn, checkOut, guests, children, session?.user?.id],
@@ -81,7 +94,16 @@ export function BookingWidget({
 
   const nights = checkIn && checkOut ? differenceInDays(checkOut, checkIn) : 0;
   const totalGuests = guests + children;
-  const isValidBooking = checkIn && checkOut && nights > 0 && totalGuests <= apartment.maxGuests;
+  
+  // Check if selected dates are available
+  const isDateRangeAvailable = availability && checkIn && checkOut ? 
+    availability.available.some(date => {
+      const checkInStr = format(checkIn, 'yyyy-MM-dd');
+      const checkOutStr = format(checkOut, 'yyyy-MM-dd');
+      return date >= checkInStr && date < checkOutStr;
+    }) : true;
+  
+  const isValidBooking = checkIn && checkOut && nights > 0 && totalGuests <= apartment.maxGuests && isDateRangeAvailable;
 
   const handleCheckInSelect = (date: Date | undefined) => {
     setCheckIn(date);
@@ -249,15 +271,26 @@ export function BookingWidget({
           </Alert>
         )}
 
+        {checkIn && checkOut && !isDateRangeAvailable && (
+          <Alert>
+            <Info className="h-4 w-4" />
+            <AlertDescription>
+              Vybrané dátumy nie sú dostupné. Skúste iný termín.
+            </AlertDescription>
+          </Alert>
+        )}
+
         {/* Book Now Button */}
         <Button 
           onClick={handleBookNow}
-          disabled={!isValidBooking || isPricingLoading}
+          disabled={!isValidBooking || isPricingLoading || isAvailabilityLoading}
           className="w-full"
           size="lg"
         >
-          {isPricingLoading ? (
-            "Počítam cenu..."
+          {isPricingLoading || isAvailabilityLoading ? (
+            "Kontrolujem dostupnosť..."
+          ) : !isDateRangeAvailable ? (
+            "Vybrané dátumy nie sú dostupné"
           ) : pricing ? (
             <>
               Rezervovať za €{pricing.total}
