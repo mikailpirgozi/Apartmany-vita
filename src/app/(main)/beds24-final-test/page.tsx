@@ -38,9 +38,25 @@ export default function Beds24FinalTestPage() {
 
     try {
       const results: {
-        connection?: Record<string, unknown>;
-        availability?: Record<string, Record<string, unknown>>;
-        direct?: Record<string, unknown>;
+        connection?: {
+          message: string;
+          results?: {
+            connection?: {
+              success: boolean;
+              error?: string;
+            };
+          };
+        };
+        availability?: Record<string, {
+          success: boolean;
+          message?: string;
+          error?: string;
+        }>;
+        direct?: {
+          success: boolean;
+          message: string;
+          error?: string;
+        };
       } = {};
 
       // Test 1: Basic API connection
@@ -78,6 +94,7 @@ export default function Beds24FinalTestPage() {
       } catch (error) {
         results.direct = {
           success: false,
+          message: 'Direct test failed',
           error: error instanceof Error ? error.message : 'Unknown error'
         };
       }
@@ -95,7 +112,7 @@ export default function Beds24FinalTestPage() {
   const getStatusBadge = (result: {
     success: boolean;
     error?: string;
-  } | null) => {
+  } | null | undefined) => {
     if (!result) return <Badge variant="secondary">Not tested</Badge>;
     return (
       <Badge variant={result.success ? 'default' : 'destructive'}>

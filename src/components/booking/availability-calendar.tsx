@@ -61,10 +61,10 @@ export function AvailabilityCalendar({
   });
 
   // Generate calendar days
-  const calendarDays = generateCalendarDays(currentMonth, availability, selectedRange);
+  const calendarDays = generateCalendarDays(currentMonth, availability || {}, selectedRange);
 
   const handleDateClick = (date: Date) => {
-    if (!isDateSelectable(date, availability)) return;
+    if (!isDateSelectable(date, availability || {})) return;
 
     if (onRangeSelect) {
       if (!selectingRange) {
@@ -77,7 +77,7 @@ export function AvailabilityCalendar({
         const to = isBefore(date, selectingRange) ? selectingRange : date;
         
         // Validate range
-        if (isValidRange(from, to, availability, minStay, maxStay)) {
+        if (isValidRange(from, to, availability || {}, minStay, maxStay)) {
           onRangeSelect({ from, to });
           setSelectingRange(null);
         } else {
