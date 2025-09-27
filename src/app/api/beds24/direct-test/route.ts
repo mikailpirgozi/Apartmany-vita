@@ -1,10 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
 /**
  * Direct Beds24 API V1 test endpoint
  * GET /api/beds24/direct-test
  */
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const apiKey = process.env.BEDS24_API_KEY || 'AbDalfEtyekmentOsVeb';
     const propId = process.env.BEDS24_PROP_ID || '357931';
