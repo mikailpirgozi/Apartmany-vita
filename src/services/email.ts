@@ -11,11 +11,15 @@ import type { Booking, User, Apartment } from '@prisma/client';
 // Lazy initialization of Resend client
 let resend: Resend | null = null;
 
-function getResendClient(): Resend {
-  if (!resend && process.env.RESEND_API_KEY) {
+function getResendClient(): Resend | null {
+  if (!process.env.RESEND_API_KEY) {
+    return null;
+  }
+  
+  if (!resend) {
     resend = new Resend(process.env.RESEND_API_KEY);
   }
-  return resend!;
+  return resend;
 }
 
 // Email configuration
@@ -46,12 +50,13 @@ export interface SimpleEmailOptions {
  */
 export async function sendEmail(options: SimpleEmailOptions): Promise<boolean> {
   try {
-    if (!process.env.RESEND_API_KEY) {
+    const client = getResendClient();
+    if (!client) {
       console.warn('Resend API key not configured, email not sent:', options.subject);
       return false;
     }
 
-    const { data, error } = await getResendClient().emails.send({
+    const { data, error } = await client.emails.send({
       from: FROM_EMAIL,
       to: options.to,
       replyTo: REPLY_TO_EMAIL,
@@ -81,9 +86,15 @@ export async function sendBookingConfirmation(
   user: User
 ): Promise<boolean> {
   try {
+    const client = getResendClient();
+    if (!client) {
+      console.warn('Resend API key not configured, booking confirmation not sent');
+      return false;
+    }
+
     const template = generateBookingConfirmationTemplate(booking);
     
-    const { data, error } = await getResendClient().emails.send({
+    const { data, error } = await client.emails.send({
       from: FROM_EMAIL,
       to: user.email,
       replyTo: REPLY_TO_EMAIL,
@@ -118,9 +129,15 @@ export async function sendCheckInInstructions(
   booking: BookingWithDetails
 ): Promise<boolean> {
   try {
+    const client = getResendClient();
+    if (!client) {
+      console.warn('Resend API key not configured, check-in instructions not sent');
+      return false;
+    }
+
     const template = generateCheckInInstructionsTemplate(booking);
     
-    const { data, error } = await getResendClient().emails.send({
+    const { data, error } = await client.emails.send({
       from: FROM_EMAIL,
       to: booking.user.email,
       replyTo: REPLY_TO_EMAIL,
@@ -150,9 +167,15 @@ export async function sendCancellationConfirmation(
   refundAmount?: number
 ): Promise<boolean> {
   try {
+    const client = getResendClient();
+    if (!client) {
+      console.warn('Resend API key not configured, cancellation confirmation not sent');
+      return false;
+    }
+
     const template = generateCancellationTemplate(booking, refundAmount);
     
-    const { data, error } = await getResendClient().emails.send({
+    const { data, error } = await client.emails.send({
       from: FROM_EMAIL,
       to: booking.user.email,
       replyTo: REPLY_TO_EMAIL,
@@ -181,9 +204,15 @@ export async function sendPaymentReminder(
   booking: BookingWithDetails
 ): Promise<boolean> {
   try {
+    const client = getResendClient();
+    if (!client) {
+      console.warn('Resend API key not configured, payment reminder not sent');
+      return false;
+    }
+
     const template = generatePaymentReminderTemplate(booking);
     
-    const { data, error } = await getResendClient().emails.send({
+    const { data, error } = await client.emails.send({
       from: FROM_EMAIL,
       to: booking.user.email,
       replyTo: REPLY_TO_EMAIL,
@@ -212,9 +241,15 @@ export async function sendAdminBookingNotification(
   booking: BookingWithDetails
 ): Promise<boolean> {
   try {
+    const client = getResendClient();
+    if (!client) {
+      console.warn('Resend API key not configured, admin notification not sent');
+      return false;
+    }
+
     const template = generateAdminBookingTemplate(booking);
     
-    const { data, error } = await getResendClient().emails.send({
+    const { data, error } = await client.emails.send({
       from: FROM_EMAIL,
       to: ADMIN_EMAIL,
       subject: template.subject,
