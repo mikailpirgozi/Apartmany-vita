@@ -1,6 +1,5 @@
 import { redirect } from 'next/navigation'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { ProfileForm } from '@/components/account/profile-form'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -10,7 +9,7 @@ import { LoyaltyTier } from '@/services/pricing'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
 export default async function ProfilePage() {
-  const session = await getServerSession(authOptions)
+  const session = await auth()
   
   if (!session?.user?.id) {
     redirect('/auth/signin')
