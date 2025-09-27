@@ -1,8 +1,8 @@
 import { notFound, redirect } from 'next/navigation'
 import { Suspense } from 'react'
+import { format } from 'date-fns'
 import { BookingFlow } from '@/components/booking/booking-flow'
 import { getApartmentBySlug } from '@/services/apartments'
-import { calculateBookingPrice } from '@/services/pricing'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Card, CardContent } from '@/components/ui/card'
 
@@ -64,14 +64,26 @@ async function BookingContent({ searchParams }: BookingPageProps) {
     children: childrenCount
   }
 
-  let pricing
+  // Get pricing from Beds24 API instead of local calculation
+  let availability
   try {
-    pricing = await calculateBookingPrice({
-      apartmentId: apartment.id,
-      ...bookingData
-    })
+    const checkInStr = format(checkInDate, 'yyyy-MM-dd');
+    const checkOutStr = format(checkOutDate, 'yyyy-MM-dd');
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/beds24/availability?apartment=${apartmentSlug}&checkIn=${checkInStr}&checkOut=${checkOutStr}`, {
+      cache: 'no-store' // Always get fresh data
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch availability');
+    }
+    
+    availability = await response.json();
+    
+    if (!availability.success || !availability.isAvailable) {
+      redirect(`/apartments/${apartmentSlug}?error=unavailable`)
+    }
   } catch (error) {
-    console.error('Failed to calculate pricing:', error)
+    console.error('Failed to get availability:', error)
     redirect(`/apartments/${apartmentSlug}?error=pricing`)
   }
 
@@ -80,7 +92,7 @@ async function BookingContent({ searchParams }: BookingPageProps) {
       <BookingFlow
         apartment={apartment}
         bookingData={bookingData}
-        pricing={pricing}
+        availability={availability}
         onComplete={(bookingId) => {
           // Redirect to confirmation page
           window.location.href = `/booking/confirmation/${bookingId}`

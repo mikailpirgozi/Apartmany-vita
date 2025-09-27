@@ -14,7 +14,6 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Label } from "@/components/ui/label";
 import { STRIPE_PUBLISHABLE_KEY } from "@/lib/stripe";
 import type { Apartment } from "@/types";
-import type { BookingPricing } from "@/services/pricing";
 
 // Initialize Stripe
 const stripePromise = loadStripe(STRIPE_PUBLISHABLE_KEY);
@@ -35,7 +34,13 @@ interface PaymentFormProps {
     country: string;
     city: string;
   };
-  pricing: BookingPricing;
+  availability: {
+    success: boolean;
+    isAvailable: boolean;
+    totalPrice: number;
+    pricePerNight: number;
+    nights: number;
+  };
   extrasTotal: number;
   totalPrice: number;
   onSuccess?: (bookingId: string) => void;
@@ -58,7 +63,13 @@ interface PaymentElementFormProps {
     country: string;
     city: string;
   };
-  pricing: BookingPricing;
+  availability: {
+    success: boolean;
+    isAvailable: boolean;
+    totalPrice: number;
+    pricePerNight: number;
+    nights: number;
+  };
   extrasTotal: number;
   totalPrice: number;
   clientSecret: string;
@@ -94,7 +105,7 @@ export function PaymentForm(props: PaymentFormProps) {
             checkOut: format(props.bookingData.checkOut, 'yyyy-MM-dd'),
             bookingData: props.bookingData,
             guestInfo: props.guestInfo,
-            pricing: props.pricing,
+            availability: props.availability,
             extrasTotal: props.extrasTotal
           }),
         });
@@ -173,7 +184,8 @@ function PaymentElementForm({
   onPaymentSuccess,
   onBack,
   totalPrice,
-  bookingData
+  bookingData,
+  availability
 }: PaymentElementFormProps) {
   const stripe = useStripe();
   const elements = useElements();

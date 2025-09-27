@@ -23,7 +23,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { PaymentForm, PaymentSuccessState } from "@/components/booking/payment-form";
 import type { Apartment } from "@/types";
-import type { BookingPricing } from "@/services/pricing";
 
 // Booking steps configuration
 const BOOKING_STEPS = [
@@ -72,7 +71,13 @@ interface BookingFlowProps {
     guests: number;
     children: number;
   };
-  pricing: BookingPricing;
+  availability: {
+    success: boolean;
+    isAvailable: boolean;
+    totalPrice: number;
+    pricePerNight: number;
+    nights: number;
+  };
   onComplete?: (bookingId: string) => void;
 }
 
@@ -129,7 +134,7 @@ const EXTRA_SERVICES: ExtraService[] = [
   }
 ];
 
-export function BookingFlow({ apartment, bookingData, pricing, onComplete }: BookingFlowProps) {
+export function BookingFlow({ apartment, bookingData, availability, onComplete }: BookingFlowProps) {
   const { data: session } = useSession();
   const [currentStep, setCurrentStep] = useState<BookingStep>('details');
   const [completedSteps, setCompletedSteps] = useState<Set<BookingStep>>(new Set());
@@ -188,7 +193,7 @@ export function BookingFlow({ apartment, bookingData, pricing, onComplete }: Boo
     }, 0);
   };
 
-  const totalPrice = pricing.total + calculateExtrasTotal();
+  const totalPrice = availability.totalPrice + calculateExtrasTotal();
 
   return (
     <div className="container py-8">
@@ -286,7 +291,7 @@ export function BookingFlow({ apartment, bookingData, pricing, onComplete }: Boo
                   apartment={apartment}
                   bookingData={bookingData}
                   guestInfo={guestInfo!}
-                  pricing={pricing}
+                  availability={availability}
                   selectedExtras={selectedExtras}
                   totalPrice={totalPrice}
                   onBack={goToPrevStep}
@@ -308,7 +313,7 @@ export function BookingFlow({ apartment, bookingData, pricing, onComplete }: Boo
           <BookingSummary
             apartment={apartment}
             bookingData={bookingData}
-            pricing={pricing}
+            availability={availability}
             selectedExtras={selectedExtras}
             totalPrice={totalPrice}
           />
@@ -714,7 +719,7 @@ function PaymentStep({
   apartment, 
   bookingData, 
   guestInfo, 
-  pricing,
+  availability,
   selectedExtras, 
   totalPrice, 
   onBack, 
@@ -738,11 +743,17 @@ function PaymentStep({
     arrivalTime?: string;
     marketingConsent: boolean;
   };
-  pricing: BookingPricing;
+  availability: {
+    success: boolean;
+    isAvailable: boolean;
+    totalPrice: number;
+    pricePerNight: number;
+    nights: number;
+  };
   selectedExtras: ExtrasFormData;
   totalPrice: number;
   onBack: () => void; 
-  onComplete?: (bookingId: string) => void; 
+  onComplete?: (bookingId: string) => void;
 }) {
   const [paymentCompleted, setPaymentCompleted] = useState(false);
   const [completedBookingId, setCompletedBookingId] = useState<string | null>(null);
@@ -774,7 +785,7 @@ function PaymentStep({
       apartment={apartment}
       bookingData={bookingData}
       guestInfo={guestInfo}
-      pricing={pricing}
+      availability={availability}
       extrasTotal={calculateExtrasTotal()}
       totalPrice={totalPrice}
       onSuccess={handlePaymentSuccess}
@@ -795,7 +806,7 @@ function ConfirmationStep({ bookingId }: { bookingId: string }) {
 function BookingSummary({
   apartment,
   bookingData,
-  pricing,
+  availability,
   selectedExtras,
   totalPrice
 }: {
@@ -806,7 +817,13 @@ function BookingSummary({
     guests: number;
     children: number;
   };
-  pricing: BookingPricing;
+  availability: {
+    success: boolean;
+    isAvailable: boolean;
+    totalPrice: number;
+    pricePerNight: number;
+    nights: number;
+  };
   selectedExtras: ExtrasFormData;
   totalPrice: number;
 }) {
@@ -824,7 +841,7 @@ function BookingSummary({
             {format(bookingData.checkIn, 'd.M.yyyy')} - {format(bookingData.checkOut, 'd.M.yyyy')}
           </p>
           <p className="text-sm text-muted-foreground">
-            {bookingData.guests} hosť{bookingData.guests > 1 ? 'ia' : ''} • {pricing.nights} noc{pricing.nights > 1 ? 'í' : ''}
+            {bookingData.guests} hosť{bookingData.guests > 1 ? 'ia' : ''} • {availability.nights} noc{availability.nights > 1 ? 'í' : ''}
           </p>
         </div>
 
@@ -832,25 +849,8 @@ function BookingSummary({
 
         <div className="space-y-2 text-sm">
           <div className="flex justify-between">
-            <span>Ubytovanie ({pricing.nights} noc{pricing.nights > 1 ? 'í' : ''})</span>
-            <span>€{pricing.subtotal}</span>
-          </div>
-          
-          {pricing.loyaltyDiscount > 0 && (
-            <div className="flex justify-between text-green-600">
-              <span>Loyalty zľava</span>
-              <span>-€{pricing.loyaltyDiscount}</span>
-            </div>
-          )}
-          
-          <div className="flex justify-between">
-            <span>Upratovací poplatok</span>
-            <span>€{pricing.cleaningFee}</span>
-          </div>
-          
-          <div className="flex justify-between">
-            <span>Mestská daň</span>
-            <span>€{pricing.cityTax}</span>
+            <span>Ubytovanie ({availability.nights} noc{availability.nights > 1 ? 'í' : ''})</span>
+            <span>€{availability.totalPrice}</span>
           </div>
 
           {selectedExtrasList.map((service, index) => (

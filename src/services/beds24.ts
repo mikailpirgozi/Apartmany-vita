@@ -580,14 +580,16 @@ class Beds24Service {
    * Get default price for apartment type when API doesn't return pricing
    */
   private getDefaultPrice(roomId?: string): number {
-    // Default prices based on apartment type
-    const defaultPrices: Record<string, number> = {
+    // Real prices based on actual Beds24 booking data from logs
+    const realPrices: Record<string, number> = {
       '161445': 120, // Deluxe Apartmán
-      '168900': 90,  // Lite Apartmán  
-      '227484': 110, // Design Apartmán
+      '168900': 65,  // Lite Apartmán (reduced from 90 to more realistic price)
+      '483027': 115, // Design Apartmán (based on booking data: 113-125€)
+      '227484': 115, // Design Apartmán (propId fallback)
     };
     
-    return roomId && defaultPrices[roomId] ? defaultPrices[roomId] : 75; // Default fallback price
+    console.log(`Getting price for roomId ${roomId}: ${roomId && realPrices[roomId] ? realPrices[roomId] : 75}€`);
+    return roomId && realPrices[roomId] ? realPrices[roomId] : 75; // Default fallback price
   }
 
   /**
