@@ -17,7 +17,6 @@ import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { calculateBookingPrice, BookingPricing, LoyaltyTier } from "@/services/pricing";
-import { getApartmentAvailability } from "@/services/beds24";
 import type { Apartment } from "@/types";
 
 interface BookingWidgetProps {
@@ -67,7 +66,11 @@ export function BookingWidget({
     queryFn: async () => {
       if (!checkIn || !checkOut) return null;
       
-      return getApartmentAvailability(apartment.slug, checkIn, checkOut);
+      const response = await fetch(`/api/beds24/availability?apartment=${apartment.slug}&checkIn=${checkIn.toISOString().split('T')[0]}&checkOut=${checkOut.toISOString().split('T')[0]}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch availability');
+      }
+      return response.json();
     },
     enabled: !!(checkIn && checkOut && checkIn < checkOut),
     staleTime: 2 * 60 * 1000 // 2 minutes
@@ -97,7 +100,7 @@ export function BookingWidget({
   
   // Check if selected dates are available
   const isDateRangeAvailable = availability && checkIn && checkOut ? 
-    availability.available.some(date => {
+    availability.available.some((date: string) => {
       const checkInStr = format(checkIn, 'yyyy-MM-dd');
       const checkOutStr = format(checkOut, 'yyyy-MM-dd');
       return date >= checkInStr && date < checkOutStr;
