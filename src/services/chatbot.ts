@@ -1,9 +1,17 @@
 import OpenAI from 'openai'
 import { prisma } from '@/lib/db'
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-})
+// Lazy initialization of OpenAI client
+let openai: OpenAI | null = null
+
+function getOpenAIClient(): OpenAI {
+  if (!openai && process.env.OPENAI_API_KEY) {
+    openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY
+    })
+  }
+  return openai!
+}
 
 export interface ChatMessage {
   id: string
@@ -122,7 +130,7 @@ export async function getChatbotResponse(
       content: message
     })
 
-    const completion = await openai.chat.completions.create({
+    const completion = await getOpenAIClient().chat.completions.create({
       model: 'gpt-4o-mini',
       messages,
       max_tokens: 300,
