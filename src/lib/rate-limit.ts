@@ -18,7 +18,6 @@ export function rateLimit(options: RateLimitOptions) {
     const identifier = 
       request.headers.get('x-forwarded-for')?.split(',')[0] ||
       request.headers.get('x-real-ip') ||
-      request.ip ||
       'anonymous'
 
     const key = `rate_limit:${identifier}`

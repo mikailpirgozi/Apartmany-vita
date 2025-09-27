@@ -7,8 +7,8 @@ import { getApartmentBySlug } from '@/services/apartments'
 import { Metadata } from 'next'
 
 interface ApartmentPageProps {
-  params: { slug: string }
-  searchParams: { checkIn?: string; checkOut?: string; guests?: string }
+  params: Promise<{ slug: string }>
+  searchParams: Promise<{ checkIn?: string; checkOut?: string; guests?: string }>
 }
 
 export async function generateMetadata({ params }: ApartmentPageProps): Promise<Metadata> {

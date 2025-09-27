@@ -12,13 +12,13 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { prisma } from '@/lib/db'
 
 interface BookingConfirmationPageProps {
-  params: { bookingId: string }
+  params: Promise<{ bookingId: string }>
 }
 
 export default async function BookingConfirmationPage({ params }: BookingConfirmationPageProps) {
   return (
     <Suspense fallback={<ConfirmationSkeleton />}>
-      <ConfirmationContent bookingId={params.bookingId} />
+      <ConfirmationContent bookingId={(await params).bookingId} />
     </Suspense>
   )
 }

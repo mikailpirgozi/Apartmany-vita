@@ -7,13 +7,13 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Card, CardContent } from '@/components/ui/card'
 
 interface BookingPageProps {
-  searchParams: {
+  searchParams: Promise<{
     apartment?: string
     checkin?: string
     checkout?: string
     guests?: string
     children?: string
-  }
+  }>
 }
 
 export default async function BookingPage({ searchParams }: BookingPageProps) {
@@ -25,7 +25,7 @@ export default async function BookingPage({ searchParams }: BookingPageProps) {
 }
 
 async function BookingContent({ searchParams }: BookingPageProps) {
-  const { apartment: apartmentSlug, checkin, checkout, guests, children } = searchParams
+  const { apartment: apartmentSlug, checkin, checkout, guests, children } = await searchParams
 
   // Validate required parameters
   if (!apartmentSlug || !checkin || !checkout || !guests) {

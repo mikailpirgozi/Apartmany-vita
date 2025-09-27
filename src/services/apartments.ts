@@ -31,10 +31,10 @@ export async function searchApartments(filters: Partial<SearchFilters>): Promise
 
   // Apply filters
   if (filters.priceRange) {
-    apartments = apartments.filter(apt => 
-      apt.basePrice >= filters.priceRange![0] && 
-      apt.basePrice <= filters.priceRange![1]
-    )
+    apartments = apartments.filter(apt => {
+      const price = typeof apt.basePrice === 'number' ? apt.basePrice : apt.basePrice.toNumber()
+      return price >= filters.priceRange![0] && price <= filters.priceRange![1]
+    })
   }
 
   if (filters.size) {

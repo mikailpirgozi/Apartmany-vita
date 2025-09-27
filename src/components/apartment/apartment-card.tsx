@@ -12,6 +12,7 @@ interface ApartmentCardProps {
   startDate?: Date
   endDate?: Date
   guests?: number
+  variant?: 'default' | 'compact'
 }
 
 // Helper function to convert Decimal to number
@@ -19,9 +20,9 @@ const toNumber = (value: number | Decimal): number => {
   return typeof value === 'number' ? value : value.toNumber()
 }
 
-export function ApartmentCard({ apartment, startDate, endDate, guests }: ApartmentCardProps) {
+export function ApartmentCard({ apartment, startDate, endDate, guests, variant = 'default' }: ApartmentCardProps) {
   return (
-    <Card className="overflow-hidden transition-all hover:shadow-lg">
+    <Card className={`overflow-hidden transition-all hover:shadow-lg ${variant === 'compact' ? 'compact' : ''}`} data-testid="apartment-card">
       <div className="relative">
         {apartment.images.length > 0 ? (
           <Image
