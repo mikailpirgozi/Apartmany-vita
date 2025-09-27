@@ -29,12 +29,11 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Map apartment slug to room ID - OPRAVENÉ ÚDAJE
+    // Map apartment slug to room ID - 3 existujúce apartmány
     const apartmentRoomMapping: Record<string, string> = {
-      'maly-apartman': process.env.BEDS24_ROOM_MALY || 'test_room_maly',
-      'design-apartman': process.env.BEDS24_ROOM_DESIGN || '483027',
-      'lite-apartman': process.env.BEDS24_ROOM_LITE || '357932',
-      'deluxe-apartman': process.env.BEDS24_ROOM_DELUXE || '357931'
+      'design-apartman': process.env.BEDS24_ROOM_DESIGN || '227484',
+      'lite-apartman': process.env.BEDS24_ROOM_LITE || '168900',
+      'deluxe-apartman': process.env.BEDS24_ROOM_DELUXE || '161445'
     };
 
     const roomId = apartmentRoomMapping[apartment];
@@ -46,7 +45,7 @@ export async function POST(request: NextRequest) {
     }
 
     const booking = await beds24Service.createBooking({
-      propId: process.env.BEDS24_PROP_ID || 'default_prop_id',
+      propId: process.env.BEDS24_PROP_ID || '357931',
       roomId,
       checkIn,
       checkOut,

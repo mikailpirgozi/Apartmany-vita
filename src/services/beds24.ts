@@ -54,9 +54,9 @@ class Beds24Service {
 
   constructor() {
     this.config = {
-      apiKey: process.env.BEDS24_API_KEY || 'VitaAPI2024Mikipiki',
-      baseUrl: process.env.BEDS24_BASE_URL || 'https://beds24.com/api/v2',
-      propId: process.env.BEDS24_PROP_ID || '294444'
+      apiKey: process.env.BEDS24_API_KEY || 'AbDalfEtyekmentOsVeb',
+      baseUrl: process.env.BEDS24_BASE_URL || 'https://beds24.com/api',
+      propId: process.env.BEDS24_PROP_ID || '357931'
     };
 
     if (!this.config.apiKey) {
@@ -65,28 +65,23 @@ class Beds24Service {
   }
 
   /**
-   * Get availability for specific date range
+   * Get availability for specific date range - API V1
    */
   async getAvailability(request: AvailabilityRequest): Promise<AvailabilityResponse> {
     try {
-      const response = await fetch(`${this.config.baseUrl}/inventory`, {
-        method: 'POST',
+      // API V1 format
+      const params = new URLSearchParams({
+        propKey: this.config.apiKey,
+        roomId: request.roomId || '',
+        startDate: request.startDate,
+        endDate: request.endDate
+      });
+
+      const response = await fetch(`${this.config.baseUrl}/getBookings.php?${params}`, {
+        method: 'GET',
         headers: {
-          'Content-Type': 'application/json',
-          'token': this.config.apiKey
-        },
-        body: JSON.stringify({
-          authentication: {
-            apiKey: this.config.apiKey,
-            propKey: request.propId
-          },
-          request: {
-            startDate: request.startDate,
-            endDate: request.endDate,
-            includeInactive: false,
-            roomId: request.roomId
-          }
-        })
+          'Content-Type': 'application/json'
+        }
       });
 
       if (!response.ok) {
@@ -352,12 +347,11 @@ export async function getApartmentAvailability(
   startDate: Date, 
   endDate: Date
 ): Promise<AvailabilityResponse> {
-  // Map apartment slugs to Beds24 room IDs - OPRAVENÉ ÚDAJE
+  // Map apartment slugs to Beds24 room IDs - 3 existujúce apartmány
   const apartmentRoomMapping: Record<string, string> = {
-    'maly-apartman': process.env.BEDS24_ROOM_MALY || '615761',
-    'design-apartman': process.env.BEDS24_ROOM_DESIGN || '483027',
-    'lite-apartman': process.env.BEDS24_ROOM_LITE || '357932',
-    'deluxe-apartman': process.env.BEDS24_ROOM_DELUXE || '357931'
+    'design-apartman': process.env.BEDS24_ROOM_DESIGN || '227484',
+    'lite-apartman': process.env.BEDS24_ROOM_LITE || '168900',
+    'deluxe-apartman': process.env.BEDS24_ROOM_DELUXE || '161445'
   };
 
   const roomId = apartmentRoomMapping[apartmentSlug];
@@ -378,10 +372,9 @@ export async function createApartmentBooking(
   bookingData: Omit<BookingData, 'propId' | 'roomId'>
 ): Promise<Beds24Booking> {
   const apartmentRoomMapping: Record<string, string> = {
-    'maly-apartman': process.env.BEDS24_ROOM_MALY || '615761',
-    'design-apartman': process.env.BEDS24_ROOM_DESIGN || '483027',
-    'lite-apartman': process.env.BEDS24_ROOM_LITE || '357932',
-    'deluxe-apartman': process.env.BEDS24_ROOM_DELUXE || '357931'
+    'design-apartman': process.env.BEDS24_ROOM_DESIGN || '227484',
+    'lite-apartman': process.env.BEDS24_ROOM_LITE || '168900',
+    'deluxe-apartman': process.env.BEDS24_ROOM_DELUXE || '161445'
   };
 
   const roomId = apartmentRoomMapping[apartmentSlug];
