@@ -61,19 +61,37 @@ export function BookingWidget({
   const [showCalendar, setShowCalendar] = useState<'checkin' | 'checkout' | null>(null);
 
   // Check availability when dates are selected
-  const { data: availability, isLoading: isAvailabilityLoading } = useQuery({
+  const { data: availability, isLoading: isAvailabilityLoading, error: availabilityError } = useQuery({
     queryKey: ['availability', apartment.slug, checkIn, checkOut],
     queryFn: async () => {
       if (!checkIn || !checkOut) return null;
       
-      const response = await fetch(`/api/beds24/availability?apartment=${apartment.slug}&checkIn=${checkIn.toISOString().split('T')[0]}&checkOut=${checkOut.toISOString().split('T')[0]}`);
+      const url = `/api/beds24/availability?apartment=${apartment.slug}&checkIn=${checkIn.toISOString().split('T')[0]}&checkOut=${checkOut.toISOString().split('T')[0]}`;
+      console.log('Fetching availability from:', url);
+      
+      const response = await fetch(url);
       if (!response.ok) {
+        console.error('Availability fetch failed:', response.status, response.statusText);
         throw new Error('Failed to fetch availability');
       }
-      return response.json();
+      
+      const data = await response.json();
+      console.log('Availability data received:', data);
+      return data;
     },
     enabled: !!(checkIn && checkOut && checkIn < checkOut),
     staleTime: 2 * 60 * 1000 // 2 minutes
+  });
+
+  // Debug logging
+  console.log('Booking widget state:', {
+    apartment: apartment.slug,
+    checkIn,
+    checkOut,
+    availability,
+    isAvailabilityLoading,
+    availabilityError,
+    enabled: !!(checkIn && checkOut && checkIn < checkOut)
   });
 
   // Calculate pricing when dates and guests are selected
@@ -279,6 +297,15 @@ export function BookingWidget({
             <Info className="h-4 w-4" />
             <AlertDescription>
               Maximálny počet hostí pre tento apartmán je {apartment.maxGuests}.
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {availabilityError && (
+          <Alert variant="destructive">
+            <Info className="h-4 w-4" />
+            <AlertDescription>
+              Chyba pri načítavaní dostupnosti: {availabilityError.message}
             </AlertDescription>
           </Alert>
         )}
