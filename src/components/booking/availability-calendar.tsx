@@ -285,7 +285,11 @@ function CalendarSkeleton() {
 
 function generateCalendarDays(
   currentMonth: Date,
-  availability: any,
+  availability: {
+    available?: string[];
+    booked?: string[];
+    prices?: Record<string, number>;
+  },
   selectedRange?: { from: Date | null; to: Date | null }
 ): CalendarDay[] {
   const monthStart = startOfMonth(currentMonth);
@@ -336,7 +340,11 @@ function generateCalendarDays(
   });
 }
 
-function isDateSelectable(date: Date, availability: any): boolean {
+function isDateSelectable(date: Date, availability: {
+  available?: string[];
+  booked?: string[];
+  prices?: Record<string, number>;
+}): boolean {
   if (isBefore(date, new Date())) return false;
   
   const dateStr = format(date, 'yyyy-MM-dd');
@@ -346,7 +354,11 @@ function isDateSelectable(date: Date, availability: any): boolean {
 function isValidRange(
   from: Date,
   to: Date,
-  availability: any,
+  availability: {
+    available?: string[];
+    booked?: string[];
+    prices?: Record<string, number>;
+  },
   minStay: number,
   maxStay: number
 ): boolean {

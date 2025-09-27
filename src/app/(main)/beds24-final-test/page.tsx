@@ -5,10 +5,31 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, XCircle, AlertTriangle, Info, RefreshCw } from 'lucide-react';
+import { CheckCircle, XCircle, Info, RefreshCw } from 'lucide-react';
 
 export default function Beds24FinalTestPage() {
-  const [testResults, setTestResults] = useState<any>(null);
+  const [testResults, setTestResults] = useState<{
+    connection?: {
+      message: string;
+      results?: {
+        connection?: {
+          success: boolean;
+          error?: string;
+        };
+      };
+    };
+    availability?: Record<string, {
+      success: boolean;
+      message?: string;
+      error?: string;
+    }>;
+    direct?: {
+      success: boolean;
+      message: string;
+      error?: string;
+    };
+    error?: string;
+  } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const runComprehensiveTest = async () => {
@@ -16,7 +37,11 @@ export default function Beds24FinalTestPage() {
     setTestResults(null);
 
     try {
-      const results: any = {};
+      const results: {
+        connection?: Record<string, unknown>;
+        availability?: Record<string, Record<string, unknown>>;
+        direct?: Record<string, unknown>;
+      } = {};
 
       // Test 1: Basic API connection
       console.log('Testing basic API connection...');
@@ -67,7 +92,10 @@ export default function Beds24FinalTestPage() {
     }
   };
 
-  const getStatusBadge = (result: any) => {
+  const getStatusBadge = (result: {
+    success: boolean;
+    error?: string;
+  } | null) => {
     if (!result) return <Badge variant="secondary">Not tested</Badge>;
     return (
       <Badge variant={result.success ? 'default' : 'destructive'}>
@@ -160,7 +188,11 @@ export default function Beds24FinalTestPage() {
                     <CardTitle className="text-base">2. Dostupnosť Apartmánov</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    {Object.entries(testResults.availability || {}).map(([apartment, result]: [string, any]) => (
+                    {Object.entries(testResults.availability || {}).map(([apartment, result]: [string, {
+                      success: boolean;
+                      message?: string;
+                      error?: string;
+                    }]) => (
                       <div key={apartment} className="flex items-center justify-between p-3 border rounded">
                         <div>
                           <span className="font-medium capitalize">
@@ -221,9 +253,9 @@ export default function Beds24FinalTestPage() {
                           <strong>Problém:</strong> API kľúč stále nie je platný alebo nie je správne aktivovaný v Beds24 účte.
                           <br /><br />
                           <strong>Riešenie:</strong>
-                          <br />1. Skontrolujte, či je API kľúč "VitaAPI2024mikipiki" správne uložený v Beds24 účte
-                          <br />2. Uistite sa, že "API Key Access" je nastavené na "allow any IP"
-                          <br />3. Skontrolujte, či "Allow Writes" je nastavené na "Yes"
+                          <br />1. Skontrolujte, či je API kľúč &quot;VitaAPI2024mikipiki&quot; správne uložený v Beds24 účte
+                          <br />2. Uistite sa, že &quot;API Key Access&quot; je nastavené na &quot;allow any IP&quot;
+                          <br />3. Skontrolujte, či &quot;Allow Writes&quot; je nastavené na &quot;Yes&quot;
                           <br />4. Kontaktujte Beds24 podporu ak problém pretrváva
                         </AlertDescription>
                       </Alert>

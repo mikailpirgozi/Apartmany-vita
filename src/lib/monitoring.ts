@@ -34,7 +34,7 @@ export function trackWebVitals(metric: WebVitalsMetric) {
 }
 
 // Custom event tracking
-export function trackEvent(eventName: string, parameters: Record<string, any> = {}) {
+export function trackEvent(eventName: string, parameters: Record<string, unknown> = {}) {
   if (typeof window !== 'undefined' && window.gtag) {
     window.gtag('event', eventName, parameters)
   }
@@ -48,7 +48,7 @@ export function trackEvent(eventName: string, parameters: Record<string, any> = 
 }
 
 // Booking funnel tracking
-export function trackBookingStep(step: string, apartmentId: string, additionalData: Record<string, any> = {}) {
+export function trackBookingStep(step: string, apartmentId: string, additionalData: Record<string, unknown> = {}) {
   trackEvent('booking_step', {
     step,
     apartment_id: apartmentId,
@@ -90,7 +90,7 @@ export function trackSearch(searchParams: {
 }
 
 // Error tracking
-export function trackError(error: Error, context: Record<string, any> = {}) {
+export function trackError(error: Error, context: Record<string, unknown> = {}) {
   console.error('Application Error:', error, context)
   
   // Send to Sentry (if configured)
@@ -119,7 +119,7 @@ export function trackError(error: Error, context: Record<string, any> = {}) {
 export function trackPerformance(metric: {
   name: string
   value: number
-  context?: Record<string, any>
+  context?: Record<string, unknown>
 }) {
   trackEvent('performance_metric', {
     event_category: 'performance',
@@ -290,7 +290,9 @@ export async function performHealthCheck(): Promise<{
 // Declare global gtag function for TypeScript
 declare global {
   interface Window {
-    gtag: (command: string, targetId: string, config?: any) => void
-    Sentry: any
+    gtag: (command: string, targetId: string, config?: Record<string, unknown>) => void
+    Sentry: {
+      captureException: (error: Error, context?: Record<string, unknown>) => void
+    }
   }
 }

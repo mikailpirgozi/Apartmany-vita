@@ -5,13 +5,10 @@ import { useStripe, useElements, PaymentElement, Elements } from "@stripe/react-
 import { loadStripe } from "@stripe/stripe-js";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
-import { sk } from "date-fns/locale";
 import { CreditCard, Shield, Lock, AlertCircle, CheckCircle, Loader2 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Label } from "@/components/ui/label";
@@ -45,7 +42,25 @@ interface PaymentFormProps {
   onBack?: () => void;
 }
 
-interface PaymentElementFormProps extends Omit<PaymentFormProps, 'onSuccess' | 'onBack'> {
+interface PaymentElementFormProps {
+  apartment: Apartment;
+  bookingData: {
+    checkIn: Date;
+    checkOut: Date;
+    guests: number;
+    children: number;
+  };
+  guestInfo: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    country: string;
+    city: string;
+  };
+  pricing: BookingPricing;
+  extrasTotal: number;
+  totalPrice: number;
   clientSecret: string;
   onPaymentSuccess: (bookingId: string) => void;
   onPaymentError: (error: string) => void;
@@ -154,20 +169,12 @@ export function PaymentForm(props: PaymentFormProps) {
 
 // Payment form with Stripe Elements
 function PaymentElementForm({
-  apartment,
-  bookingData,
   guestInfo,
-  pricing,
-  extrasTotal,
-  totalPrice,
-  clientSecret,
   onPaymentSuccess,
-  onPaymentError,
   onBack
 }: PaymentElementFormProps) {
   const stripe = useStripe();
   const elements = useElements();
-  const router = useRouter();
   
   const [isProcessing, setIsProcessing] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
@@ -198,7 +205,7 @@ function PaymentElementForm({
         setPaymentError(error.message || 'Platba sa nepodarila');
       } else if (paymentIntent?.status === 'requires_capture') {
         // Payment authorized successfully
-        const bookingId = (paymentIntent as any).metadata?.bookingId;
+        const bookingId = paymentIntent?.metadata?.bookingId;
         if (bookingId) {
           onPaymentSuccess(bookingId);
         } else {
@@ -207,7 +214,7 @@ function PaymentElementForm({
       } else {
         setPaymentError('Neočakávaný stav platby');
       }
-    } catch (err) {
+    } catch {
       setPaymentError('Nastala chyba pri spracovaní platby');
     } finally {
       setIsProcessing(false);
@@ -425,7 +432,12 @@ export function PaymentSuccessState({
 }: { 
   bookingId: string; 
   apartment: Apartment;
-  bookingData: any;
+  bookingData: {
+    checkIn: Date;
+    checkOut: Date;
+    guests: number;
+    children: number;
+  };
 }) {
   const router = useRouter();
 

@@ -2,7 +2,7 @@ import { Apartment } from '@/types'
 
 export interface StructuredDataConfig {
   type: 'Organization' | 'LocalBusiness' | 'Accommodation' | 'WebSite' | 'BreadcrumbList'
-  data: any
+  data: Record<string, unknown>
 }
 
 export function generateOrganizationData() {
@@ -202,6 +202,6 @@ export function generateFAQStructuredData(faqs: Array<{ question: string; answer
   }
 }
 
-export function generateStructuredDataScript(data: any): string {
+export function generateStructuredDataScript(data: Record<string, unknown>): string {
   return `<script type="application/ld+json">${JSON.stringify(data, null, 2)}</script>`
 }

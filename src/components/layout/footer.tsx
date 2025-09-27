@@ -5,7 +5,7 @@ import { motion } from 'framer-motion'
 import { Separator } from '@/components/ui/separator'
 import { Phone, Mail, MapPin, Facebook, Instagram, Heart } from 'lucide-react'
 import { CONTACT_INFO, SOCIAL_LINKS, APP_NAME } from '@/constants'
-import { fadeInUp, staggerContainer, staggerItem } from '@/lib/animations'
+import { staggerContainer, staggerItem } from '@/lib/animations'
 
 export function Footer() {
   return (

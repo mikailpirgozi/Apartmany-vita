@@ -1,10 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
 /**
  * Direct Beds24 API test - simulates exactly what our service does
  * GET /api/beds24/direct-test
  */
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const apiKey = process.env.BEDS24_API_KEY || 'VitaAPI2024mikipiki';
     const baseUrl = process.env.BEDS24_BASE_URL || 'https://beds24.com/api/v2';

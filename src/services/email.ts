@@ -655,7 +655,7 @@ function generateAdminBookingTemplate(booking: BookingWithDetails): EmailTemplat
 /**
  * Generate booking PDF (placeholder - implement with jsPDF or similar)
  */
-async function generateBookingPDF(booking: BookingWithDetails): Promise<Buffer> {
+async function generateBookingPDF(): Promise<Buffer> {
   // TODO: Implement PDF generation using jsPDF, Puppeteer, or similar
   // For now, return empty buffer
   return Buffer.from('PDF content would be here');

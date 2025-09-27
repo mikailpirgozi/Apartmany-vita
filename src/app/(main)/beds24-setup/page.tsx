@@ -18,7 +18,11 @@ export default function Beds24SetupPage() {
     lite: '357932',
     deluxe: '357931'
   });
-  const [testResult, setTestResult] = useState<any>(null);
+  const [testResult, setTestResult] = useState<{
+    success: boolean;
+    message: string;
+    error?: string;
+  } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const testConnection = async () => {
@@ -96,7 +100,7 @@ OPENAI_API_KEY=your_openai_api_key`;
             <Alert>
               <AlertTriangle className="h-4 w-4" />
               <AlertDescription>
-                <strong>Dôležité:</strong> API kľúč "AbDalfEtyekmentOsVeb" nie je skutočný Beds24 API kľúč. 
+                <strong>Dôležité:</strong> API kľúč &quot;AbDalfEtyekmentOsVeb&quot; nie je skutočný Beds24 API kľúč. 
                 Potrebujete skutočné údaje z vašej Beds24 účtu.
               </AlertDescription>
             </Alert>
@@ -294,7 +298,7 @@ OPENAI_API_KEY=your_openai_api_key`;
                 <div>
                   <p className="font-medium">Nastavte IP prístup</p>
                   <p className="text-sm text-muted-foreground">
-                    Account → Account Access → API Key 1 → "allow any IP" alebo pridajte vašu IP
+                    Account → Account Access → API Key 1 → &quot;allow any IP&quot; alebo pridajte vašu IP
                   </p>
                 </div>
               </div>

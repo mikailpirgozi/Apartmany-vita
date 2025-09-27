@@ -12,7 +12,7 @@ export interface EmailTemplate {
 export interface AutomationTrigger {
   type: 'booking_confirmed' | 'checkin_reminder' | 'checkout_followup' | 'birthday' | 'abandoned_booking'
   delay?: number // in hours
-  conditions?: any
+  conditions?: Record<string, unknown>
 }
 
 export async function sendBookingConfirmationEmail(booking: Booking, user: User): Promise<boolean> {
@@ -118,7 +118,7 @@ export async function sendPromotionalEmail(
   return { sent, failed }
 }
 
-function generateBookingConfirmationTemplate(booking: Booking, user: User): EmailTemplate {
+function generateBookingConfirmationTemplate(booking: Booking): EmailTemplate {
   const checkInDate = new Date(booking.checkIn).toLocaleDateString('sk-SK')
   const checkOutDate = new Date(booking.checkOut).toLocaleDateString('sk-SK')
   
@@ -233,7 +233,7 @@ function generateBookingConfirmationTemplate(booking: Booking, user: User): Emai
   }
 }
 
-function generateCheckInInstructionsTemplate(booking: Booking, user: User): EmailTemplate {
+function generateCheckInInstructionsTemplate(booking: Booking): EmailTemplate {
   const checkInDate = new Date(booking.checkIn).toLocaleDateString('sk-SK')
   const accessCode = generateAccessCode(booking.id)
   
@@ -305,7 +305,7 @@ function generateCheckInInstructionsTemplate(booking: Booking, user: User): Emai
   }
 }
 
-function generateCheckOutFollowupTemplate(booking: Booking, user: User): EmailTemplate {
+function generateCheckOutFollowupTemplate(): EmailTemplate {
   return {
     subject: 'Ďakujeme za pobyt v Apartmánoch Vita! ⭐',
     html: `

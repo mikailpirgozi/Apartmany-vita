@@ -5,10 +5,26 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, XCircle, AlertTriangle, Info } from 'lucide-react';
+import { XCircle, AlertTriangle, Info } from 'lucide-react';
 
 export default function Beds24DebugPage() {
-  const [testResults, setTestResults] = useState<any>(null);
+  const [testResults, setTestResults] = useState<{
+    connection?: {
+      success: boolean;
+      message: string;
+      results?: {
+        connection?: {
+          error?: string;
+        };
+      };
+    };
+    availability?: {
+      success: boolean;
+      message: string;
+      error?: string;
+    };
+    error?: string;
+  } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const runTests = async () => {
@@ -54,7 +70,7 @@ export default function Beds24DebugPage() {
             <Alert variant="destructive">
               <XCircle className="h-4 w-4" />
               <AlertDescription>
-                <strong>Problém:</strong> API kľúč "AbDalfEtyekmentOsVeb" nie je platný Beds24 API kľúč.
+                <strong>Problém:</strong> API kľúč &quot;AbDalfEtyekmentOsVeb&quot; nie je platný Beds24 API kľúč.
                 Dostávame HTTP 401 Unauthorized, čo znamená, že kľúč nie je autorizovaný.
               </AlertDescription>
             </Alert>
@@ -198,7 +214,7 @@ export default function Beds24DebugPage() {
                 <div>
                   <p className="font-medium">Nastavte IP prístup</p>
                   <p className="text-sm text-muted-foreground">
-                    V API Key 1 nastavte "allow any IP" alebo pridajte vašu IP adresu
+                    V API Key 1 nastavte &quot;allow any IP&quot; alebo pridajte vašu IP adresu
                   </p>
                 </div>
               </div>
@@ -208,7 +224,7 @@ export default function Beds24DebugPage() {
                 <div>
                   <p className="font-medium">Aktualizujte .env.local</p>
                   <p className="text-sm text-muted-foreground">
-                    Nahraďte "AbDalfEtyekmentOsVeb" skutočným API kľúčom
+                    Nahraďte &quot;AbDalfEtyekmentOsVeb&quot; skutočným API kľúčom
                   </p>
                 </div>
               </div>

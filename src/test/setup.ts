@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom'
-import { beforeAll, afterEach, afterAll, vi } from 'vitest'
+import { afterEach, vi } from 'vitest'
 import { cleanup } from '@testing-library/react'
 import React from 'react'
 
@@ -19,8 +19,7 @@ vi.mock('next/navigation', () => ({
 
 // Mock Next.js image
 vi.mock('next/image', () => ({
-  default: (props: any) => {
-     
+  default: (props: Record<string, unknown>) => {
     return React.createElement('img', props)
   },
 }))
@@ -28,12 +27,12 @@ vi.mock('next/image', () => ({
 // Mock framer-motion
 vi.mock('framer-motion', () => ({
   motion: {
-    div: ({ children, ...props }: any) => React.createElement('div', props, children),
-    section: ({ children, ...props }: any) => React.createElement('section', props, children),
-    h1: ({ children, ...props }: any) => React.createElement('h1', props, children),
-    p: ({ children, ...props }: any) => React.createElement('p', props, children),
+    div: ({ children, ...props }: Record<string, unknown>) => React.createElement('div', props, children),
+    section: ({ children, ...props }: Record<string, unknown>) => React.createElement('section', props, children),
+    h1: ({ children, ...props }: Record<string, unknown>) => React.createElement('h1', props, children),
+    p: ({ children, ...props }: Record<string, unknown>) => React.createElement('p', props, children),
   },
-  AnimatePresence: ({ children }: any) => children,
+  AnimatePresence: ({ children }: Record<string, unknown>) => children,
 }))
 
 // Mock next-auth
@@ -58,7 +57,7 @@ vi.mock('@tanstack/react-query', () => ({
     isPending: false,
   }),
   QueryClient: vi.fn(),
-  QueryClientProvider: ({ children }: any) => children,
+  QueryClientProvider: ({ children }: Record<string, unknown>) => children,
 }))
 
 // Cleanup after each test

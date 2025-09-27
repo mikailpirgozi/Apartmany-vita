@@ -61,6 +61,9 @@ const extrasSchema = z.object({
 type GuestInfoFormData = z.infer<typeof guestInfoSchema>;
 type ExtrasFormData = z.infer<typeof extrasSchema>;
 
+// Export for use in other files if needed
+export { extrasSchema };
+
 interface BookingFlowProps {
   apartment: Apartment;
   bookingData: {

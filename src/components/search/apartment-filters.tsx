@@ -37,7 +37,7 @@ export function ApartmentFilters({ onFilterChange, className }: ApartmentFilters
     key: K,
     value: SearchFilters[K] extends (infer U)[] ? U : never
   ) => {
-    const currentArray = filters[key] as any[]
+    const currentArray = filters[key] as unknown[]
     const newArray = currentArray.includes(value)
       ? currentArray.filter(item => item !== value)
       : [...currentArray, value]

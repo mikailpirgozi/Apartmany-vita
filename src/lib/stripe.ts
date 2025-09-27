@@ -62,7 +62,7 @@ export async function createBookingPaymentIntent(data: PaymentIntentData): Promi
     return {
       paymentIntentId: paymentIntent.id,
       clientSecret: paymentIntent.client_secret!,
-      status: paymentIntent.status as any
+      status: paymentIntent.status as string
     };
   } catch (error) {
     console.error('Error creating payment intent:', error);
