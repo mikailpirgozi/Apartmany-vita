@@ -141,7 +141,7 @@ export default function Beds24TestPage() {
                             View Response Data
                           </summary>
                           <pre className="mt-2 p-2 bg-muted rounded text-xs overflow-auto">
-                            {JSON.stringify(results.connection.data as any, null, 2)}
+                            {JSON.stringify(results.connection.data as Record<string, unknown>, null, 2)}
                           </pre>
                         </details>
                       </div>

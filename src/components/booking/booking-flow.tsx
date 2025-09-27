@@ -2,13 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { format } from "date-fns";
 import { sk } from "date-fns/locale";
-import { Check, ChevronLeft, ChevronRight, User, CreditCard, Mail, Phone, MapPin, Calendar, Users, Star, Shield } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, User, CreditCard, Calendar, Star, Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -128,7 +128,6 @@ const EXTRA_SERVICES: ExtraService[] = [
 
 export function BookingFlow({ apartment, bookingData, pricing, onComplete }: BookingFlowProps) {
   const { data: session } = useSession();
-  const router = useRouter();
   const [currentStep, setCurrentStep] = useState<BookingStep>('details');
   const [completedSteps, setCompletedSteps] = useState<Set<BookingStep>>(new Set());
   const [guestInfo, setGuestInfo] = useState<GuestInfoFormData | null>(null);
@@ -182,7 +181,7 @@ export function BookingFlow({ apartment, bookingData, pricing, onComplete }: Boo
 
   const calculateExtrasTotal = () => {
     return EXTRA_SERVICES.reduce((total, service) => {
-      return total + (selectedExtras[service.id] ? service.price : 0);
+      return total + (selectedExtras[service.id as keyof ExtrasFormData] ? service.price : 0);
     }, 0);
   };
 
@@ -203,7 +202,6 @@ export function BookingFlow({ apartment, bookingData, pricing, onComplete }: Boo
         {/* Step Navigation */}
         <div className="flex items-center justify-between">
           {BOOKING_STEPS.map((step, index) => {
-            const Icon = step.icon;
             const isCompleted = completedSteps.has(step.id);
             const isCurrent = currentStep === step.id;
             const isAccessible = index === 0 || completedSteps.has(BOOKING_STEPS[index - 1].id);
@@ -235,7 +233,7 @@ export function BookingFlow({ apartment, bookingData, pricing, onComplete }: Boo
                   {isCompleted ? (
                     <Check className="h-4 w-4" />
                   ) : (
-                    <Icon className="h-4 w-4" />
+                    <step.icon className="h-4 w-4" />
                   )}
                 </div>
                 <span className="text-xs font-medium text-center hidden sm:block">
@@ -256,7 +254,6 @@ export function BookingFlow({ apartment, bookingData, pricing, onComplete }: Boo
                 <BookingDetailsStep
                   apartment={apartment}
                   bookingData={bookingData}
-                  pricing={pricing}
                   onNext={goToNextStep}
                 />
               )}
@@ -297,8 +294,6 @@ export function BookingFlow({ apartment, bookingData, pricing, onComplete }: Boo
               {currentStep === 'confirmation' && (
                 <ConfirmationStep
                   bookingId="TEMP_ID"
-                  apartment={apartment}
-                  bookingData={bookingData}
                 />
               )}
             </CardContent>
@@ -312,7 +307,6 @@ export function BookingFlow({ apartment, bookingData, pricing, onComplete }: Boo
             bookingData={bookingData}
             pricing={pricing}
             selectedExtras={selectedExtras}
-            extrasTotal={calculateExtrasTotal()}
             totalPrice={totalPrice}
           />
         </div>
@@ -325,12 +319,15 @@ export function BookingFlow({ apartment, bookingData, pricing, onComplete }: Boo
 function BookingDetailsStep({
   apartment,
   bookingData,
-  pricing,
   onNext
 }: {
   apartment: Apartment;
-  bookingData: any;
-  pricing: BookingPricing;
+  bookingData: {
+    checkIn: Date;
+    checkOut: Date;
+    guests: number;
+    children: number;
+  };
   onNext: () => void;
 }) {
   return (
@@ -653,8 +650,7 @@ function ExtrasStep({
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {EXTRA_SERVICES.map((service) => {
-          const Icon = service.icon;
-          const isSelected = selectedExtras[service.id];
+          const isSelected = selectedExtras[service.id as keyof ExtrasFormData];
           
           return (
             <Card
@@ -722,8 +718,23 @@ function PaymentStep({
   onComplete 
 }: { 
   apartment: Apartment;
-  bookingData: any;
-  guestInfo: any;
+  bookingData: {
+    checkIn: Date;
+    checkOut: Date;
+    guests: number;
+    children: number;
+  };
+  guestInfo: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    country: string;
+    city: string;
+    specialRequests?: string;
+    arrivalTime?: string;
+    marketingConsent: boolean;
+  };
   pricing: BookingPricing;
   selectedExtras: ExtrasFormData;
   totalPrice: number;
@@ -735,7 +746,7 @@ function PaymentStep({
 
   const calculateExtrasTotal = () => {
     return EXTRA_SERVICES.reduce((total, service) => {
-      return total + (selectedExtras[service.id] ? service.price : 0);
+      return total + (selectedExtras[service.id as keyof ExtrasFormData] ? service.price : 0);
     }, 0);
   };
 
@@ -769,7 +780,7 @@ function PaymentStep({
   );
 }
 
-function ConfirmationStep({ bookingId }: { bookingId: string; [key: string]: any }) {
+function ConfirmationStep({ bookingId }: { bookingId: string }) {
   return (
     <div className="text-center space-y-4">
       <h2 className="text-xl font-semibold">Rezervácia potvrdená!</h2>
@@ -783,14 +794,17 @@ function BookingSummary({
   bookingData,
   pricing,
   selectedExtras,
-  extrasTotal,
   totalPrice
 }: {
   apartment: Apartment;
-  bookingData: any;
+  bookingData: {
+    checkIn: Date;
+    checkOut: Date;
+    guests: number;
+    children: number;
+  };
   pricing: BookingPricing;
   selectedExtras: ExtrasFormData;
-  extrasTotal: number;
   totalPrice: number;
 }) {
   const selectedExtrasList = EXTRA_SERVICES.filter(service => selectedExtras[service.id]);
@@ -836,8 +850,8 @@ function BookingSummary({
             <span>€{pricing.cityTax}</span>
           </div>
 
-          {selectedExtrasList.map(service => (
-            <div key={service.id} className="flex justify-between">
+          {selectedExtrasList.map((service, index) => (
+            <div key={index} className="flex justify-between">
               <span>{service.name}</span>
               <span>€{service.price}</span>
             </div>
