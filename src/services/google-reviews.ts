@@ -40,7 +40,7 @@ export async function getGoogleReviews(): Promise<GoogleReviewsResponse> {
         place_id: placeId,
         fields: ['reviews', 'rating', 'user_ratings_total'],
         key: apiKey,
-        language: 'sk'
+        language: 'sk' as any
       }
     })
 
@@ -48,7 +48,10 @@ export async function getGoogleReviews(): Promise<GoogleReviewsResponse> {
       const result = response.data.result
       
       return {
-        reviews: result.reviews || [],
+        reviews: (result.reviews || []).map((review: any) => ({
+          ...review,
+          time: typeof review.time === 'string' ? Date.parse(review.time) : review.time
+        })) as GoogleReview[],
         averageRating: result.rating || 4.8,
         totalReviews: result.user_ratings_total || 0,
         status: 'success'

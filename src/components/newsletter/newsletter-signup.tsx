@@ -26,9 +26,9 @@ const newsletterSchema = z.object({
   email: z.string().email('Zadajte platný email'),
   name: z.string().optional(),
   preferences: z.object({
-    promotions: z.boolean().default(true),
-    updates: z.boolean().default(true),
-    events: z.boolean().default(false)
+    promotions: z.boolean(),
+    updates: z.boolean(),
+    events: z.boolean()
   }).optional()
 })
 
@@ -129,7 +129,7 @@ export function NewsletterSignup({
         </div>
         
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(subscribe.mutate)} className="flex gap-2">
+          <form onSubmit={form.handleSubmit((data) => subscribe.mutate(data))} className="flex gap-2">
             <FormField
               control={form.control}
               name="email"
@@ -175,7 +175,7 @@ export function NewsletterSignup({
         </div>
         
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(subscribe.mutate)} className="flex gap-2">
+          <form onSubmit={form.handleSubmit((data) => subscribe.mutate(data))} className="flex gap-2">
             <FormField
               control={form.control}
               name="email"
@@ -223,7 +223,7 @@ export function NewsletterSignup({
       </div>
       
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(subscribe.mutate)} className="space-y-4">
+        <form onSubmit={form.handleSubmit((data) => subscribe.mutate(data))} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <FormField
               control={form.control}

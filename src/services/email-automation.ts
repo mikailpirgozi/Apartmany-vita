@@ -27,7 +27,7 @@ export async function sendBookingConfirmationEmail(booking: Booking, user: User)
       text: template.text,
       tags: [
         { name: 'type', value: 'booking_confirmation' },
-        { name: 'apartment', value: booking.apartment.slug },
+        { name: 'apartment', value: booking.apartment?.slug || 'unknown' },
         { name: 'booking_id', value: booking.id }
       ]
     })
@@ -51,7 +51,7 @@ export async function sendCheckInInstructionsEmail(booking: Booking, user: User)
       text: template.text,
       tags: [
         { name: 'type', value: 'checkin_instructions' },
-        { name: 'apartment', value: booking.apartment.slug },
+        { name: 'apartment', value: booking.apartment?.slug || 'unknown' },
         { name: 'booking_id', value: booking.id }
       ]
     })
@@ -75,7 +75,7 @@ export async function sendCheckOutFollowupEmail(booking: Booking, user: User): P
       text: template.text,
       tags: [
         { name: 'type', value: 'checkout_followup' },
-        { name: 'apartment', value: booking.apartment.slug },
+        { name: 'apartment', value: booking.apartment?.slug || 'unknown' },
         { name: 'booking_id', value: booking.id }
       ]
     })
@@ -145,7 +145,7 @@ function generateBookingConfirmationTemplate(booking: Booking, user: User): Emai
               
               <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #e5e7eb; padding-bottom: 10px;">
                 <span style="font-weight: 600; color: #374151;">Apartmán:</span>
-                <span style="color: #6b7280;">${booking.apartment.name}</span>
+                <span style="color: #6b7280;">${booking.apartment?.name || 'Neznámy apartmán'}</span>
               </div>
               
               <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #e5e7eb; padding-bottom: 10px;">
@@ -212,7 +212,7 @@ function generateBookingConfirmationTemplate(booking: Booking, user: User): Emai
       
       DETAILY REZERVÁCIE:
       Rezervácia #: ${booking.id}
-      Apartmán: ${booking.apartment.name}
+      Apartmán: ${booking.apartment?.name || 'Neznámy apartmán'}
       Príchod: ${checkInDate} od 15:00
       Odchod: ${checkOutDate} do 11:00
       Hostia: ${booking.guests} osôb
@@ -238,7 +238,7 @@ function generateCheckInInstructionsTemplate(booking: Booking, user: User): Emai
   const accessCode = generateAccessCode(booking.id)
   
   return {
-    subject: `Check-in inštrukcie - ${booking.apartment.name} | ${checkInDate}`,
+    subject: `Check-in inštrukcie - ${booking.apartment?.name || 'Apartmán'} | ${checkInDate}`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <div style="background: #10b981; padding: 30px 20px; text-align: center;">
@@ -262,7 +262,7 @@ function generateCheckInInstructionsTemplate(booking: Booking, user: User): Emai
             <li><strong>Adresa:</strong> Štúrovo námestie 132/16, Trenčín</li>
             <li><strong>Vchod:</strong> Hlavný vchod z námestia</li>
             <li><strong>Kód:</strong> Zadajte ${accessCode} na elektronickom zámku</li>
-            <li><strong>Apartmán:</strong> ${booking.apartment.name} - ${booking.apartment.floor}. poschodie</li>
+            <li><strong>Apartmán:</strong> ${booking.apartment?.name || 'Apartmán'} - ${booking.apartment?.floor || '?'}. poschodie</li>
             <li><strong>WiFi:</strong> VitaGuest / heslo: vita2024</li>
           </ol>
           
@@ -291,7 +291,7 @@ function generateCheckInInstructionsTemplate(booking: Booking, user: User): Emai
       1. Adresa: Štúrovo námestie 132/16, Trenčín
       2. Vchod: Hlavný vchod z námestia
       3. Kód: Zadajte ${accessCode} na elektronickom zámku
-      4. Apartmán: ${booking.apartment.name} - ${booking.apartment.floor}. poschodie
+      4. Apartmán: ${booking.apartment?.name || 'Apartmán'} - ${booking.apartment?.floor || '?'}. poschodie
       5. WiFi: VitaGuest / heslo: vita2024
       
       PARKOVANIE:
