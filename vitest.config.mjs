@@ -13,6 +13,15 @@ export default defineConfig({
     setupFiles: ['./src/test/setup.ts'],
     globals: true,
     css: true,
+    pool: 'forks',
+    poolOptions: {
+      forks: {
+        singleFork: true,
+      },
+    },
+    env: {
+      NODE_ENV: 'test',
+    },
     exclude: [
       '**/node_modules/**',
       '**/dist/**',

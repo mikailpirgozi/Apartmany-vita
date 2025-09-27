@@ -3,6 +3,44 @@ import { afterEach, vi } from 'vitest'
 import { cleanup } from '@testing-library/react'
 import React from 'react'
 
+// Polyfill for Node.js environment
+if (typeof globalThis.crypto === 'undefined') {
+  globalThis.crypto = {
+    getRandomValues: (arr: Uint8Array) => {
+      for (let i = 0; i < arr.length; i++) {
+        arr[i] = Math.floor(Math.random() * 256)
+      }
+      return arr
+    }
+  } as Crypto
+}
+
+// Polyfill for URL and other Web APIs
+if (typeof globalThis.URL === 'undefined') {
+  try {
+    const { URL } = require('url')
+    globalThis.URL = URL
+  } catch {
+    globalThis.URL = class URL {
+      constructor(public href: string, base?: string) {
+        this.href = href
+      }
+    } as any
+  }
+}
+
+// Mock webidl-conversions
+if (typeof globalThis.WeakMap === 'undefined') {
+  globalThis.WeakMap = Map as any
+}
+
+// Mock TextEncoder/TextDecoder for Node.js compatibility
+if (typeof globalThis.TextEncoder === 'undefined') {
+  const { TextEncoder, TextDecoder } = require('util')
+  globalThis.TextEncoder = TextEncoder
+  globalThis.TextDecoder = TextDecoder
+}
+
 // Mock Next.js router
 vi.mock('next/navigation', () => ({
   useRouter: () => ({
