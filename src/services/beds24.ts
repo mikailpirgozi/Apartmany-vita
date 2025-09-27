@@ -59,6 +59,13 @@ class Beds24Service {
       propId: process.env.BEDS24_PROP_ID || '357931'
     };
 
+    // Debug logging
+    console.log('Beds24Service config:', {
+      baseUrl: this.config.baseUrl,
+      tokenLength: this.config.longLifeToken?.length,
+      tokenStart: this.config.longLifeToken?.substring(0, 20) + '...'
+    });
+
     if (!this.config.longLifeToken) {
       throw new Error('BEDS24_LONG_LIFE_TOKEN is required');
     }
@@ -69,6 +76,11 @@ class Beds24Service {
    */
   async getAvailability(request: AvailabilityRequest): Promise<AvailabilityResponse> {
     try {
+      console.log('Fetching availability:', {
+        url: `${this.config.baseUrl}/bookings`,
+        request
+      });
+
       // API V2 format with long-life token
       const response = await fetch(`${this.config.baseUrl}/bookings`, {
         method: 'GET',
@@ -78,11 +90,16 @@ class Beds24Service {
         }
       });
 
+      console.log('Availability response status:', response.status);
+
       if (!response.ok) {
-        throw new Error(`Beds24 API error: ${response.status} ${response.statusText}`);
+        const errorText = await response.text();
+        console.error('Availability API error:', errorText);
+        throw new Error(`Beds24 API error: ${response.status} ${response.statusText} - ${errorText}`);
       }
 
       const data = await response.json();
+      console.log('Availability data received:', data);
       
       return this.parseAvailabilityResponseV2(data, request);
     } catch (error) {
@@ -121,6 +138,27 @@ class Beds24Service {
    */
   async createBooking(bookingData: BookingData): Promise<Beds24Booking> {
     try {
+      const requestBody = [{
+        propId: bookingData.propId,
+        roomId: bookingData.roomId,
+        arrival: bookingData.checkIn,
+        departure: bookingData.checkOut,
+        numAdult: bookingData.numAdult,
+        numChild: bookingData.numChild,
+        guestFirstName: bookingData.guestFirstName,
+        guestName: bookingData.guestName,
+        guestEmail: bookingData.guestEmail,
+        guestPhone: bookingData.guestPhone,
+        price: bookingData.totalPrice,
+        status: 1, // New booking
+        apiReference: bookingData.bookingId
+      }];
+
+      console.log('Creating booking:', {
+        url: `${this.config.baseUrl}/bookings`,
+        requestBody
+      });
+
       // API V2 expects array format for bookings
       const response = await fetch(`${this.config.baseUrl}/bookings`, {
         method: 'POST',
@@ -128,29 +166,19 @@ class Beds24Service {
           'Content-Type': 'application/json',
           'token': this.config.longLifeToken
         },
-        body: JSON.stringify([{
-          propId: bookingData.propId,
-          roomId: bookingData.roomId,
-          arrival: bookingData.checkIn,
-          departure: bookingData.checkOut,
-          numAdult: bookingData.numAdult,
-          numChild: bookingData.numChild,
-          guestFirstName: bookingData.guestFirstName,
-          guestName: bookingData.guestName,
-          guestEmail: bookingData.guestEmail,
-          guestPhone: bookingData.guestPhone,
-          price: bookingData.totalPrice,
-          status: 1, // New booking
-          apiReference: bookingData.bookingId
-        }])
+        body: JSON.stringify(requestBody)
       });
 
+      console.log('Booking creation response status:', response.status);
+
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(`Beds24 booking error: ${errorData.error || response.statusText}`);
+        const errorText = await response.text();
+        console.error('Booking creation API error:', errorText);
+        throw new Error(`Beds24 booking error: ${errorText || response.statusText}`);
       }
 
       const data = await response.json();
+      console.log('Booking creation data received:', data);
       
       // Handle array response
       const booking = Array.isArray(data) ? data[0] : data;
@@ -202,6 +230,11 @@ class Beds24Service {
    */
   async getBooking(bookId: string): Promise<Beds24Booking | null> {
     try {
+      console.log('Fetching booking:', {
+        url: `${this.config.baseUrl}/bookings/${bookId}`,
+        bookId
+      });
+
       const response = await fetch(`${this.config.baseUrl}/bookings/${bookId}`, {
         method: 'GET',
         headers: {
@@ -210,14 +243,19 @@ class Beds24Service {
         }
       });
 
+      console.log('Get booking response status:', response.status);
+
       if (!response.ok) {
         if (response.status === 404) {
           return null;
         }
-        throw new Error(`Failed to get booking: ${response.statusText}`);
+        const errorText = await response.text();
+        console.error('Get booking API error:', errorText);
+        throw new Error(`Failed to get booking: ${errorText || response.statusText}`);
       }
 
       const data = await response.json();
+      console.log('Get booking data received:', data);
       return this.parseBookingResponseV2(data);
     } catch (error) {
       console.error('Error fetching booking from Beds24:', error);
