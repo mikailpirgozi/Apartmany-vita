@@ -605,8 +605,12 @@ export async function getApartmentAvailability(
   startDate: Date, 
   endDate: Date
 ): Promise<AvailabilityResponse> {
-  // Map apartment slugs to Beds24 Property ID + Room ID - 3 samostatné Properties
+  // Map apartment slugs to Beds24 Property ID + Room ID - 4 apartmány
   const apartmentMapping: Record<string, { propId: string; roomId: string }> = {
+    'maly-apartman': {
+      propId: process.env.BEDS24_PROP_ID_MALY || '161445',
+      roomId: process.env.BEDS24_ROOM_ID_MALY || '357930'
+    },
     'design-apartman': {
       propId: process.env.BEDS24_PROP_ID_DESIGN || '227484',
       roomId: process.env.BEDS24_ROOM_ID_DESIGN || '483027'
@@ -639,6 +643,10 @@ export async function createApartmentBooking(
   bookingData: Omit<BookingData, 'propId' | 'roomId'>
 ): Promise<Beds24Booking> {
   const apartmentMapping: Record<string, { propId: string; roomId: string }> = {
+    'maly-apartman': {
+      propId: process.env.BEDS24_PROP_ID_MALY || '161445',
+      roomId: process.env.BEDS24_ROOM_ID_MALY || '357930'
+    },
     'design-apartman': {
       propId: process.env.BEDS24_PROP_ID_DESIGN || '227484',
       roomId: process.env.BEDS24_ROOM_ID_DESIGN || '483027'

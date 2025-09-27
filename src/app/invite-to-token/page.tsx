@@ -8,9 +8,21 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
+interface TokenData {
+  accessToken?: string;
+  refreshToken?: string;
+  expiresIn?: string | number;
+}
+
+interface TokenResult {
+  success: boolean;
+  data?: TokenData;
+  error?: string;
+}
+
 export default function InviteToTokenPage() {
   const [inviteCode, setInviteCode] = useState('');
-  const [result, setResult] = useState<Record<string, unknown> | null>(null);
+  const [result, setResult] = useState<TokenResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -112,7 +124,7 @@ export default function InviteToTokenPage() {
                       <Button 
                         variant="outline" 
                         size="sm"
-                        onClick={() => copyToClipboard(result.data.accessToken || '')}
+                        onClick={() => copyToClipboard(result.data?.accessToken || '')}
                       >
                         Copy
                       </Button>
@@ -131,7 +143,7 @@ export default function InviteToTokenPage() {
                       <Button 
                         variant="outline" 
                         size="sm"
-                        onClick={() => copyToClipboard(result.data.refreshToken || '')}
+                        onClick={() => copyToClipboard(result.data?.refreshToken || '')}
                       >
                         Copy
                       </Button>
@@ -143,7 +155,7 @@ export default function InviteToTokenPage() {
                     <div className="space-y-2">
                       <Label>Expires In</Label>
                       <Input
-                        value={result.data.expiresIn}
+                        value={String(result.data.expiresIn)}
                         readOnly
                         className="font-mono"
                       />

@@ -123,10 +123,10 @@ class PricingService {
   ): Promise<Record<string, number>> {
     try {
       const roomMapping: Record<string, string> = {
-        'maly-apartman': process.env.BEDS24_ROOM_MALY!,
-        'design-apartman': process.env.BEDS24_ROOM_DESIGN!,
-        'lite-apartman': process.env.BEDS24_ROOM_LITE!,
-        'deluxe-apartman': process.env.BEDS24_ROOM_DELUXE!
+        'maly-apartman': process.env.BEDS24_ROOM_ID_MALY || '357930',
+        'design-apartman': process.env.BEDS24_ROOM_ID_DESIGN || '483027',
+        'lite-apartman': process.env.BEDS24_ROOM_ID_LITE || '357932',
+        'deluxe-apartman': process.env.BEDS24_ROOM_ID_DELUXE || '357931'
       };
       
       const roomId = roomMapping[apartmentSlug];
