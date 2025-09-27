@@ -69,9 +69,9 @@ class Beds24Service {
    */
   async getAvailability(request: AvailabilityRequest): Promise<AvailabilityResponse> {
     try {
-      // API V1 format - Beds24 uses propKey as parameter
+      // API V1 format - Beds24 uses apiKey as parameter
       const params = new URLSearchParams({
-        propKey: this.config.apiKey,
+        apiKey: this.config.apiKey,
         startDate: request.startDate,
         endDate: request.endDate
       });
