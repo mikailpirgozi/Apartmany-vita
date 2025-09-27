@@ -100,11 +100,20 @@ export function BookingWidget({
   
   // Check if selected dates are available
   const isDateRangeAvailable = availability && checkIn && checkOut ? 
-    availability.available.some((date: string) => {
-      const checkInStr = format(checkIn, 'yyyy-MM-dd');
-      const checkOutStr = format(checkOut, 'yyyy-MM-dd');
-      return date >= checkInStr && date < checkOutStr;
-    }) : true;
+    (() => {
+      // Generate all dates in the range (excluding checkout date)
+      const datesInRange: string[] = [];
+      const currentDate = new Date(checkIn);
+      while (currentDate < checkOut) {
+        datesInRange.push(format(currentDate, 'yyyy-MM-dd'));
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+      
+      // Check if ALL dates in range are available
+      return datesInRange.every(date => 
+        availability.available && availability.available.includes(date)
+      );
+    })() : true;
   
   const isValidBooking = checkIn && checkOut && nights > 0 && totalGuests <= apartment.maxGuests && isDateRangeAvailable;
 

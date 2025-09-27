@@ -10,7 +10,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export default function InviteToTokenPage() {
   const [inviteCode, setInviteCode] = useState('');
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<Record<string, unknown> | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -170,7 +170,7 @@ export default function InviteToTokenPage() {
             <ol className="list-decimal list-inside space-y-2 text-sm">
               <li>Copy your invite code from Beds24 dashboard</li>
               <li>Paste it in the input field above</li>
-              <li>Click "Convert to Token"</li>
+              <li>Click &quot;Convert to Token&quot;</li>
               <li>Copy the Access Token and use it as BEDS24_LONG_LIFE_TOKEN in your .env.local</li>
               <li>Test the new token with the V2 API</li>
             </ol>

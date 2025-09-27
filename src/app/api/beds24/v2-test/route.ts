@@ -30,12 +30,7 @@ export async function GET(request: NextRequest) {
         
       case 'rates':
         // Test rates endpoint
-        const ratesResult = await beds24Service.getRoomRates(
-          '357931',
-          '357931',
-          '2025-01-01',
-          '2025-01-31'
-        );
+        const ratesResult = await beds24Service.getRoomRates();
         
         return NextResponse.json({
           success: true,

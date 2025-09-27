@@ -156,7 +156,9 @@ class Beds24Service {
       // API V2 format with access token and query parameters
       const url = new URL(`${this.config.baseUrl}/bookings`);
       url.searchParams.append('propId', request.propId);
-      url.searchParams.append('roomId', request.roomId);
+      if (request.roomId) {
+        url.searchParams.append('roomId', request.roomId);
+      }
       
       const response = await fetch(url.toString(), {
         method: 'GET',
@@ -345,50 +347,77 @@ class Beds24Service {
 
     console.log('Parsing availability response:', { data, request });
 
-    // Parse Beds24 V2 response format
-    if (data && typeof data === 'object' && 'bookings' in data && Array.isArray((data as { bookings: unknown[] }).bookings)) {
-      const bookings = (data as { bookings: unknown[] }).bookings;
-      console.log('Found bookings:', bookings.length);
+    // Generate date range first
+    const startDate = new Date(request.startDate);
+    const endDate = new Date(request.endDate);
+    
+    console.log('Date range:', { startDate: startDate.toISOString(), endDate: endDate.toISOString() });
+
+    // Handle different possible response formats
+    let bookings: unknown[] = [];
+    
+    if (data && typeof data === 'object') {
+      // Try different possible formats
+      if ('bookings' in data && Array.isArray((data as { bookings: unknown[] }).bookings)) {
+        bookings = (data as { bookings: unknown[] }).bookings;
+      } else if ('data' in data && Array.isArray((data as { data: unknown[] }).data)) {
+        bookings = (data as { data: unknown[] }).data;
+      } else if (Array.isArray(data)) {
+        bookings = data;
+      }
+    }
+
+    console.log('Found bookings:', bookings.length);
+    
+    // Generate all dates in range and check availability
+    for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+      const dateStr = d.toISOString().split('T')[0];
       
-      // Generate date range
-      const startDate = new Date(request.startDate);
-      const endDate = new Date(request.endDate);
-      
-      console.log('Date range:', { startDate: startDate.toISOString(), endDate: endDate.toISOString() });
-      
-      for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
-        const dateStr = d.toISOString().split('T')[0];
-        
-        // Check if date is booked
-        const isBooked = bookings.some((booking: unknown) => {
-          if (booking && typeof booking === 'object' && 'arrival' in booking && 'departure' in booking) {
-            const bookingObj = booking as { arrival: string; departure: string };
-            const arrival = new Date(bookingObj.arrival);
-            const departure = new Date(bookingObj.departure);
+      // Check if date is booked
+      const isBooked = bookings.some((booking: unknown) => {
+        if (booking && typeof booking === 'object') {
+          // Try different date field names
+          const bookingObj = booking as Record<string, unknown>;
+          let arrival: Date | null = null;
+          let departure: Date | null = null;
+          
+          // Try different field names for arrival/departure
+          if ('arrival' in bookingObj && typeof bookingObj.arrival === 'string') {
+            arrival = new Date(bookingObj.arrival);
+          } else if ('checkIn' in bookingObj && typeof bookingObj.checkIn === 'string') {
+            arrival = new Date(bookingObj.checkIn);
+          } else if ('start' in bookingObj && typeof bookingObj.start === 'string') {
+            arrival = new Date(bookingObj.start);
+          }
+          
+          if ('departure' in bookingObj && typeof bookingObj.departure === 'string') {
+            departure = new Date(bookingObj.departure);
+          } else if ('checkOut' in bookingObj && typeof bookingObj.checkOut === 'string') {
+            departure = new Date(bookingObj.checkOut);
+          } else if ('end' in bookingObj && typeof bookingObj.end === 'string') {
+            departure = new Date(bookingObj.end);
+          }
+          
+          if (arrival && departure && !isNaN(arrival.getTime()) && !isNaN(departure.getTime())) {
             return d >= arrival && d < departure;
           }
-          return false;
-        });
-        
-        if (isBooked) {
-          booked.push(dateStr);
-        } else {
-          available.push(dateStr);
         }
-      }
-    } else {
-      console.log('No bookings found or invalid data format');
-      // If no bookings data, assume all dates are available
-      const startDate = new Date(request.startDate);
-      const endDate = new Date(request.endDate);
+        return false;
+      });
       
-      for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
-        const dateStr = d.toISOString().split('T')[0];
+      if (isBooked) {
+        booked.push(dateStr);
+      } else {
         available.push(dateStr);
       }
     }
 
-    console.log('Parsed availability:', { available: available.length, booked: booked.length });
+    console.log('Parsed availability:', { 
+      available: available.length, 
+      booked: booked.length,
+      availableDates: available.slice(0, 5), // Show first 5 for debugging
+      bookedDates: booked.slice(0, 5) // Show first 5 for debugging
+    });
 
     return {
       available,
