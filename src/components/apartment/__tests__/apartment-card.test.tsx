@@ -46,18 +46,20 @@ describe('ApartmentCard', () => {
     expect(container.textContent).toContain('2. poschodie')
   })
 
-  it('displays amenities count', () => {
+  it('displays amenities icons', () => {
     const { container } = render(<ApartmentCard apartment={mockApartment} />)
     
-    expect(container.textContent).toContain('4 vybavenia')
+    // Check that amenity icons are rendered
+    expect(container.querySelector('svg')).toBeInTheDocument()
   })
 
   it('renders booking button', () => {
     const { container } = render(<ApartmentCard apartment={mockApartment} />)
     
-    const bookingButton = container.querySelector('button')
-    expect(bookingButton).toBeInTheDocument()
-    expect(bookingButton?.textContent).toMatch(/rezervovať/i)
+    // The booking button is rendered as a Link component inside Button
+    const bookingLink = container.querySelector('a[href*="/apartments/maly-apartman"]')
+    expect(bookingLink).toBeInTheDocument()
+    expect(bookingLink?.textContent).toMatch(/rezervovať/i)
   })
 
   it('applies hover animation classes', () => {

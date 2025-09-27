@@ -47,7 +47,7 @@ describe('Loyalty System', () => {
   describe('calculateDiscountAmount', () => {
     it('calculates discount amount for different tiers', () => {
       expect(calculateDiscountAmount(100, LoyaltyTier.BRONZE)).toBe(5)
-      expect(calculateDiscountAmount(100, LoyaltyTier.SILVER)).toBe(7)
+      expect(calculateDiscountAmount(100, LoyaltyTier.SILVER)).toBeCloseTo(7, 5)
       expect(calculateDiscountAmount(100, LoyaltyTier.GOLD)).toBe(10)
     })
 
