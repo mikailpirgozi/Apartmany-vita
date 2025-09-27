@@ -55,9 +55,14 @@ class Beds24Service {
   private readonly config: Beds24Config;
 
   constructor() {
+    // Use environment variables for tokens
+    // Use correct tokens from environment
+    const accessToken = process.env.BEDS24_ACCESS_TOKEN || 'XwJnUUA7YS9aHRIBFPhVWiIEBlb/+whEpT0SRe7m5IWp30A9+uJlz54IN+KTAYSFNkftzJQ9ODvTYrafP6c2o3sUExKkk288hi7lKcuJZ8zxfh3CxnUZckm/W3dGGs1ibWb1BIr/ch69m5RKYemFu/Rn6KfTjwgMUi+zyCgifcg=';
+    const refreshToken = process.env.BEDS24_REFRESH_TOKEN || 'QsCylbIZO1MkEotBI6lEy5YMzGfJAuAK3FAb65FvW4bj2FsX9tY8svDSSCVm3oNKst+cXZx0hB/u9gPtn39beUSjcRLL6CRYujpgOfBhboFKbclRLGE6HBusZJL+zAw+/BAaZp2xRdLh65BJsnS9idjZ8khgLvQKzcHJg3d4anM=';
+    
     this.config = {
-      accessToken: process.env.BEDS24_ACCESS_TOKEN || 'XwJnUUA7YS9aHRIBFPhVWiIEBlb/+whEpT0SRe7m5IWp30A9+uJlz54IN+KTAYSFNkftzJQ9ODvTYrafP6c2o3sUExKkk288hi7lKcuJZ8zxfh3CxnUZckm/W3dGGs1ibWb1BIr/ch69m5RKYemFu/Rn6KfTjwgMUi+zyCgifcg=',
-      refreshToken: process.env.BEDS24_REFRESH_TOKEN || 'QsCylbIZO1MkEotBI6lEy5YMzGfJAuAK3FAb65FvW4bj2FsX9tY8svDSSCVm3oNKst+cXZx0hB/u9gPtn39beUSjcRLL6CRYujpgOfBhboFKbclRLGE6HBusZJL+zAw+/BAaZp2xRdLh65BJsnS9idjZ8khgLvQKzcHJg3d4anM=',
+      accessToken,
+      refreshToken,
       baseUrl: process.env.BEDS24_BASE_URL || 'https://api.beds24.com/v2',
       propId: process.env.BEDS24_PROP_ID || '357931',
       tokenExpiresAt: Date.now() + (86400 * 1000) // 24 hours from now
@@ -153,12 +158,14 @@ class Beds24Service {
         roomId: request.roomId
       });
 
-      // API V2 format with access token and query parameters
+      // API V2 format with query parameters (working approach)
       const url = new URL(`${this.config.baseUrl}/bookings`);
       url.searchParams.append('propId', request.propId);
       if (request.roomId) {
         url.searchParams.append('roomId', request.roomId);
       }
+      url.searchParams.append('checkIn', request.startDate);
+      url.searchParams.append('checkOut', request.endDate);
       
       const response = await fetch(url.toString(), {
         method: 'GET',
@@ -207,21 +214,40 @@ class Beds24Service {
     try {
       const accessToken = await this.ensureValidToken();
       
-      // Try to get rates from inventory endpoint
-      const url = new URL(`${this.config.baseUrl}/inventory`);
-      if (propId) url.searchParams.append('propId', propId);
-      if (roomId) url.searchParams.append('roomId', roomId);
-      if (startDate) url.searchParams.append('startDate', startDate);
-      if (endDate) url.searchParams.append('endDate', endDate);
+      if (!propId || !startDate || !endDate) {
+        console.warn('Missing required parameters for rates request');
+        return {};
+      }
       
-      console.log('Fetching rates from inventory:', url.toString());
+      // Use inventory endpoint with POST request for rates
+      const requestBody = {
+        authentication: {
+          apiKey: this.config.accessToken,
+          propKey: propId
+        },
+        request: {
+          startDate,
+          endDate,
+          includeInactive: false,
+          includeRates: true,
+          ...(roomId && { roomId })
+        }
+      };
       
-      const response = await fetch(url.toString(), {
-        method: 'GET',
+      console.log('Fetching rates from inventory:', {
+        url: `${this.config.baseUrl}/inventory`,
+        propId,
+        roomId,
+        dateRange: `${startDate} - ${endDate}`
+      });
+      
+      const response = await fetch(`${this.config.baseUrl}/inventory`, {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'token': accessToken
-        }
+        },
+        body: JSON.stringify(requestBody)
       });
 
       console.log('Rates response status:', response.status);
@@ -235,7 +261,7 @@ class Beds24Service {
       const data = await response.json();
       console.log('Rates data received:', data);
       
-      return this.parseRatesResponseV2(data, propId || '', roomId || '');
+      return this.parseRatesResponseV2(data, propId, roomId || '');
     } catch (error) {
       console.error('Error fetching rates from Beds24:', error);
       return {};
@@ -378,14 +404,14 @@ class Beds24Service {
   }
 
   /**
-   * Parse availability response from Beds24 V2
+   * Parse availability response from Beds24 V2 inventory endpoint
    */
   private parseAvailabilityResponseV2(data: unknown, request: AvailabilityRequest): AvailabilityResponse {
     const available: string[] = [];
     const booked: string[] = [];
     const prices: Record<string, number> = {};
 
-    console.log('Parsing availability response:', { data, request });
+    console.log('Parsing inventory response:', { data, request });
 
     // Generate date range first
     const startDate = new Date(request.startDate);
@@ -393,83 +419,70 @@ class Beds24Service {
     
     console.log('Date range:', { startDate: startDate.toISOString(), endDate: endDate.toISOString() });
 
-    // Handle different possible response formats
+    // Handle booking response format (API returns bookings, not inventory)
     let bookings: unknown[] = [];
     
     if (data && typeof data === 'object') {
-      // Try different possible formats
-      if ('bookings' in data && Array.isArray((data as { bookings: unknown[] }).bookings)) {
-        bookings = (data as { bookings: unknown[] }).bookings;
-      } else if ('data' in data && Array.isArray((data as { data: unknown[] }).data)) {
+      // API V2 returns booking data in 'data' field
+      if ('data' in data && Array.isArray((data as { data: unknown[] }).data)) {
         bookings = (data as { data: unknown[] }).data;
       } else if (Array.isArray(data)) {
         bookings = data;
       }
     }
 
-    console.log('Found bookings:', bookings.length);
+    console.log('Found booking items:', bookings.length);
     
     // Generate all dates in range and check availability
     for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
       const dateStr = d.toISOString().split('T')[0];
       
-      // Check if date is booked and extract price
+      // Check bookings for this date
       let datePrice: number | undefined;
-      const isBooked = bookings.some((booking: unknown) => {
+      let isBooked = false; // Default to available
+      
+      bookings.forEach((booking: unknown) => {
         if (booking && typeof booking === 'object') {
-          // Try different date field names
           const bookingObj = booking as Record<string, unknown>;
-          let arrival: Date | null = null;
-          let departure: Date | null = null;
           
-          // Try different field names for arrival/departure
-          if ('arrival' in bookingObj && typeof bookingObj.arrival === 'string') {
-            arrival = new Date(bookingObj.arrival);
-          } else if ('checkIn' in bookingObj && typeof bookingObj.checkIn === 'string') {
-            arrival = new Date(bookingObj.checkIn);
-          } else if ('start' in bookingObj && typeof bookingObj.start === 'string') {
-            arrival = new Date(bookingObj.start);
-          }
+          // Get booking dates and status
+          const arrival = bookingObj.arrival as string;
+          const departure = bookingObj.departure as string;
+          const status = bookingObj.status as string;
           
-          if ('departure' in bookingObj && typeof bookingObj.departure === 'string') {
-            departure = new Date(bookingObj.departure);
-          } else if ('checkOut' in bookingObj && typeof bookingObj.checkOut === 'string') {
-            departure = new Date(bookingObj.checkOut);
-          } else if ('end' in bookingObj && typeof bookingObj.end === 'string') {
-            departure = new Date(bookingObj.end);
-          }
-          
-          if (arrival && departure && !isNaN(arrival.getTime()) && !isNaN(departure.getTime())) {
-            const isInRange = d >= arrival && d < departure;
+          if (arrival && departure && (status === 'confirmed' || status === 'new')) {
+            const arrivalDate = new Date(arrival);
+            const departureDate = new Date(departure);
+            const currentDate = new Date(dateStr);
             
-            // Extract price for this date range
-            if (isInRange && 'price' in bookingObj && typeof bookingObj.price === 'number') {
-              const nights = Math.ceil((departure.getTime() - arrival.getTime()) / (1000 * 60 * 60 * 24));
-              datePrice = nights > 0 ? bookingObj.price / nights : bookingObj.price;
+            // Check if current date falls within booking period
+            if (currentDate >= arrivalDate && currentDate < departureDate) {
+              isBooked = true;
+              
+              // Extract price from booking if available
+              if ('price' in bookingObj && typeof bookingObj.price === 'number') {
+                const nights = Math.ceil((departureDate.getTime() - arrivalDate.getTime()) / (1000 * 60 * 60 * 24));
+                if (nights > 0) {
+                  datePrice = bookingObj.price / nights; // Price per night
+                }
+              }
             }
-            
-            return isInRange;
           }
         }
-        return false;
       });
-      
+
       if (isBooked) {
         booked.push(dateStr);
-        if (datePrice) {
-          prices[dateStr] = datePrice;
-        }
       } else {
         available.push(dateStr);
-        // Set default price for available dates based on property
-        const defaultPrices: Record<string, number> = {
-          '227484': 120, // Design apartmán
-          '168900': 90,  // Lite apartmán  
-          '161445': 150, // Deluxe apartmán
-          '357931': 100  // Default
-        };
-        const defaultPrice = defaultPrices[request.propId] || 100;
-        prices[dateStr] = defaultPrice;
+      }
+      
+      // Set price if found, otherwise use default
+      if (datePrice !== undefined) {
+        prices[dateStr] = datePrice;
+      } else {
+        // Set a default price based on apartment type
+        prices[dateStr] = this.getDefaultPrice(request.roomId);
       }
     }
 
@@ -561,6 +574,20 @@ class Beds24Service {
 
     console.log('Parsed rates:', Object.keys(rates).length, 'dates');
     return rates;
+  }
+
+  /**
+   * Get default price for apartment type when API doesn't return pricing
+   */
+  private getDefaultPrice(roomId?: string): number {
+    // Default prices based on apartment type
+    const defaultPrices: Record<string, number> = {
+      '161445': 120, // Deluxe Apartmán
+      '168900': 90,  // Lite Apartmán  
+      '227484': 110, // Design Apartmán
+    };
+    
+    return roomId && defaultPrices[roomId] ? defaultPrices[roomId] : 75; // Default fallback price
   }
 
   /**

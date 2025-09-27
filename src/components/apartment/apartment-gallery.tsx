@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog'
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
 import { ImageIcon, ChevronLeft, ChevronRight } from 'lucide-react'
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
@@ -43,6 +44,7 @@ export function ApartmentGallery({ images, apartmentName }: ApartmentGalleryProp
           src={images[selectedImage]}
           alt={`${apartmentName} - hlavná fotka`}
           fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 70vw, 60vw"
           className="object-cover"
           priority
         />
@@ -77,6 +79,7 @@ export function ApartmentGallery({ images, apartmentName }: ApartmentGalleryProp
                 src={image} 
                 alt={`${apartmentName} - fotka ${index + 1}`} 
                 fill 
+                sizes="(max-width: 768px) 25vw, (max-width: 1200px) 20vw, 15vw"
                 className="object-cover" 
               />
               {index === 3 && images.length > 4 && (
@@ -92,6 +95,12 @@ export function ApartmentGallery({ images, apartmentName }: ApartmentGalleryProp
       {/* Lightbox */}
       <Dialog open={showLightbox} onOpenChange={setShowLightbox}>
         <DialogContent className="max-w-4xl p-0">
+          <VisuallyHidden>
+            <DialogTitle>{apartmentName} - Galéria fotografií</DialogTitle>
+            <DialogDescription>
+              Prehliadanie fotografií apartmánu {apartmentName}. Fotografia {lightboxIndex + 1} z {images.length}.
+            </DialogDescription>
+          </VisuallyHidden>
           <div className="relative">
             <Image
               src={images[lightboxIndex]}
