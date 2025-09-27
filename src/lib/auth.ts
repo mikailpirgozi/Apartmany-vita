@@ -1,5 +1,4 @@
-import NextAuth from 'next-auth'
-import type { NextAuthOptions } from 'next-auth'
+import NextAuth, { NextAuthOptions, getServerSession } from 'next-auth'
 import GoogleProvider from 'next-auth/providers/google'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import { PrismaAdapter } from '@auth/prisma-adapter'
@@ -63,14 +62,14 @@ export const authOptions: NextAuthOptions = {
   ],
   
   callbacks: {
-    jwt: async ({ token, user }: { token: any; user: any }) => {
+    jwt: async ({ token, user }) => {
       if (user) {
         token.id = user.id
       }
       return token
     },
     
-    session: async ({ session, token }: { session: any; token: any }) => {
+    session: async ({ session, token }) => {
       if (token && session.user) {
         session.user.id = token.id as string
       }
@@ -90,6 +89,5 @@ export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET
 }
 
-export const handlers = NextAuth(authOptions)
-export { handlers as GET, handlers as POST }
-export const { auth, signIn, signOut } = handlers
+export const auth = () => getServerSession(authOptions)
+export default NextAuth(authOptions)
