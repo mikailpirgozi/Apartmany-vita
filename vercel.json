@@ -1,6 +1,6 @@
 {
   "buildCommand": "pnpm run build",
-  "installCommand": "pnpm install",
+  "installCommand": "pnpm install --frozen-lockfile",
   "framework": "nextjs",
   "functions": {
     "src/app/api/**/*.ts": {
@@ -11,5 +11,8 @@
     "env": {
       "PRISMA_GENERATE_DATAPROXY": "false"
     }
+  },
+  "engines": {
+    "node": "20.19.0"
   }
 }
