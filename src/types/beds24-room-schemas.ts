@@ -61,7 +61,7 @@ export interface Room {
 // Room Dependencies
 export interface RoomDependencies {
   includeSubDependencies?: boolean;
-  combinationLogic?: any;
+  combinationLogic?: unknown;
   includeBookingsRoomId1?: number | null;
   includeBookingsRoomId2?: number | null;
   includeBookingsRoomId3?: number | null;
@@ -86,7 +86,7 @@ export interface RoomDependencies {
   dependentRoomId10?: number | null;
   dependentRoomId11?: number | null;
   dependentRoomId12?: number | null;
-  assignBookingsTo?: any;
+  assignBookingsTo?: unknown;
 }
 
 // Room Text
@@ -94,7 +94,7 @@ export interface RoomText {
   language: 'en' | 'ar' | 'bg' | 'ca' | 'cs' | 'da' | 'de' | 'el' | 'es' | 'et' | 'fi' | 'fr' | 'hr' | 'he' | 'hu' | 'id' | 'is' | 'it' | 'ja' | 'ko' | 'lt' | 'mn' | 'my' | 'nl' | 'no' | 'pl' | 'pt' | 'ro' | 'ru' | 'sk' | 'sl' | 'sr' | 'sv' | 'th' | 'tr' | 'vi' | 'zh' | 'zt';
   name?: string;
   description?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 // Room Unit
@@ -109,7 +109,7 @@ export interface RoomUnit {
   name7?: string;
   name8?: string;
   status?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 // Room Offer
@@ -133,7 +133,7 @@ export interface RoomOffer {
 export interface PriceRule {
   id?: number;
   name?: string;
-  priceFor?: any;
+  priceFor?: unknown;
   extraPerson?: number;
   extraChild?: number;
   minimumStay?: number;
@@ -154,7 +154,7 @@ export interface PriceRule {
     agent?: boolean;
   };
   channels?: {
-    agoda?: any;
+    agoda?: unknown;
     airbnb?: {
       enabled?: boolean;
       rateCode?: string;
@@ -163,10 +163,10 @@ export interface PriceRule {
       enabled?: boolean;
       rateCode?: string;
     };
-    vrbo?: any;
-    expedia?: any;
-    tripadvisorrentals?: any;
-    [key: string]: any;
+    vrbo?: unknown;
+    expedia?: unknown;
+    tripadvisorrentals?: unknown;
+    [key: string]: unknown;
   };
   upsellItems?: {
     index: number;

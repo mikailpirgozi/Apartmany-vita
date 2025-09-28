@@ -41,14 +41,14 @@ export interface Account {
     numRoomTypes: number;
     numActivities: number;
     numLinks: number;
-    channelLinks?: any;
+    channelLinks?: unknown;
   };
   subAccounts?: SubAccount[];
 }
 
 // Sub Account
 export interface SubAccount {
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 // Organization User
@@ -101,7 +101,7 @@ export interface AirbnbListing {
     display_exact_location_to_guest: boolean;
     house_manual: string;
     amenities: {
-      [key: string]: any;
+      [key: string]: unknown;
     }[];
     rate_plan_enabled: boolean;
   };
@@ -109,10 +109,10 @@ export interface AirbnbListing {
 
 // Booking Review
 export interface BookingReview {
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 // Airbnb Review
 export interface AirbnbReview {
-  [key: string]: any;
+  [key: string]: unknown;
 }

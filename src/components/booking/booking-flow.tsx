@@ -48,7 +48,7 @@ const guestInfoSchema = z.object({
   arrivalTime: z.string().optional(),
   marketingConsent: z.boolean(),
   // Company information
-  needsInvoice: z.boolean().default(false),
+  needsInvoice: z.boolean(),
   companyName: z.string().optional(),
   companyId: z.string().optional(),
   companyVat: z.string().optional(),

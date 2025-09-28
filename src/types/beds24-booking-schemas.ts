@@ -74,7 +74,7 @@ export interface Booking {
   stripeToken?: string | null;
   apiMessage?: string;
   invoiceItems?: InvoiceItemPost[];
-  infoItems?: any[];
+  infoItems?: unknown[];
   subStatus?: BookingSubStatus;
   statusCode?: number;
   offerId?: number;
@@ -93,7 +93,9 @@ export interface Booking {
   cancelTime?: string | null;
 }
 
-export interface NewBooking extends Omit<Booking, 'id' | 'bookingTime' | 'modifiedTime' | 'cancelTime'> {}
+export interface NewBooking extends Omit<Booking, 'id' | 'bookingTime' | 'modifiedTime' | 'cancelTime'> {
+  // Additional fields for new bookings
+}
 
 // Booking Guests
 export interface BookingGuests {

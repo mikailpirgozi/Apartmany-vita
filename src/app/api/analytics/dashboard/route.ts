@@ -25,7 +25,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const { timeWindow, apartment, includeMetrics, includeAlerts, includeCache } = 
       DashboardRequestSchema.parse(searchParams);
 
-    const dashboardData: any = {
+    const dashboardData: unknown = {
       timestamp: new Date().toISOString(),
       timeWindow,
       apartment: apartment || 'all',
@@ -130,7 +130,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     const { format, timeWindow, includeRawMetrics } = ExportRequestSchema.parse(body);
 
-    let exportData: any = {
+    const exportData: unknown = {
       exportedAt: new Date().toISOString(),
       timeWindow,
       summary: analytics.getPerformanceSummary(timeWindow),
@@ -144,7 +144,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     // Add cache statistics
     try {
       exportData.cacheStats = await availabilityCache.getCacheStats();
-    } catch (error) {
+    } catch {
       exportData.cacheStats = { error: 'Failed to retrieve cache stats' };
     }
 
@@ -197,7 +197,7 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
 
     const { clearMetrics, clearCache, apartment } = ClearRequestSchema.parse(searchParams);
 
-    const results: any = {
+    const results: unknown = {
       cleared: [],
       errors: [],
     };
@@ -247,12 +247,12 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
 /**
  * Generate performance insights based on dashboard data
  */
-function generatePerformanceInsights(dashboardData: any): {
+function generatePerformanceInsights(dashboardData: unknown): {
   type: 'success' | 'warning' | 'error';
   message: string;
   recommendation?: string;
 }[] {
-  const insights: any[] = [];
+  const insights: unknown[] = [];
   
   const summary = dashboardData.summary;
   if (!summary) return insights;
@@ -314,7 +314,7 @@ function generatePerformanceInsights(dashboardData: any): {
 /**
  * Convert dashboard data to CSV format
  */
-function convertToCsv(data: any): string {
+function convertToCsv(data: unknown): string {
   const lines: string[] = [];
   
   // Header

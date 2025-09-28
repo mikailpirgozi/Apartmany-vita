@@ -1,4 +1,4 @@
-import { ApartmentGrid } from '@/components/apartment/apartment-grid'
+// import { ApartmentGrid } from '@/components/apartment/apartment-grid'
 import { ApartmentSearch } from '@/components/search/apartment-search'
 import { ApartmentSearchResults } from '@/components/apartment/apartment-search-results'
 import { getApartments } from '@/services/apartments'

@@ -3,7 +3,7 @@
 import { PerformanceDashboard } from '@/components/analytics/performance-dashboard';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+// import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { 
@@ -11,7 +11,7 @@ import {
   Database, 
   Clock, 
   TrendingUp, 
-  AlertTriangle, 
+  // AlertTriangle, 
   CheckCircle,
   Server,
   Zap,
@@ -296,7 +296,7 @@ REDIS_DB=0`}
                       Serverless Redis
                     </p>
                     <div className="text-xs bg-muted p-2 rounded">
-                      REDIS_URL="rediss://default:password@region.upstash.io:6379"
+                      REDIS_URL=&quot;rediss://default:password@region.upstash.io:6379&quot;
                     </div>
                   </div>
                 </div>

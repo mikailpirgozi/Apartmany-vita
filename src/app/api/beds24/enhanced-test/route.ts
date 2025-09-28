@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
     if (testType === 'all' || testType === 'properties') {
       try {
         console.log('Testing properties with includeAllRooms...');
-        const properties = await beds24Service.getProperties(true);
+        const properties = await beds24Service.getProperties('true');
         results.properties = {
           success: true,
           data: properties,

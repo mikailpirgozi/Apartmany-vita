@@ -261,7 +261,7 @@ export function useCalendarPerformanceTracking(apartmentSlug: string) {
           }
         }
         
-        perfData.loadTimes.push(loadTime);
+        perfData.loadTimes.push(loadTime as never);
         
         // Keep only last 10 measurements
         if (perfData.loadTimes.length > 10) {

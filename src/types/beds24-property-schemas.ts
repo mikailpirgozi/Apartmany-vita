@@ -92,7 +92,7 @@ export interface Property {
       checkoutVersion?: 'embedded' | 'hosted';
       paymentDescription?: string;
     };
-    [key: string]: any; // Other payment gateways
+    [key: string]: unknown; // Other payment gateways
   };
   cardSettings?: {
     cardRequireCVV?: boolean;
@@ -121,9 +121,9 @@ export interface Property {
   featureCodes?: string[][];
   texts?: PropertyText[];
   offers?: PropertyOffer[];
-  roomTypes?: RoomType[];
-  upsellItems?: any[];
-  bookingQuestions?: any;
+  roomTypes?: string[];
+  upsellItems?: unknown[];
+  bookingQuestions?: unknown;
   webhooks?: {
     version: 'v1' | 'v2' | 'v3';
     url?: string;

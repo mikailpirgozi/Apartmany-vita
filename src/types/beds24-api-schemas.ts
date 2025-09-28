@@ -1,21 +1,22 @@
 // Beds24 API Schemas - Core Response Types
 // ========================================
 
-export interface SuccessfulApiResponse<T = any> {
-  success: boolean;
-  type: string;
+export interface SuccessfulApiResponse<T = unknown> {
+  success: true;
+  type?: string;
   count?: number;
   data?: T;
+  pages?: Pages;
 }
 
 export interface UnsuccessfulApiResponse {
   success: false;
-  type: 'error';
+  type: string;
   code: number;
   error: string;
 }
 
-export interface ApiResponse<T = any> extends SuccessfulApiResponse<T> {}
+export type ApiResponse<T = unknown> = SuccessfulApiResponse<T> | UnsuccessfulApiResponse;
 
 // Pagination
 export interface Pages {
@@ -36,20 +37,6 @@ export interface RefreshToken {
 }
 
 // ENHANCED: Official response formats per OpenAPI specification
-export interface SuccessfulApiResponse {
-  success: true;
-  type?: string;
-  count?: number;
-  data?: any;
-  pages?: Pages;
-}
-
-export interface UnsuccessfulApiResponse {
-  success: false;
-  type: string;
-  code: number;
-  error: string;
-}
 
 export interface Pages {
   nextPageExists: boolean;
@@ -109,7 +96,7 @@ export interface ApiError {
   details?: string;
 }
 
-export interface ApiSuccess<T = any> {
+export interface ApiSuccess<T = unknown> {
   success: true;
   type: string;
   count?: number;
@@ -117,7 +104,7 @@ export interface ApiSuccess<T = any> {
   pages?: Pages;
 }
 
-export type ApiResponse<T = any> = ApiSuccess<T> | ApiError;
+// ApiResponse is already defined above
 
 // Rate limiting and performance - Enhanced per official OpenAPI specification
 export interface RateLimitInfo {

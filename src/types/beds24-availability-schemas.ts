@@ -181,7 +181,7 @@ export interface FixedPrice {
     agent?: boolean;
   };
   channels?: {
-    agoda?: any;
+    agoda?: unknown;
     airbnb?: {
       enabled?: boolean;
       rateCode?: string;
@@ -190,6 +190,6 @@ export interface FixedPrice {
       enabled?: boolean;
       rateCode?: string;
     };
-    [key: string]: any;
+    [key: string]: unknown;
   };
 }

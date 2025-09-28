@@ -119,7 +119,7 @@ export interface NukiSettingsPost {
       syncApp?: boolean;
       syncCode?: boolean;
       lockSerialNumbers?: {
-        [key: string]: any;
+        [key: string]: unknown;
       }[];
     }[];
   };
@@ -166,7 +166,7 @@ export interface VrboSettingsPost {
 }
 
 export interface VrboSettingsGet {
-  [key: string]: any; // Similar to VrboSettingsPost but read-only
+  [key: string]: unknown; // Similar to VrboSettingsPost but read-only
 }
 
 // Airbnb Settings
@@ -179,7 +179,7 @@ export interface AirbnbSettingsPost {
     inquiryAndRequests?: 'ignore' | 'importAll' | 'importOnlyContainingBookingNumber';
     invoiceeId?: string | null;
     roomTypes: {
-      [key: string]: any;
+      [key: string]: unknown;
     }[];
   }[];
 }
@@ -194,14 +194,14 @@ export interface AirbnbSettingsGet {
     inquiryAndRequests?: 'ignore' | 'importAll' | 'importOnlyContainingBookingNumber';
     invoiceeId?: string | null;
     roomTypes: {
-      [key: string]: any;
+      [key: string]: unknown;
     }[];
   }[];
 }
 
 // Text Languages
 export interface TextLanguages {
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 // Channel Settings Template
@@ -211,7 +211,7 @@ export interface ChannelSettingsTemplate {
     id: number;
     roomTypes: {
       id: number;
-      [key: string]: any;
+      [key: string]: unknown;
     }[];
   };
 }

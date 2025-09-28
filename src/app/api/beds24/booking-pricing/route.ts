@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { beds24Service } from '@/services/beds24';
-import { format } from 'date-fns';
+// import { format } from 'date-fns';
 
 /**
  * API endpoint pre získanie cien pre booking (nie kalendár)

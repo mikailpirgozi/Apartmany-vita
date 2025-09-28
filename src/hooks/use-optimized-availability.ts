@@ -40,7 +40,7 @@ const CACHE_CONFIG = {
   staleTime: 10 * 60 * 1000,        // 10 minutes (increased from 2 minutes)
   gcTime: 30 * 60 * 1000,           // 30 minutes garbage collection
   refetchOnWindowFocus: false,      // No automatic refresh on focus
-  refetchInterval: false,           // No periodic refresh
+  refetchInterval: false as const,  // No periodic refresh
   retry: 2,                         // Reduced retries (from 3)
   retryDelay: (attemptIndex: number) => Math.min(1000 * 2 ** attemptIndex, 30000)
 };

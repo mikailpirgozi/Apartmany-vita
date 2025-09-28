@@ -3,52 +3,52 @@
 
 // Stripe Create Session
 export interface StripeCreateSession {
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 // Stripe Charge Payment Method
 export interface StripeChargePaymentMethod {
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 // Stripe Refund Charge
 export interface StripeRefundCharge {
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 // Stripe Release Charge
 export interface StripeReleaseCharge {
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 // Stripe Capture Charge
 export interface StripeCaptureCharge {
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 // Stripe Add Payment Method
 export interface StripeAddPaymentMethod {
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 // Stripe Detach Payment Method
 export interface StripeDetachPaymentMethod {
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 // Stripe Payment Method
 export interface StripePaymentMethod {
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 // Stripe Charge
 export interface StripeCharge {
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 // VRBO Payment Schedule
 export interface VrboPaymentSchedule {
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 // Index file for all Beds24 schemas

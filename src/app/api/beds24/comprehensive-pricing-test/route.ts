@@ -9,8 +9,8 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const testType = searchParams.get('test') || 'all';
   
-  const results: any[] = [];
-  const errors: any[] = [];
+  const results: unknown[] = [];
+  const errors: unknown[] = [];
 
   try {
     console.log('🧪 STARTING COMPREHENSIVE PRICING TESTS');

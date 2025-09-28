@@ -64,13 +64,13 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const monthEnd = format(endOfMonth(monthDate), 'yyyy-MM-dd');
 
     let data = null;
-    let cached = false;
+    // let cached = false;
 
     // 1. Try cache first (unless force refresh)
     if (!forceRefresh) {
       data = await availabilityCache.getAvailability(cacheKey);
       if (data) {
-        cached = true;
+        // cached = true;
         source = 'redis'; // Cache layer will log the actual source
         
         console.log(`✅ Cache HIT for ${apartment} ${month} (${guests} guests)`);
@@ -99,7 +99,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     console.log(`❌ Cache MISS for ${apartment} ${month} (${guests} guests) - fetching from API`);
     
     try {
-      data = await beds24Service.getInventoryOptimized({
+      data = await beds24Service.getInventory({
         propId: apartmentConfig.propId,
         roomId: apartmentConfig.roomId,
         startDate: monthStart,
@@ -255,7 +255,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         const monthStart = format(startOfMonth(monthDate), 'yyyy-MM-dd');
         const monthEnd = format(endOfMonth(monthDate), 'yyyy-MM-dd');
 
-        data = await beds24Service.getInventoryOptimized({
+        data = await beds24Service.getInventory({
           propId: apartmentConfig.propId,
           roomId: apartmentConfig.roomId,
           startDate: monthStart,
@@ -272,7 +272,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     // Process results
     const successful = results
-      .filter((result): result is PromiseFulfilledResult<any> => result.status === 'fulfilled')
+      .filter((result): result is PromiseFulfilledResult<unknown> => result.status === 'fulfilled')
       .map(result => result.value);
     
     const failed = results

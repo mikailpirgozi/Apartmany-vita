@@ -3,6 +3,8 @@
  * Tracks calendar performance, user interactions, and system health
  */
 
+import React from 'react';
+
 interface PerformanceMetric {
   id: string;
   type: 'calendar_load' | 'api_call' | 'navigation' | 'interaction' | 'error' | 'cache';
@@ -408,7 +410,7 @@ class PerformanceMonitor {
           type: 'error',
           name: 'budget_violation',
           value: value - budget.threshold,
-          unit: budget.unit,
+          unit: budget.unit as 'count' | 'ms' | 'bytes' | 'percentage',
           timestamp: Date.now(),
           metadata: {
             budget: budget.metric,
