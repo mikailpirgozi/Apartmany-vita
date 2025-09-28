@@ -4,6 +4,8 @@ import { availabilityCache, cacheUtils, CACHE_TTL } from '@/lib/cache';
 import { getBeds24Service } from '@/services/beds24';
 import { APARTMENTS } from '@/constants';
 import { z } from 'zod';
+import type { AvailabilityData } from '@/types';
+import type { Availability } from '@/types/beds24';
 
 // Request validation schema
 const CachedAvailabilitySchema = z.object({
@@ -272,7 +274,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     // Process results
     const successful = results
-      .filter((result): result is PromiseFulfilledResult<unknown> => result.status === 'fulfilled')
+      .filter((result): result is PromiseFulfilledResult<any> => result.status === 'fulfilled')
       .map(result => result.value);
     
     const failed = results

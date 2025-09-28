@@ -18,20 +18,14 @@ export async function GET(request: NextRequest) {
       propId, roomId, startDate, endDate, adults, children 
     });
 
-    const requestParams: Record<string, unknown> = {
-      propId,
-      roomId,
-      startDate,
-      endDate
+    const requestParams = {
+      propId: propId as string,
+      roomId: roomId as string,
+      startDate: startDate as string,
+      endDate: endDate as string,
+      ...(adults && { numAdults: parseInt(adults) }),
+      ...(children && { numChildren: parseInt(children) })
     };
-
-    // Add guest parameters if provided
-    if (adults) {
-      requestParams.numAdults = parseInt(adults);
-    }
-    if (children) {
-      requestParams.numChildren = parseInt(children);
-    }
 
     const result = await getBeds24Service().getAvailability(requestParams);
 

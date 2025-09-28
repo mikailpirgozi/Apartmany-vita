@@ -99,7 +99,7 @@ export async function GET(request: NextRequest) {
         console.log(`📋 Item ${index + 1}:`, {
           roomId: item.roomId,
           propertyId: item.propertyId,
-          offersCount: item.offers?.length || 0,
+          offersCount: Array.isArray(item.offers) ? item.offers.length : 0,
           offers: (item.offers as Record<string, unknown>[])?.map((offer: Record<string, unknown>) => ({
             offerId: offer.offerId,
             offerName: offer.offerName,

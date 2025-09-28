@@ -386,7 +386,7 @@ export function useCalendarWebSocket(apartmentSlug?: string) {
 /**
  * Handle calendar update messages
  */
-function handleCalendarUpdate(message: CalendarUpdateMessage, queryClient: Record<string, unknown>): void {
+function handleCalendarUpdate(message: CalendarUpdateMessage, queryClient: any): void {
   console.log('[WS] Handling calendar update:', message);
 
   switch (message.type) {
@@ -443,7 +443,7 @@ export function WebSocketStatus() {
 
   if (!status.connected && !status.reconnecting) return null;
 
-  const React = await import('react');
+  const React = require('react');
 
   return React.createElement('div', {
     className: "fixed top-4 right-4 z-50"

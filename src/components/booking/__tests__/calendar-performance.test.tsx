@@ -47,7 +47,7 @@ const TestWrapper = ({ children }: { children: React.ReactNode }) => {
 describe('Calendar Performance Tests', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue({
+    (fetch as any).mockResolvedValue({
       ok: true,
       json: async () => mockAvailabilityData,
     });
@@ -259,7 +259,7 @@ describe('Calendar Performance Tests', () => {
 
   describe('🎯 Error Handling', () => {
     it('should handle API errors gracefully', async () => {
-      (fetch as jest.MockedFunction<typeof fetch>).mockRejectedValueOnce(new Error('API Error'));
+      (fetch as any).mockRejectedValueOnce(new Error('API Error'));
       
       render(
         <TestWrapper>
@@ -280,7 +280,7 @@ describe('Calendar Performance Tests', () => {
     });
 
     it('should retry with exponential backoff', async () => {
-      (fetch as jest.MockedFunction<typeof fetch>)
+      (fetch as any)
         .mockRejectedValueOnce(new Error('API Error'))
         .mockRejectedValueOnce(new Error('API Error'))
         .mockResolvedValueOnce({

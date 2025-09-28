@@ -16,10 +16,10 @@ export async function GET(request: NextRequest) {
       propId, roomId, startDate, endDate 
     });
 
-    const results: Record<string, unknown> = {
+    const results: any = {
       timestamp: new Date().toISOString(),
       parameters: { propId, roomId, startDate, endDate },
-      scenarios: {}
+      scenarios: {} as Record<string, unknown>
     };
 
     // Scenario 1: All dates available (current real situation)
@@ -113,7 +113,7 @@ export async function GET(request: NextRequest) {
     // Test each scenario with our parsing logic
     const { beds24Service } = await import('@/services/beds24');
     
-    for (const [scenarioName, scenario] of Object.entries(results.scenarios)) {
+    for (const [scenarioName, scenario] of Object.entries(results.scenarios as Record<string, unknown>)) {
       try {
         console.log(`🧪 Testing scenario: ${scenarioName}`);
         
@@ -128,7 +128,7 @@ export async function GET(request: NextRequest) {
           });
           
           (scenario as Record<string, unknown>).actualResult = parsedResult;
-          (scenario as Record<string, unknown>).testPassed = compareResults(parsedResult, (scenario as Record<string, unknown>).expectedResult);
+          (scenario as Record<string, unknown>).testPassed = compareResults(parsedResult as Record<string, unknown>, (scenario as Record<string, unknown>).expectedResult as Record<string, unknown>);
         } else {
           (scenario as Record<string, unknown>).error = 'Could not access parsing method';
         }
@@ -138,7 +138,10 @@ export async function GET(request: NextRequest) {
     }
 
     // Generate overall test summary
-    const passedTests = Object.values(results.scenarios as Record<string, Record<string, unknown>>).filter((s: Record<string, unknown>) => s.testPassed === true).length;
+    const passedTests = Object.values(results.scenarios as Record<string, unknown>).filter((s: unknown): s is Record<string, unknown> => {
+      const scenario = s as Record<string, unknown>;
+      return scenario.testPassed === true;
+    }).length;
     const totalTests = Object.keys(results.scenarios).length;
     
     results.summary = {
@@ -146,7 +149,7 @@ export async function GET(request: NextRequest) {
       passedTests,
       failedTests: totalTests - passedTests,
       overallResult: passedTests === totalTests ? '✅ All tests passed' : `⚠️ ${totalTests - passedTests} tests failed`,
-      recommendations: generateRecommendations(results.scenarios)
+      recommendations: generateRecommendations(results.scenarios as Record<string, Record<string, unknown>>)
     };
 
     return NextResponse.json({
@@ -187,7 +190,7 @@ function generateDateRange(startDate: string, endDate: string): string[] {
 function compareResults(actual: Record<string, unknown>, expected: Record<string, unknown>): boolean {
   try {
     // Compare available dates
-    if (!arraysEqual(actual.available || [], expected.available || [])) {
+    if (!arraysEqual((actual.available as string[]) || [], (expected.available as string[]) || [])) {
       console.log('❌ Available dates mismatch:', {
         actual: actual.available,
         expected: expected.available
@@ -196,7 +199,7 @@ function compareResults(actual: Record<string, unknown>, expected: Record<string
     }
     
     // Compare booked dates
-    if (!arraysEqual(actual.booked || [], expected.booked || [])) {
+    if (!arraysEqual((actual.booked as string[]) || [], (expected.booked as string[]) || [])) {
       console.log('❌ Booked dates mismatch:', {
         actual: actual.booked,
         expected: expected.booked
@@ -206,8 +209,8 @@ function compareResults(actual: Record<string, unknown>, expected: Record<string
     
     // Compare prices (if expected)
     if (expected.prices) {
-      const actualPrices = actual.prices || {};
-      for (const [date, price] of Object.entries(expected.prices)) {
+      const actualPrices = (actual.prices as Record<string, unknown>) || {};
+      for (const [date, price] of Object.entries(expected.prices as Record<string, unknown>)) {
         if (actualPrices[date] !== price) {
           console.log('❌ Price mismatch:', {
             date,
@@ -243,9 +246,10 @@ function arraysEqual(a: string[], b: string[]): boolean {
 function generateRecommendations(scenarios: Record<string, Record<string, unknown>>): string[] {
   const recommendations: string[] = [];
   
-  const failedScenarios = Object.entries(scenarios).filter(([, scenario]: [string, Record<string, unknown>]) => 
-    scenario.testPassed === false
-  );
+  const failedScenarios = Object.entries(scenarios).filter(([, scenario]: [string, unknown]) => {
+    const s = scenario as Record<string, unknown>;
+    return s.testPassed === false;
+  });
   
   if (failedScenarios.length === 0) {
     recommendations.push('✅ All parsing logic works correctly for blocked dates');

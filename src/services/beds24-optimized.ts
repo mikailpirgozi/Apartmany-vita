@@ -302,16 +302,16 @@ class Beds24OptimizedService {
       const available_qty = offer.available || offer.qty || 0;
 
       if (arrival && departure) {
-        const startDate = new Date(arrival);
-        const endDate = new Date(departure);
+        const startDate = new Date(arrival as string);
+        const endDate = new Date(departure as string);
         const nights = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-        const pricePerNight = nights > 0 ? price / nights : 0;
+        const pricePerNight = nights > 0 ? (price as number) / nights : 0;
 
         // Generate dates for this offer
         for (let d = new Date(startDate); d < endDate; d.setDate(d.getDate() + 1)) {
           const dateStr = d.toISOString().split('T')[0];
           
-          if (available_qty > 0) {
+          if ((available_qty as number) > 0) {
             if (!available.includes(dateStr)) {
               available.push(dateStr);
             }

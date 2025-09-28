@@ -139,7 +139,7 @@ class AvailabilityCache {
       const memoryEntry = this.memoryCache.get(fullKey);
       if (memoryEntry && memoryEntry.expires > Date.now()) {
         console.log(`🧠 Memory cache HIT for key: ${key}`);
-        return memoryEntry.data;
+        return memoryEntry.data as AvailabilityData;
       }
 
       console.log(`❌ Cache MISS for key: ${key}`);
