@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { beds24Service } from '@/services/beds24';
+import { getBeds24Service } from '@/services/beds24';
 import { availabilityCache, CACHE_TTL } from '@/lib/cache';
 import { analytics } from '@/lib/analytics';
 
@@ -100,7 +100,23 @@ export async function GET(request: NextRequest) {
       console.log(`❌ Cache MISS for ${apartment} - fetching from API`);
       
       try {
+        // Check if BEDS24 environment variables are available
+        const hasBeds24Config = process.env.BEDS24_ACCESS_TOKEN && process.env.BEDS24_REFRESH_TOKEN;
+        if (!hasBeds24Config) {
+          console.warn('⚠️ BEDS24 environment variables not available, returning empty availability');
+          return NextResponse.json({
+            success: false,
+            error: 'BEDS24 service not configured',
+            available: [],
+            booked: [],
+            prices: {},
+            minStay: 1,
+            maxStay: 365
+          });
+        }
+        
         // Use Calendar API directly for calendar display (has prices and blocked dates)
+        const beds24Service = getBeds24Service();
         availability = await beds24Service.getInventoryCalendar({
           propId: apartmentConfig.propId,
           roomId: apartmentConfig.roomId,

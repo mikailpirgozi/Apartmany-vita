@@ -1,6 +1,6 @@
 import { Apartment, SearchFilters } from '@/types'
 import { mockApartments, getApartmentBySlug as getMockApartmentBySlug, getActiveApartments } from '@/lib/mock-data'
-import { beds24Service } from '@/services/beds24'
+import { getBeds24Service } from '@/services/beds24'
 
 // For now, we'll use mock data. Later this will be replaced with actual API calls.
 
@@ -87,6 +87,14 @@ export async function getAvailableApartments(
     'maly-apartman': { propId: '161445', roomId: '357931' }
   };
   
+  // Check if BEDS24 environment variables are available
+  const hasBeds24Config = process.env.BEDS24_ACCESS_TOKEN && process.env.BEDS24_REFRESH_TOKEN;
+  
+  if (!hasBeds24Config) {
+    console.warn('⚠️ BEDS24 environment variables not available, returning all suitable apartments as available');
+    return suitableApartments;
+  }
+
   // Check availability for each suitable apartment via Beds24 service
   for (const apartment of suitableApartments) {
     try {
@@ -103,6 +111,7 @@ export async function getAvailableApartments(
       console.log(`🏠 Checking ${apartment.name} availability via Beds24 service`);
       
       // Use Beds24 service directly
+      const beds24Service = getBeds24Service();
       const availabilityData = await beds24Service.getInventoryCalendar({
         propId: apartmentConfig.propId,
         roomId: apartmentConfig.roomId,

@@ -2289,8 +2289,20 @@ class Beds24Service {
   }
 }
 
-// Singleton instance
-export const beds24Service = new Beds24Service();
+// Singleton instance with lazy initialization
+let _beds24Service: Beds24Service | null = null;
+
+export function getBeds24Service(): Beds24Service {
+  if (!_beds24Service) {
+    _beds24Service = new Beds24Service();
+  }
+  return _beds24Service;
+}
+
+// For backward compatibility
+export const beds24Service = {
+  get: () => getBeds24Service()
+};
 
 // Helper functions for apartment-specific operations
 export async function getApartmentAvailability(

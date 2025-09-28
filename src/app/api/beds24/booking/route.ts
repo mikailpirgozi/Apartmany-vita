@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { beds24Service } from '@/services/beds24';
+import { getBeds24Service } from '@/services/beds24';
 
 /**
  * Create booking in Beds24
@@ -53,6 +53,7 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
+    const beds24Service = getBeds24Service();
     const booking = await beds24Service.createBooking({
       propId: apartmentData.propId,
       roomId: apartmentData.roomId,

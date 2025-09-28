@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { beds24Service } from '@/services/beds24';
+import { getBeds24Service } from '@/services/beds24';
 
 /**
  * API endpoint pre získanie apartment konfigurácií z Beds24

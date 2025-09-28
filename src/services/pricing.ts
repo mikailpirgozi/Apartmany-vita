@@ -5,7 +5,7 @@
 
 import { differenceInDays, eachDayOfInterval, format } from "date-fns";
 import { prisma } from "@/lib/db";
-import { beds24Service } from "./beds24";
+import { getBeds24Service } from "./beds24";
 import { LoyaltyTier } from "@/lib/loyalty";
 
 // Re-export LoyaltyTier for backward compatibility
@@ -138,7 +138,15 @@ class PricingService {
       
       console.log(`🎯 Getting dynamic pricing for ${apartmentSlug} with ${guests} guests, ${children} children`);
       
+      // Check if BEDS24 environment variables are available
+      const hasBeds24Config = process.env.BEDS24_ACCESS_TOKEN && process.env.BEDS24_REFRESH_TOKEN;
+      if (!hasBeds24Config) {
+        console.warn('⚠️ BEDS24 environment variables not available, using fallback pricing');
+        return {};
+      }
+      
       // Use new inventory method for booking pricing (not calendar)
+      const beds24Service = getBeds24Service();
       const availability = await beds24Service.getInventory({
         propId: apartmentConfig.propId,
         roomId: apartmentConfig.roomId,
