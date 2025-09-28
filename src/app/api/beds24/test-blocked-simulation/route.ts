@@ -16,7 +16,8 @@ export async function GET(request: NextRequest) {
       propId, roomId, startDate, endDate 
     });
 
-    const results: Record<string, unknown> = {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const results: any = {
       timestamp: new Date().toISOString(),
       parameters: { propId, roomId, startDate, endDate },
       scenarios: {} as Record<string, unknown>
@@ -142,7 +143,7 @@ export async function GET(request: NextRequest) {
       const scenario = s as Record<string, unknown>;
       return scenario.testPassed === true;
     }).length;
-    const totalTests = Object.keys(results.scenarios).length;
+    const totalTests = Object.keys(results.scenarios as Record<string, unknown>).length;
     
     results.summary = {
       totalScenarios: totalTests,

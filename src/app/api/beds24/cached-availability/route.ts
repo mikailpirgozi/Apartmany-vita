@@ -272,8 +272,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     // Process results
     const successful = results
-      .filter((result): result is PromiseFulfilledResult<unknown> => result.status === 'fulfilled')
-      .map(result => result.value as unknown);
+      .filter(result => result.status === 'fulfilled')
+      .map(result => (result as PromiseFulfilledResult<unknown>).value);
     
     const failed = results
       .filter((result): result is PromiseRejectedResult => result.status === 'rejected')
