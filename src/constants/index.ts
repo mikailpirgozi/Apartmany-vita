@@ -117,6 +117,25 @@ export const SUCCESS_MESSAGES = {
   PASSWORD_RESET: "Na váš email sme poslali odkaz na obnovenie hesla."
 }
 
+// Apartment configurations for BEDS24 integration
+export const APARTMENTS = [
+  {
+    slug: 'design-apartman',
+    propId: process.env.BEDS24_PROP_ID_DESIGN || '227484',
+    roomId: process.env.BEDS24_ROOM_ID_DESIGN || '483027'
+  },
+  {
+    slug: 'lite-apartman',
+    propId: process.env.BEDS24_PROP_ID_LITE || '168900',
+    roomId: process.env.BEDS24_ROOM_ID_LITE || '357932'
+  },
+  {
+    slug: 'deluxe-apartman',
+    propId: process.env.BEDS24_PROP_ID_DELUXE || '161445',
+    roomId: process.env.BEDS24_ROOM_ID_DELUXE || '357931'
+  }
+] as const
+
 // Feature flags
 export const FEATURE_FLAGS = {
   CHATBOT_ENABLED: true,

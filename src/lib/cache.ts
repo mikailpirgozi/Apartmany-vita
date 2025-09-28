@@ -51,7 +51,8 @@ class AvailabilityCache {
   private isConnecting = false;
 
   constructor() {
-    this.initializeRedis();
+    // Lazy initialization - only connect when needed
+    // this.initializeRedis();
   }
 
   /**
@@ -119,6 +120,11 @@ class AvailabilityCache {
     const fullKey = `${CACHE_KEYS.AVAILABILITY}:${key}`;
 
     try {
+      // Initialize Redis if not connected and not in build mode
+      if (!this.redis && !process.env.NEXT_PHASE && process.env.NODE_ENV !== 'production') {
+        await this.initializeRedis();
+      }
+
       // Try Redis first
       if (this.redis) {
         const cached = await this.redis.get(fullKey);
@@ -152,6 +158,11 @@ class AvailabilityCache {
     const fullKey = `${CACHE_KEYS.AVAILABILITY}:${key}`;
 
     try {
+      // Initialize Redis if not connected and not in build mode
+      if (!this.redis && !process.env.NEXT_PHASE && process.env.NODE_ENV !== 'production') {
+        await this.initializeRedis();
+      }
+
       // Store in Redis if available
       if (this.redis) {
         await this.redis.setex(fullKey, ttl, JSON.stringify(data));
@@ -185,6 +196,11 @@ class AvailabilityCache {
     const fullPattern = `${CACHE_KEYS.AVAILABILITY}:${pattern}`;
 
     try {
+      // Initialize Redis if not connected and not in build mode
+      if (!this.redis && !process.env.NEXT_PHASE && process.env.NODE_ENV !== 'production') {
+        await this.initializeRedis();
+      }
+
       // Invalidate Redis cache
       if (this.redis) {
         const keys = await this.redis.keys(fullPattern);
@@ -285,6 +301,11 @@ class AvailabilityCache {
    */
   async clearAll(): Promise<void> {
     try {
+      // Initialize Redis if not connected and not in build mode
+      if (!this.redis && !process.env.NEXT_PHASE && process.env.NODE_ENV !== 'production') {
+        await this.initializeRedis();
+      }
+
       // Clear Redis
       if (this.redis) {
         const keys = await this.redis.keys(`${CACHE_KEYS.AVAILABILITY}:*`);
