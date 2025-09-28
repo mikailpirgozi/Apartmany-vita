@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { beds24Service } from '@/services/beds24';
+import { getBeds24Service } from '@/services/beds24';
 
 /**
  * Enhanced test endpoint for new Beds24 API endpoints per documentation
@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
     if (testType === 'all' || testType === 'properties') {
       try {
         console.log('Testing properties with includeAllRooms...');
-        const properties = await beds24Service.getProperties('true');
+        const properties = await getBeds24Service().getProperties('true');
         results.properties = {
           success: true,
           data: properties,
@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
     if (testType === 'all' || testType === 'offers') {
       try {
         console.log('Testing inventory offers...');
-        const offers = await beds24Service.getInventoryOffers({
+        const offers = await getBeds24Service().getInventoryOffers({
           propId,
           roomId,
           startDate,
@@ -79,7 +79,7 @@ export async function GET(request: NextRequest) {
     if (testType === 'all' || testType === 'calendar') {
       try {
         console.log('Testing inventory calendar...');
-        const calendar = await beds24Service.getInventoryCalendar({
+        const calendar = await getBeds24Service().getInventoryCalendar({
           propId,
           roomId,
           startDate,
@@ -103,7 +103,7 @@ export async function GET(request: NextRequest) {
     if (testType === 'all' || testType === 'inventory') {
       try {
         console.log('Testing enhanced inventory cascade...');
-        const inventory = await beds24Service.getInventory({
+        const inventory = await getBeds24Service().getInventory({
           propId,
           roomId,
           startDate,
@@ -129,7 +129,7 @@ export async function GET(request: NextRequest) {
     if (testType === 'all' || testType === 'configurations') {
       try {
         console.log('Testing apartment configurations parser...');
-        const configurations = await beds24Service.getApartmentConfigurations();
+        const configurations = await getBeds24Service().getApartmentConfigurations();
         results.configurations = {
           success: true,
           data: configurations,

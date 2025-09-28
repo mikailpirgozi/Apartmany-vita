@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { beds24Service } from '@/services/beds24';
+import { getBeds24Service } from '@/services/beds24';
 
 /**
  * Test Raw Inventory POST API endpoint - direct Beds24 API call
@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     console.log('🧪 Testing Raw Inventory POST API:', { propId, roomId, startDate, endDate });
 
     // Get raw Inventory API response using POST
-    const accessToken = await beds24Service['ensureValidToken']();
+    const accessToken = await getBeds24Service().ensureValidToken();
     
     const requestBody = {
       authentication: {

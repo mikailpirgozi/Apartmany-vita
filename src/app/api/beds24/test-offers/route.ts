@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { beds24Service } from '@/services/beds24';
+import { getBeds24Service } from '@/services/beds24';
 
 /**
  * Test Offers API endpoint
@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
 
     console.log('🧪 Testing Offers API:', { propId, roomId, startDate, endDate, adults, children });
 
-    const result = await beds24Service.getInventoryOffers({
+    const result = await getBeds24Service().getInventoryOffers({
       propId,
       roomId,
       startDate,

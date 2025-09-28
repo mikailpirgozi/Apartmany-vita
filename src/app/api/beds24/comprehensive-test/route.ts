@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { beds24Service } from '@/services/beds24';
+import { getBeds24Service } from '@/services/beds24';
 
 /**
  * Comprehensive Beds24 API Test Endpoint
@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
     // Test 1: Properties API
     try {
       console.log('🧪 Testing Properties API...');
-      const propertiesResult = await beds24Service.getProperties(propId, true);
+      const propertiesResult = await getBeds24Service().getProperties(propId, true);
       results.properties = {
         success: true,
         data: propertiesResult,
@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
     // Test 2: Calendar API
     try {
       console.log('🧪 Testing Calendar API...');
-      const calendarResult = await beds24Service.getInventoryCalendar({
+      const calendarResult = await getBeds24Service().getInventoryCalendar({
         propId,
         roomId,
         startDate,
@@ -75,7 +75,7 @@ export async function GET(request: NextRequest) {
     // Test 3: Offers API
     try {
       console.log('🧪 Testing Offers API...');
-      const offersResult = await beds24Service.getInventoryOffers({
+      const offersResult = await getBeds24Service().getInventoryOffers({
         propId,
         roomId,
         startDate,
@@ -104,7 +104,7 @@ export async function GET(request: NextRequest) {
     // Test 4: Bookings API
     try {
       console.log('🧪 Testing Bookings API...');
-      const bookingsResult = await beds24Service.getBookings({
+      const bookingsResult = await getBeds24Service().getBookings({
         propId,
         roomId,
         startDate,
@@ -131,7 +131,7 @@ export async function GET(request: NextRequest) {
     // Test 5: Availability (with guests)
     try {
       console.log('🧪 Testing Availability (with guests)...');
-      const availabilityResult = await beds24Service.getAvailability({
+      const availabilityResult = await getBeds24Service().getAvailability({
         propId,
         roomId,
         startDate,
@@ -160,7 +160,7 @@ export async function GET(request: NextRequest) {
     // Test 6: Availability (calendar mode)
     try {
       console.log('🧪 Testing Availability (calendar mode)...');
-      const availabilityCalendarResult = await beds24Service.getAvailability({
+      const availabilityCalendarResult = await getBeds24Service().getAvailability({
         propId,
         roomId,
         startDate,
@@ -187,7 +187,7 @@ export async function GET(request: NextRequest) {
     // Test 7: Room Prices
     try {
       console.log('🧪 Testing Room Prices...');
-      const roomPricesResult = await beds24Service.getRoomPricesFromBeds24(roomId, propId);
+      const roomPricesResult = await getBeds24Service().getRoomPricesFromBeds24(roomId, propId);
       results.roomPrices = {
         success: true,
         data: roomPricesResult,
@@ -209,7 +209,7 @@ export async function GET(request: NextRequest) {
     // Test 8: Minimum Price
     try {
       console.log('🧪 Testing Minimum Price...');
-      const minimumPriceResult = await beds24Service.getRoomMinimumPrice(roomId, propId);
+      const minimumPriceResult = await getBeds24Service().getRoomMinimumPrice(roomId, propId);
       results.minimumPrice = {
         success: true,
         data: minimumPriceResult,
@@ -226,7 +226,7 @@ export async function GET(request: NextRequest) {
     }
 
     const totalTime = Date.now() - startTime;
-    const successCount = Object.values(results).filter((r: unknown) => r.success).length;
+    const successCount = Object.values(results).filter((r: any) => r.success).length;
     const totalTests = Object.keys(results).length;
 
     console.log(`🎯 Comprehensive test completed in ${totalTime}ms: ${successCount}/${totalTests} tests passed`);

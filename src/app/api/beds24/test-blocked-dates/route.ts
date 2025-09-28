@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { beds24Service } from '@/services/beds24';
+import { getBeds24Service } from '@/services/beds24';
 
 /**
  * Test Blocked Dates API endpoint - specifically for testing manually blocked dates
@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
     // Test 1: Raw Calendar API with detailed logging
     try {
       console.log('📅 Testing Raw Calendar API for blocked dates...');
-      const accessToken = await beds24Service['ensureValidToken']();
+      const accessToken = await getBeds24Service().ensureValidToken();
       
       const calendarUrl = new URL(`${process.env.BEDS24_BASE_URL || 'https://api.beds24.com/v2'}/inventory/rooms/calendar`);
       calendarUrl.searchParams.set('startDate', startDate);
@@ -79,7 +79,7 @@ export async function GET(request: NextRequest) {
     // Test 2: Processed Calendar API (our service)
     try {
       console.log('📅 Testing Processed Calendar API...');
-      const processedCalendar = await beds24Service.getInventoryCalendar({
+      const processedCalendar = await getBeds24Service().getInventoryCalendar({
         propId,
         roomId,
         startDate,

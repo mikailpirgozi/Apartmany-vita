@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { beds24Service } from '@/services/beds24';
+import { getBeds24Service } from '@/services/beds24';
 
 /**
  * Komplexný test cenových scenárov pre Beds24 API
@@ -158,7 +158,7 @@ export async function GET(request: NextRequest) {
         const startTime = Date.now();
 
         // Test Offers API
-        const offersResult = await beds24Service.getInventoryOffers({
+        const offersResult = await getBeds24Service().getInventoryOffers({
           propId: scenario.propId,
           roomId: scenario.roomId,
           startDate: scenario.startDate,
@@ -237,9 +237,9 @@ export async function GET(request: NextRequest) {
       totalTests: results.length + errors.length,
       successfulTests: results.length,
       failedTests: errors.length,
-      priceMatches: results.filter(r => r.results.comparison.priceMatch).length,
+      priceMatches: results.filter((r: any) => r.results.comparison.priceMatch).length,
       averageResponseTime: results.length > 0 
-        ? Math.round(results.reduce((sum, r) => sum + r.results.comparison.responseTime, 0) / results.length)
+        ? Math.round((results as any[]).reduce((sum: number, r: any) => sum + r.results.comparison.responseTime, 0) / results.length)
         : 0,
       timestamp: new Date().toISOString()
     };

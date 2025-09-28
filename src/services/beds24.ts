@@ -154,7 +154,7 @@ class Beds24Service {
   /**
    * Check if access token is expired and refresh if needed
    */
-  private async ensureValidToken(): Promise<string> {
+  public async ensureValidToken(): Promise<string> {
     const now = Date.now();
     const expiresAt = this.config.tokenExpiresAt || 0;
     

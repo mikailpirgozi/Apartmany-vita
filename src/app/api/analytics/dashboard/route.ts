@@ -25,7 +25,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const { timeWindow, apartment, includeMetrics, includeAlerts, includeCache } = 
       DashboardRequestSchema.parse(searchParams);
 
-    const dashboardData: unknown = {
+    const dashboardData: any = {
       timestamp: new Date().toISOString(),
       timeWindow,
       apartment: apartment || 'all',
@@ -130,7 +130,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     const { format, timeWindow, includeRawMetrics } = ExportRequestSchema.parse(body);
 
-    const exportData: unknown = {
+    const exportData: any = {
       exportedAt: new Date().toISOString(),
       timeWindow,
       summary: analytics.getPerformanceSummary(timeWindow),
@@ -197,7 +197,7 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
 
     const { clearMetrics, clearCache, apartment } = ClearRequestSchema.parse(searchParams);
 
-    const results: unknown = {
+    const results: any = {
       cleared: [],
       errors: [],
     };
@@ -247,12 +247,12 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
 /**
  * Generate performance insights based on dashboard data
  */
-function generatePerformanceInsights(dashboardData: unknown): {
+function generatePerformanceInsights(dashboardData: any): {
   type: 'success' | 'warning' | 'error';
   message: string;
   recommendation?: string;
 }[] {
-  const insights: unknown[] = [];
+  const insights: any[] = [];
   
   const summary = dashboardData.summary;
   if (!summary) return insights;
@@ -314,7 +314,7 @@ function generatePerformanceInsights(dashboardData: unknown): {
 /**
  * Convert dashboard data to CSV format
  */
-function convertToCsv(data: unknown): string {
+function convertToCsv(data: any): string {
   const lines: string[] = [];
   
   // Header

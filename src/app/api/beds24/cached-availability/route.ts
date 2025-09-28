@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { format, startOfMonth, endOfMonth, parseISO } from 'date-fns';
 import { availabilityCache, cacheUtils, CACHE_TTL } from '@/lib/cache';
-import { beds24Service } from '@/services/beds24';
+import { getBeds24Service } from '@/services/beds24';
 import { APARTMENTS } from '@/constants';
 import { z } from 'zod';
 
@@ -99,7 +99,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     console.log(`❌ Cache MISS for ${apartment} ${month} (${guests} guests) - fetching from API`);
     
     try {
-      data = await beds24Service.getInventory({
+      data = await getBeds24Service().getInventory({
         propId: apartmentConfig.propId,
         roomId: apartmentConfig.roomId,
         startDate: monthStart,
@@ -255,7 +255,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         const monthStart = format(startOfMonth(monthDate), 'yyyy-MM-dd');
         const monthEnd = format(endOfMonth(monthDate), 'yyyy-MM-dd');
 
-        data = await beds24Service.getInventory({
+        data = await getBeds24Service().getInventory({
           propId: apartmentConfig.propId,
           roomId: apartmentConfig.roomId,
           startDate: monthStart,
@@ -272,7 +272,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     // Process results
     const successful = results
-      .filter((result): result is PromiseFulfilledResult<unknown> => result.status === 'fulfilled')
+      .filter((result): result is PromiseFulfilledResult<any> => result.status === 'fulfilled')
       .map(result => result.value);
     
     const failed = results

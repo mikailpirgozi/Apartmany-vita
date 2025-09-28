@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { beds24Service } from '@/services/beds24';
+import { getBeds24Service } from '@/services/beds24';
 
 /**
  * Test Calendar API endpoint
@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
 
     console.log('🧪 Testing Calendar API:', { propId, roomId, startDate, endDate });
 
-    const result = await beds24Service.getInventoryCalendar({
+    const result = await getBeds24Service().getInventoryCalendar({
       propId,
       roomId,
       startDate,

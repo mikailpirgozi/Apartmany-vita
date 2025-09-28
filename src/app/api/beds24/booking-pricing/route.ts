@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { beds24Service } from '@/services/beds24';
+import { getBeds24Service } from '@/services/beds24';
 // import { format } from 'date-fns';
 
 /**
@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Use inventory method for booking pricing (with discounts and guest adjustments)
-    const availability = await beds24Service.getInventory({
+    const availability = await getBeds24Service().getInventory({
       propId: apartmentConfig.propId,
       roomId: apartmentConfig.roomId,
       startDate: checkIn,
@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Calculate total price with our discount logic
-    const stayPricing = beds24Service.calculateStayPrice(
+    const stayPricing = getBeds24Service().calculateStayPrice(
       apartmentConfig.roomId,
       checkIn,
       checkOut,

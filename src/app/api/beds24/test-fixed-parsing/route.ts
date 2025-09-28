@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { beds24Service } from '@/services/beds24';
+import { getBeds24Service } from '@/services/beds24';
 
 /**
  * Test endpoint to verify the fixed parsing logic for date ranges
@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Test the fixed Calendar API parsing
-    const calendarResult = await beds24Service.getInventoryCalendar({
+    const calendarResult = await getBeds24Service().getInventoryCalendar({
       propId,
       roomId,
       startDate,

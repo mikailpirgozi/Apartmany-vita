@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
     }
 
     const beds24Service = getBeds24Service();
-    const booking = await beds24Service.createBooking({
+    const booking = await getBeds24Service().createBooking({
       propId: apartmentData.propId,
       roomId: apartmentData.roomId,
       checkIn,

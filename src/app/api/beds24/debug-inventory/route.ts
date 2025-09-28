@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { beds24Service } from '@/services/beds24';
+import { getBeds24Service } from '@/services/beds24';
 
 /**
  * Debug endpoint pre testovanie Beds24 inventory API
@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
     let inventoryError = null;
     try {
       console.log('\n--- Testing inventory endpoint ---');
-      inventoryResult = await beds24Service.getInventory({
+      inventoryResult = await getBeds24Service().getInventory({
         propId: apartmentConfig.propId,
         roomId: apartmentConfig.roomId,
         startDate,
@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
     let availabilityError = null;
     try {
       console.log('\n--- Testing availability endpoint ---');
-      availabilityResult = await beds24Service.getAvailability({
+      availabilityResult = await getBeds24Service().getAvailability({
         propId: apartmentConfig.propId,
         roomId: apartmentConfig.roomId,
         startDate,
@@ -70,7 +70,7 @@ export async function GET(request: NextRequest) {
     let ratesError = null;
     try {
       console.log('\n--- Testing rates endpoint ---');
-      ratesResult = await beds24Service.getRoomRates(
+      ratesResult = await getBeds24Service().getRoomRates(
         apartmentConfig.propId,
         apartmentConfig.roomId,
         startDate,

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { beds24Service } from '@/services/beds24';
+import { getBeds24Service } from '@/services/beds24';
 
 /**
  * Test Comparison API endpoint - shows both raw and processed data
@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
     // Test 1: Raw Calendar API
     try {
       console.log('📅 Testing Raw Calendar API...');
-      const accessToken = await beds24Service['ensureValidToken']();
+      const accessToken = await getBeds24Service().ensureValidToken();
       
       const calendarUrl = new URL(`${process.env.BEDS24_BASE_URL || 'https://api.beds24.com/v2'}/inventory/rooms/calendar`);
       calendarUrl.searchParams.set('startDate', startDate);
@@ -76,7 +76,7 @@ export async function GET(request: NextRequest) {
     // Test 2: Processed Calendar API (our service)
     try {
       console.log('📅 Testing Processed Calendar API...');
-      const processedCalendar = await beds24Service.getInventoryCalendar({
+      const processedCalendar = await getBeds24Service().getInventoryCalendar({
         propId,
         roomId,
         startDate,
@@ -97,7 +97,7 @@ export async function GET(request: NextRequest) {
     // Test 3: Raw Bookings API
     try {
       console.log('📋 Testing Raw Bookings API...');
-      const accessToken = await beds24Service['ensureValidToken']();
+      const accessToken = await getBeds24Service().ensureValidToken();
       
       const bookingsUrl = new URL(`${process.env.BEDS24_BASE_URL || 'https://api.beds24.com/v2'}/bookings`);
       bookingsUrl.searchParams.set('propId', propId);
@@ -140,7 +140,7 @@ export async function GET(request: NextRequest) {
     // Test 4: Processed Bookings API (our service)
     try {
       console.log('📋 Testing Processed Bookings API...');
-      const processedBookings = await beds24Service.getBookings({
+      const processedBookings = await getBeds24Service().getBookings({
         propId,
         roomId,
         startDate,
@@ -162,7 +162,7 @@ export async function GET(request: NextRequest) {
     if (adults) {
       try {
         console.log('💰 Testing Raw Offers API...');
-        const accessToken = await beds24Service['ensureValidToken']();
+        const accessToken = await getBeds24Service().ensureValidToken();
         
         const offersUrl = new URL(`${process.env.BEDS24_BASE_URL || 'https://api.beds24.com/v2'}/inventory/rooms/offers`);
         offersUrl.searchParams.set('startDate', startDate);
@@ -209,7 +209,7 @@ export async function GET(request: NextRequest) {
       // Test 6: Processed Offers API (our service)
       try {
         console.log('💰 Testing Processed Offers API...');
-        const processedOffers = await beds24Service.getInventoryOffers({
+        const processedOffers = await getBeds24Service().getInventoryOffers({
           propId,
           roomId,
           startDate,

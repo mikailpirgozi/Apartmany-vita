@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { beds24Service } from '@/services/beds24';
+import { getBeds24Service } from '@/services/beds24';
 
 /**
  * Test Availability API endpoint
@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
       requestParams.numChildren = parseInt(children);
     }
 
-    const result = await beds24Service.getAvailability(requestParams);
+    const result = await getBeds24Service().getAvailability(requestParams);
 
     return NextResponse.json({
       success: true,

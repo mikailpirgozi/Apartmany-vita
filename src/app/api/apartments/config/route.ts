@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Získaj konfigurácie z Beds24 Properties API
-    const configurations = await beds24Service.getApartmentConfigurations();
+    const configurations = await getBeds24Service().getApartmentConfigurations();
     
     if (apartment) {
       // Vráť konfiguráciu pre konkrétny apartmán
@@ -44,9 +44,9 @@ export async function GET(request: NextRequest) {
           slug: apartment,
           ...apartmentConfig,
           // Add computed fields
-          checkInTime: `${apartmentConfig.checkInStart}-${apartmentConfig.checkInEnd}`,
-          checkOutTime: apartmentConfig.checkOutEnd,
-          priceRange: `${apartmentConfig.minPrice}€ - ${apartmentConfig.rackRate}€`
+          checkInTime: `${(apartmentConfig as any).checkInStart}-${(apartmentConfig as any).checkInEnd}`,
+          checkOutTime: (apartmentConfig as any).checkOutEnd,
+          priceRange: `${(apartmentConfig as any).minPrice}€ - ${(apartmentConfig as any).rackRate}€`
         }
       });
     }
@@ -55,9 +55,9 @@ export async function GET(request: NextRequest) {
     const allConfigurations = Object.entries(configurations).map(([slug, apartmentConfig]) => ({
       slug,
       ...apartmentConfig,
-      checkInTime: `${apartmentConfig.checkInStart}-${apartmentConfig.checkInEnd}`,
-      checkOutTime: apartmentConfig.checkOutEnd,
-      priceRange: `${apartmentConfig.minPrice}€ - ${apartmentConfig.rackRate}€`
+      checkInTime: `${(apartmentConfig as any).checkInStart}-${(apartmentConfig as any).checkInEnd}`,
+      checkOutTime: (apartmentConfig as any).checkOutEnd,
+      priceRange: `${(apartmentConfig as any).minPrice}€ - ${(apartmentConfig as any).rackRate}€`
     }));
 
     return NextResponse.json({

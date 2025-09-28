@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { beds24Service } from '@/services/beds24';
+import { getBeds24Service } from '@/services/beds24';
 
 /**
  * Jednoduchý API endpoint pre mesačnú dostupnosť apartmánov
@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Získaj dostupnosť z Beds24 pomocí offers API (najlepšie pre ceny + availability)
-    const availability = await beds24Service.getInventoryOffers({
+    const availability = await getBeds24Service().getInventoryOffers({
       propId: apartmentConfig.propId,
       roomId: apartmentConfig.roomId,
       startDate,
