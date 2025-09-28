@@ -27,7 +27,7 @@ const validateEmail = (email: string): boolean => {
   return emailRegex.test(email);
 };
 
-const debounce = <T extends (...args: any[]) => any>(
+const debounce = <T extends (...args: unknown[]) => unknown>(
   func: T,
   delay: number
 ): ((...args: Parameters<T>) => void) => {
@@ -106,7 +106,7 @@ describe('Utility Functions', () => {
   });
 
   describe('debounce', () => {
-    it('should debounce function calls', (done) => {
+    it('should debounce function calls', async () => {
       let callCount = 0;
       const debouncedFn = debounce(() => {
         callCount++;
@@ -118,13 +118,11 @@ describe('Utility Functions', () => {
       debouncedFn();
 
       // Should only be called once after delay
-      setTimeout(() => {
-        expect(callCount).toBe(1);
-        done();
-      }, 150);
+      await new Promise(resolve => setTimeout(resolve, 150));
+      expect(callCount).toBe(1);
     });
 
-    it('should handle multiple debounced calls', (done) => {
+    it('should handle multiple debounced calls', async () => {
       let callCount = 0;
       const debouncedFn = debounce(() => {
         callCount++;
@@ -132,14 +130,11 @@ describe('Utility Functions', () => {
 
       debouncedFn();
       
-      setTimeout(() => {
-        debouncedFn();
-      }, 100);
+      await new Promise(resolve => setTimeout(resolve, 100));
+      debouncedFn();
 
-      setTimeout(() => {
-        expect(callCount).toBe(2);
-        done();
-      }, 200);
+      await new Promise(resolve => setTimeout(resolve, 100));
+      expect(callCount).toBe(2);
     });
   });
 });
