@@ -6,7 +6,7 @@
     "dev": "next dev --port 3000",
     "dev:turbo": "next dev --turbopack --port 3000",
     "dev:force": "PORT=3000 next dev --port 3000",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start --port 3000",
     "start:force": "PORT=3000 next start --port 3000",
     "lint": "eslint",
@@ -21,7 +21,8 @@
     "lighthouse": "lhci autorun",
     "security-audit": "npm audit --audit-level=high",
     "port-check": "node scripts/port-checker.js",
-    "dev:safe": "npm run port-check && npm run dev:force"
+    "dev:safe": "npm run port-check && npm run dev:force",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@auth/core": "0.34.2",
