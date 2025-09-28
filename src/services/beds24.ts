@@ -216,7 +216,11 @@ class Beds24Service {
         config.accessToken = data.accessToken;
         config.tokenExpiresAt = Date.now() + (data.expiresIn * 1000);
         
-        console.log('Access token refreshed successfully');
+        console.log('Access token refreshed successfully:', {
+          tokenLength: data.accessToken.length,
+          expiresIn: data.expiresIn,
+          expiresAt: new Date(config.tokenExpiresAt).toISOString()
+        });
       } else if (data.token && data.expiresIn) {
         // Alternative response format: { token: string, expiresIn: number }
         const config = this.config as Beds24Config & { 
@@ -226,7 +230,11 @@ class Beds24Service {
         config.accessToken = data.token;
         config.tokenExpiresAt = Date.now() + (data.expiresIn * 1000);
         
-        console.log('Access token refreshed successfully (token format)');
+        console.log('Access token refreshed successfully (token format):', {
+          tokenLength: data.token.length,
+          expiresIn: data.expiresIn,
+          expiresAt: new Date(config.tokenExpiresAt).toISOString()
+        });
       } else {
         console.error('Unexpected refresh response format:', data);
         throw new Error(`Invalid refresh response format: ${JSON.stringify(data)}`);
@@ -418,6 +426,12 @@ class Beds24Service {
       calendarUrl.searchParams.set('includeChannels', 'true');
 
       console.log('Calendar URL (ENHANCED with all includes):', calendarUrl.toString());
+      console.log('Calendar API request details:', {
+        url: calendarUrl.toString(),
+        hasToken: !!accessToken,
+        tokenLength: accessToken?.length || 0,
+        tokenPrefix: accessToken?.substring(0, 10) + '...'
+      });
 
       const calendarResponse = await fetch(calendarUrl.toString(), {
         method: 'GET',
