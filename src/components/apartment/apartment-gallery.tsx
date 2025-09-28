@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog'
-import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
 import { ImageIcon, ChevronLeft, ChevronRight } from 'lucide-react'
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
@@ -95,12 +94,12 @@ export function ApartmentGallery({ images, apartmentName }: ApartmentGalleryProp
       {/* Lightbox */}
       <Dialog open={showLightbox} onOpenChange={setShowLightbox}>
         <DialogContent className="max-w-4xl p-0">
-          <VisuallyHidden>
+          <div className="sr-only">
             <DialogTitle>{apartmentName} - Galéria fotografií</DialogTitle>
             <DialogDescription>
               Prehliadanie fotografií apartmánu {apartmentName}. Fotografia {lightboxIndex + 1} z {images.length}.
             </DialogDescription>
-          </VisuallyHidden>
+          </div>
           <div className="relative">
             <Image
               src={images[lightboxIndex]}
