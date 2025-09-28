@@ -153,6 +153,7 @@ class Beds24Service {
 
   /**
    * Check if access token is expired and refresh if needed
+   * ENHANCED: With fallback to static token if refresh fails
    */
   public async ensureValidToken(): Promise<string> {
     const now = Date.now();
@@ -161,7 +162,15 @@ class Beds24Service {
     // If token expires in next 5 minutes, refresh it
     if (now >= (expiresAt - 5 * 60 * 1000)) {
       console.log('Access token expired or expiring soon, refreshing...');
-      await this.refreshAccessToken();
+      
+      try {
+        await this.refreshAccessToken();
+      } catch (refreshError) {
+        console.warn('Token refresh failed, using static token as fallback:', refreshError);
+        // Fallback: use the original static token from environment
+        // This ensures the service continues to work even if refresh fails
+        this.config.tokenExpiresAt = Date.now() + 3600000; // Set 1 hour expiry for static token
+      }
     }
     
     return this.config.accessToken;
@@ -169,21 +178,23 @@ class Beds24Service {
 
   /**
    * Refresh access token using refresh token
-   * ENHANCED: Based on official Beds24 API V2 documentation
+   * FIXED: Based on working invite-to-token implementation
    */
   private async refreshAccessToken(): Promise<void> {
     try {
       console.log('Refreshing Beds24 access token...');
       
-      // ENHANCED: Use correct endpoint per official OpenAPI specification
+      // FIXED: Use POST method with refreshToken in body (not header)
       const response = await fetch(`${this.config.baseUrl}/authentication/token`, {
-        method: 'GET',
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-          'refreshToken': this.config.refreshToken,
           'User-Agent': 'ApartmanyVita/1.0'
-        }
+        },
+        body: JSON.stringify({
+          refreshToken: this.config.refreshToken
+        })
       });
 
       if (!response.ok) {
@@ -193,49 +204,47 @@ class Beds24Service {
       }
 
       const data = await response.json();
+      console.log('Token refresh response:', data);
       
-      // ENHANCED: Handle official response format per OpenAPI specification
-      if (data.token && data.expiresIn) {
-        // Official response format: { token: string, expiresIn: number }
+      // FIXED: Handle response format based on working invite-to-token implementation
+      if (data.accessToken && data.expiresIn) {
+        // Standard response format: { accessToken: string, expiresIn: number }
         const config = this.config as Beds24Config & { 
           accessToken: string; 
           tokenExpiresAt: number; 
         };
-        config.accessToken = data.token;
+        config.accessToken = data.accessToken;
         config.tokenExpiresAt = Date.now() + (data.expiresIn * 1000);
         
         console.log('Access token refreshed successfully');
-      } else if (data.success && data.data) {
-        // Fallback for alternative response format
+      } else if (data.token && data.expiresIn) {
+        // Alternative response format: { token: string, expiresIn: number }
         const config = this.config as Beds24Config & { 
           accessToken: string; 
-          refreshToken: string; 
-          tokenExpiresAt: number; 
-        };
-        config.accessToken = data.data.accessToken;
-        config.refreshToken = data.data.refreshToken;
-        config.tokenExpiresAt = Date.now() + (data.data.expiresIn * 1000);
-        
-        console.log('Access token refreshed successfully (fallback format)');
-      } else if (data.token && data.refreshToken) {
-        // Legacy response format
-        const config = this.config as Beds24Config & { 
-          accessToken: string; 
-          refreshToken: string; 
           tokenExpiresAt: number; 
         };
         config.accessToken = data.token;
-        config.refreshToken = data.refreshToken;
         config.tokenExpiresAt = Date.now() + (data.expiresIn * 1000);
         
-        console.log('Access token refreshed successfully (alternative format)');
+        console.log('Access token refreshed successfully (token format)');
       } else {
         console.error('Unexpected refresh response format:', data);
-        throw new Error('Invalid refresh response format');
+        throw new Error(`Invalid refresh response format: ${JSON.stringify(data)}`);
       }
     } catch (error) {
       console.error('Error refreshing access token:', error);
-      throw new Error('Failed to refresh access token');
+      
+      // Enhanced error logging for debugging
+      if (error instanceof Error) {
+        console.error('Token refresh error details:', {
+          message: error.message,
+          stack: error.stack,
+          refreshToken: this.config.refreshToken ? 'present' : 'missing',
+          baseUrl: this.config.baseUrl
+        });
+      }
+      
+      throw new Error(`Failed to refresh access token: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 

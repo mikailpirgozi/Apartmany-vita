@@ -168,9 +168,20 @@ export async function GET(request: NextRequest) {
         }
 
         if (!availability) {
+          // Enhanced error response with more details
+          const errorMessage = apiError instanceof Error ? apiError.message : 'Unknown error';
+          console.error('Final availability fetch failed:', errorMessage);
+          
           return NextResponse.json({
             success: false,
-            error: `Failed to fetch availability: ${apiError instanceof Error ? apiError.message : 'Unknown error'}`
+            error: `Failed to fetch availability: ${errorMessage}`,
+            details: {
+              apartment,
+              checkIn,
+              checkOut,
+              timestamp: new Date().toISOString(),
+              hasBeds24Config: !!(process.env.BEDS24_ACCESS_TOKEN && process.env.BEDS24_REFRESH_TOKEN)
+            }
           }, { status: 503 });
         }
       }
