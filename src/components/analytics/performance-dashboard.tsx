@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -53,7 +53,7 @@ interface DashboardData {
     memory: { keys: number; size: string };
   };
   overview?: {
-    recentActivity: any[];
+    recentActivity: Record<string, unknown>[];
     topApartments: Array<{
       apartment: string;
       requests: number;
@@ -92,7 +92,7 @@ export function PerformanceDashboard({
   const [timeWindow, setTimeWindow] = useState(3600000); // 1 hour
 
   // Fetch dashboard data
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -111,7 +111,7 @@ export function PerformanceDashboard({
     } finally {
       setLoading(false);
     }
-  };
+  }, [timeWindow]);
 
   // Auto-refresh effect
   useEffect(() => {
@@ -121,7 +121,7 @@ export function PerformanceDashboard({
       const interval = setInterval(fetchData, refreshInterval);
       return () => clearInterval(interval);
     }
-  }, [autoRefresh, refreshInterval, timeWindow]);
+  }, [autoRefresh, refreshInterval, timeWindow, fetchData]);
 
   // Export data
   const exportData = async (format: 'json' | 'csv') => {

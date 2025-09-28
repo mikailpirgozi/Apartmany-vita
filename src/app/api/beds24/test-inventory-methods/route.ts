@@ -23,7 +23,24 @@ export async function GET(request: NextRequest) {
       throw new Error('BEDS24_ACCESS_TOKEN not configured');
     }
 
-    const results: Record<string, unknown> = {
+    const results: {
+      timestamp: string;
+      parameters: { propId: string; roomId: string; startDate: string; endDate: string };
+      methods: Record<string, {
+        success: boolean;
+        status?: number;
+        data?: unknown;
+        analysis?: {
+          hasData?: boolean;
+          dataCount?: number;
+          blockedDates?: number;
+          occupiedDates?: string[];
+          unavailableDates?: number;
+        };
+        error?: string;
+      }>;
+      summary?: unknown;
+    } = {
       timestamp: new Date().toISOString(),
       parameters: { propId, roomId, startDate, endDate },
       methods: {}
@@ -179,7 +196,7 @@ export async function GET(request: NextRequest) {
           success: true,
           status: offersResponse.status,
           data: offersData,
-          analysis: analyzeOffersData(offersData, startDate, endDate)
+          analysis: analyzeOffersData(offersData)
         };
       } else {
         const errorText = await offersResponse.text();
@@ -216,7 +233,7 @@ export async function GET(request: NextRequest) {
           success: true,
           status: bookingsResponse.status,
           data: bookingsData,
-          analysis: analyzeBookingsData(bookingsData, startDate, endDate)
+          analysis: analyzeBookingsData(bookingsData)
         };
       } else {
         const errorText = await bookingsResponse.text();
@@ -265,7 +282,7 @@ function analyzeInventoryData(data: Record<string, unknown>, startDate: string, 
     datesWithData: [] as string[],
     blockedDatesList: [] as string[],
     dataStructure: {},
-    sampleData: null
+    sampleData: null as Record<string, unknown> | null
   };
 
   if (!data) return analysis;
@@ -330,7 +347,7 @@ function analyzeInventoryData(data: Record<string, unknown>, startDate: string, 
 /**
  * Analyze offers data for availability
  */
-function analyzeOffersData(data: Record<string, unknown>, startDate: string, endDate: string) {
+function analyzeOffersData(data: Record<string, unknown>) {
   const analysis = {
     hasData: false,
     offersCount: 0,
@@ -338,7 +355,7 @@ function analyzeOffersData(data: Record<string, unknown>, startDate: string, end
     unavailableDates: 0,
     offersWithPrices: 0,
     dataStructure: {},
-    sampleOffer: null
+    sampleOffer: null as Record<string, unknown> | null
   };
 
   if (!data) return analysis;
@@ -364,7 +381,8 @@ function analyzeOffersData(data: Record<string, unknown>, startDate: string, end
 
   // Count offers with prices (available) vs without (unavailable)
   offersArray.forEach((offer: Record<string, unknown>) => {
-    if (offer.price !== undefined && offer.price > 0) {
+    const price = offer.price;
+    if (price !== undefined && price !== null && typeof price === 'number' && price > 0) {
       analysis.availableDates++;
       analysis.offersWithPrices++;
     } else {
@@ -378,14 +396,14 @@ function analyzeOffersData(data: Record<string, unknown>, startDate: string, end
 /**
  * Analyze bookings data for occupied dates
  */
-function analyzeBookingsData(data: Record<string, unknown>, startDate: string, endDate: string) {
+function analyzeBookingsData(data: Record<string, unknown>) {
   const analysis = {
     hasData: false,
     bookingsCount: 0,
     occupiedDates: [] as string[],
-    bookingDateRanges: [] as any[],
+    bookingDateRanges: [] as Record<string, unknown>[],
     dataStructure: {},
-    sampleBooking: null
+    sampleBooking: null as Record<string, unknown> | null
   };
 
   if (!data) return analysis;
@@ -411,13 +429,15 @@ function analyzeBookingsData(data: Record<string, unknown>, startDate: string, e
 
   // Extract occupied dates from bookings
   bookingsArray.forEach((booking: Record<string, unknown>) => {
-    if (booking.arrival && booking.departure) {
-      const checkIn = new Date(booking.arrival);
-      const checkOut = new Date(booking.departure);
+    const arrival = booking.arrival;
+    const departure = booking.departure;
+    if (arrival && departure && typeof arrival === 'string' && typeof departure === 'string') {
+      const checkIn = new Date(arrival as string);
+      const checkOut = new Date(departure as string);
       
       analysis.bookingDateRanges.push({
-        checkIn: booking.arrival,
-        checkOut: booking.departure,
+        checkIn: arrival,
+        checkOut: departure,
         status: booking.status
       });
       
@@ -437,7 +457,19 @@ function analyzeBookingsData(data: Record<string, unknown>, startDate: string, e
 /**
  * Generate summary of all methods
  */
-function generateSummary(methods: Record<string, unknown>) {
+function generateSummary(methods: Record<string, {
+  success: boolean;
+  status?: number;
+  data?: unknown;
+  analysis?: {
+    hasData?: boolean;
+    dataCount?: number;
+    blockedDates?: number;
+    occupiedDates?: string[];
+    unavailableDates?: number;
+  };
+  error?: string;
+}>) {
   const summary = {
     workingMethods: [] as string[],
     failedMethods: [] as string[],
@@ -446,18 +478,30 @@ function generateSummary(methods: Record<string, unknown>) {
     recommendations: [] as string[]
   };
 
-  Object.entries(methods).forEach(([method, result]: [string, any]) => {
+  Object.entries(methods).forEach(([method, result]: [string, {
+    success: boolean;
+    status?: number;
+    data?: unknown;
+    analysis?: {
+      hasData?: boolean;
+      dataCount?: number;
+      blockedDates?: number;
+      occupiedDates?: string[];
+      unavailableDates?: number;
+    };
+    error?: string;
+  }]) => {
     if (result.success) {
       summary.workingMethods.push(method);
       
-      if (result.analysis && (result.analysis.hasData || result.analysis.dataCount > 0)) {
+      if (result.analysis && (result.analysis.hasData || (result.analysis.dataCount && result.analysis.dataCount > 0))) {
         summary.methodsWithData.push(method);
       }
       
       if (result.analysis && (
-        result.analysis.blockedDates > 0 || 
-        result.analysis.occupiedDates?.length > 0 ||
-        result.analysis.unavailableDates > 0
+        (result.analysis.blockedDates && result.analysis.blockedDates > 0) || 
+        (result.analysis.occupiedDates && result.analysis.occupiedDates.length > 0) ||
+        (result.analysis.unavailableDates && result.analysis.unavailableDates > 0)
       )) {
         summary.methodsWithBlockedDates.push(method);
       }

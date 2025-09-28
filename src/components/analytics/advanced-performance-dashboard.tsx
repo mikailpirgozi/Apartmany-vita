@@ -13,19 +13,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { 
-  Activity, 
   Clock, 
   Database, 
   AlertTriangle, 
   CheckCircle, 
-  TrendingUp, 
-  TrendingDown,
+  TrendingUp,
   RefreshCw,
   BarChart3,
   Zap,
-  Server,
-  Globe,
-  Users
+  Server
 } from 'lucide-react';
 
 interface PerformanceMetrics {
@@ -59,7 +55,7 @@ export default function AdvancedPerformanceDashboard() {
     requestsPerSecond: 0
   });
 
-  const [chartData, setChartData] = useState<ChartData[]>([]);
+  const [, setChartData] = useState<ChartData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
 

@@ -12,7 +12,7 @@ interface PerformanceMetric {
   value: number;
   unit: 'ms' | 'bytes' | 'count' | 'percentage';
   timestamp: number;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   tags?: string[];
 }
 
@@ -115,7 +115,7 @@ class PerformanceMonitor {
       // Layout shifts (CLS)
       const clsObserver = new PerformanceObserver((list) => {
         for (const entry of list.getEntries()) {
-          if (entry.entryType === 'layout-shift' && !(entry as any).hadRecentInput) {
+          if (entry.entryType === 'layout-shift' && !(entry as unknown as Record<string, unknown>).hadRecentInput) {
             this.trackLayoutShift(entry);
           }
         }
@@ -331,7 +331,7 @@ class PerformanceMonitor {
       timestamp: Date.now(),
       metadata: {
         startTime: entry.startTime,
-        attribution: (entry as any).attribution
+        attribution: (entry as unknown as Record<string, unknown>).attribution
       },
       tags: ['performance', 'blocking']
     });
@@ -345,12 +345,12 @@ class PerformanceMonitor {
       id: this.generateId(),
       type: 'interaction',
       name: 'layout_shift',
-      value: (entry as any).value,
+      value: (entry as unknown as Record<string, unknown>).value as number,
       unit: 'count',
       timestamp: Date.now(),
       metadata: {
         startTime: entry.startTime,
-        sources: (entry as any).sources
+        sources: (entry as unknown as Record<string, unknown>).sources
       },
       tags: ['ux', 'stability']
     });
@@ -368,8 +368,8 @@ class PerformanceMonitor {
       unit: 'ms',
       timestamp: Date.now(),
       metadata: {
-        element: (entry as any).element?.tagName,
-        url: (entry as any).url
+        element: ((entry as unknown as Record<string, unknown>).element as Record<string, unknown>)?.tagName,
+        url: (entry as unknown as Record<string, unknown>).url
       },
       tags: ['performance', 'lcp']
     });
@@ -429,8 +429,8 @@ class PerformanceMonitor {
    */
   private sendToAnalytics(metric: PerformanceMetric): void {
     // Send to Google Analytics
-    if (typeof window !== 'undefined' && (window as any).gtag) {
-      (window as any).gtag('event', 'performance_metric', {
+    if (typeof window !== 'undefined' && (window as Record<string, unknown>).gtag) {
+      ((window as Record<string, unknown>).gtag as (...args: unknown[]) => void)('event', 'performance_metric', {
         metric_type: metric.type,
         metric_name: metric.name,
         value: metric.value,
@@ -496,10 +496,14 @@ class PerformanceMonitor {
         actualValue,
         severity: budget.severity
       } : null;
-    }).filter(Boolean) as any[];
+    }).filter(Boolean) as {
+      budget: PerformanceBudget;
+      actualValue: number;
+      severity: "error" | "warning";
+    }[];
 
     // Generate recommendations
-    const recommendations = this.generateRecommendations(filteredMetrics, violations);
+    const recommendations = this.generateRecommendations(filteredMetrics);
 
     return {
       summary: {
@@ -521,7 +525,7 @@ class PerformanceMonitor {
   /**
    * Generate performance recommendations
    */
-  private generateRecommendations(metrics: PerformanceMetric[], violations: any[]): string[] {
+  private generateRecommendations(metrics: PerformanceMetric[]): string[] {
     const recommendations: string[] = [];
 
     // Cache recommendations

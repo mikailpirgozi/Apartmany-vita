@@ -3,7 +3,7 @@
  * Tests the core logic without UI components
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 // Mock implementations
 const mockServiceWorker = {
@@ -98,7 +98,7 @@ describe('Phase 4: Core Functionality Tests', () => {
         delete: vi.fn().mockResolvedValue(true)
       };
       
-      global.caches = mockCaches as any;
+      global.caches = mockCaches as unknown as CacheStorage;
 
       await serviceWorkerManager.clearAllCaches();
 
@@ -338,7 +338,7 @@ describe('Phase 4: Core Functionality Tests', () => {
   describe('Error Handling', () => {
     it('should handle Service Worker not supported', async () => {
       const originalNavigator = global.navigator;
-      global.navigator = {} as any;
+      global.navigator = {} as Navigator;
       
       const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
       
@@ -357,7 +357,7 @@ describe('Phase 4: Core Functionality Tests', () => {
         throw new Error('Connection failed');
       });
       
-      global.WebSocket = mockFailingWebSocket as any;
+      global.WebSocket = mockFailingWebSocket as unknown as typeof WebSocket;
       
       expect(() => {
         calendarWebSocket.connect('test-apartment');

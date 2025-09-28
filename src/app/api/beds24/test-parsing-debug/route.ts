@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
 /**
  * Debug endpoint to test date range parsing logic
  */
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     // Simulate the problematic raw data
     const mockCalendarData = [

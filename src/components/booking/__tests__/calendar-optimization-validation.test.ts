@@ -19,7 +19,7 @@ describe('🚀 Phase 1 Calendar Optimization Validation', () => {
 
     it('should use hierarchical query keys structure', () => {
       const apartmentSlug = 'test-apartment';
-      const month = new Date('2024-01-01');
+      // const _month = new Date('2024-01-01');
       const guests = 2;
       
       // Expected query key structure

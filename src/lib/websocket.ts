@@ -12,7 +12,7 @@ interface CalendarUpdateMessage {
   apartmentName: string;
   month: string;
   date?: string;
-  data?: any;
+  data?: unknown;
   timestamp: number;
 }
 
@@ -134,7 +134,7 @@ class CalendarWebSocketManager {
   /**
    * Send message to server
    */
-  send(message: any): void {
+  send(message: Record<string, unknown>): void {
     if (this.ws?.readyState === WebSocket.OPEN) {
       this.ws.send(JSON.stringify(message));
     } else {
@@ -317,7 +317,7 @@ export const calendarWebSocket = new CalendarWebSocketManager();
  */
 export function useCalendarWebSocket(apartmentSlug?: string) {
   const queryClient = useQueryClient();
-  const [status, setStatus] = useState<ConnectionStatus>({ 
+  const [status] = useState<ConnectionStatus>({ 
     connected: false, 
     reconnecting: false, 
     lastConnected: null, 
@@ -386,7 +386,7 @@ export function useCalendarWebSocket(apartmentSlug?: string) {
 /**
  * Handle calendar update messages
  */
-function handleCalendarUpdate(message: CalendarUpdateMessage, queryClient: any): void {
+function handleCalendarUpdate(message: CalendarUpdateMessage, queryClient: Record<string, unknown>): void {
   console.log('[WS] Handling calendar update:', message);
 
   switch (message.type) {
@@ -426,8 +426,8 @@ function handleCalendarUpdate(message: CalendarUpdateMessage, queryClient: any):
   }
 
   // Show toast notification if available
-  if (typeof window !== 'undefined' && (window as any).showToast) {
-    (window as any).showToast({
+  if (typeof window !== 'undefined' && (window as Record<string, unknown>).showToast) {
+    ((window as Record<string, unknown>).showToast as (...args: unknown[]) => void)({
       title: 'Calendar Updated',
       description: `${message.apartmentName} availability updated`,
       type: 'info'
@@ -443,7 +443,7 @@ export function WebSocketStatus() {
 
   if (!status.connected && !status.reconnecting) return null;
 
-  const React = require('react') as typeof import('react');
+  const React = await import('react');
 
   return React.createElement('div', {
     className: "fixed top-4 right-4 z-50"

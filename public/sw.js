@@ -221,7 +221,7 @@ async function handleImage(request) {
       await cache.put(request, networkResponse.clone());
     }
     return networkResponse;
-  } catch (error) {
+  } catch {
     // Return placeholder image for offline
     return new Response(
       '<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg"><rect width="100%" height="100%" fill="#f3f4f6"/><text x="50%" y="50%" text-anchor="middle" fill="#9ca3af">Image Offline</text></svg>',
@@ -321,8 +321,8 @@ async function syncCalendarData() {
     );
     
     console.log('[SW] Background calendar sync completed');
-  } catch (error) {
-    console.error('[SW] Background sync error:', error);
+  } catch {
+    console.error('[SW] Background sync error');
   }
 }
 

@@ -17,7 +17,7 @@ import { User, Settings, Calendar, LogOut, Star } from 'lucide-react'
 import { useSessionHydrationSafe } from '@/hooks/use-session-hydration-safe'
 
 function UserMenuContent() {
-  const { data: session, status, isHydrated } = useSessionHydrationSafe()
+  const { data: session, status } = useSessionHydrationSafe()
 
   if (status === 'loading') {
     return (

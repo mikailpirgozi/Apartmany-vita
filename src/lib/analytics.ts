@@ -1,5 +1,5 @@
 import { format } from 'date-fns';
-import { availabilityCache, CACHE_KEYS } from './cache';
+// import { CACHE_KEYS } from './cache';
 
 /**
  * Performance metrics interface
@@ -16,7 +16,7 @@ export interface PerformanceMetric {
   context?: string;
   userAgent?: string;
   sessionId?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 /**
@@ -57,7 +57,7 @@ export class CalendarAnalytics {
     loadTime: number,
     cacheHit: boolean,
     source: 'redis' | 'memory' | 'api' = 'api',
-    metadata?: Record<string, any>
+    metadata?: Record<string, unknown>
   ): void {
     const metric: PerformanceMetric = {
       id: this.generateMetricId(),
@@ -112,7 +112,7 @@ export class CalendarAnalytics {
     error: Error,
     context: string,
     apartmentSlug?: string,
-    metadata?: Record<string, any>
+    metadata?: Record<string, unknown>
   ): void {
     const metric: PerformanceMetric = {
       id: this.generateMetricId(),
@@ -147,7 +147,7 @@ export class CalendarAnalytics {
     responseTime: number,
     success: boolean,
     cacheHit: boolean = false,
-    metadata?: Record<string, any>
+    metadata?: Record<string, unknown>
   ): void {
     const metric: PerformanceMetric = {
       id: this.generateMetricId(),
@@ -180,7 +180,7 @@ export class CalendarAnalytics {
     hit: boolean,
     responseTime: number,
     source: 'redis' | 'memory',
-    metadata?: Record<string, any>
+    metadata?: Record<string, unknown>
   ): void {
     const metric: PerformanceMetric = {
       id: this.generateMetricId(),
@@ -305,7 +305,12 @@ export class CalendarAnalytics {
     severity: 'warning' | 'critical';
     metric: PerformanceMetric | null;
   }[] {
-    const alerts: any[] = [];
+    const alerts: {
+      type: 'slow_load' | 'high_error_rate' | 'low_cache_hit';
+      message: string;
+      severity: 'warning' | 'critical';
+      metric: PerformanceMetric | null;
+    }[] = [];
     const summary = this.getPerformanceSummary();
 
     // Slow load times
@@ -459,8 +464,9 @@ export class CalendarAnalytics {
 
   private static async persistMetric(metric: PerformanceMetric): Promise<void> {
     try {
-      const key = `${CACHE_KEYS.METRICS}:${format(new Date(), 'yyyy-MM-dd')}`;
       // This would store daily metrics - implement based on needs
+      const key = `METRICS:${format(new Date(), 'yyyy-MM-dd')}`;
+      console.debug(`Metric persisted for key: ${key}`, metric);
       // await availabilityCache.setAvailability(key, metric, 86400); // 24 hours
     } catch (error) {
       // Silent fail for metrics persistence

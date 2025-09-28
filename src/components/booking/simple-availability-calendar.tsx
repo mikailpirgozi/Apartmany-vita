@@ -159,7 +159,7 @@ export function SimpleAvailabilityCalendar({
 
   // Calculate pricing info for selected range
   const pricingInfo = selectedRange?.from && selectedRange?.to && availability 
-    ? calculatePricingInfo(selectedRange.from, selectedRange.to, availability, guests)
+    ? calculatePricingInfo(selectedRange.from, selectedRange.to, availability)
     : null;
 
   if (error) {
@@ -583,7 +583,7 @@ function calculatePricingInfo(
   from: Date,
   to: Date,
   availability: AvailabilityData,
-  _guests: number
+  // _guests: number
 ) {
   const days = eachDayOfInterval({ start: from, end: to });
   const nights = days.length - 1; // Exclude checkout day

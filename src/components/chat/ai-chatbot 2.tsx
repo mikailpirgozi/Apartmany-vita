@@ -54,7 +54,7 @@ export function AIChatbot() {
   const [input, setInput] = useState('')
   const [isTyping, setIsTyping] = useState(false)
   const [sessionId] = useState(() => `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`)
-  const [conversationId, setConversationId] = useState<string | undefined>()
+  const [, setConversationId] = useState<string | undefined>()
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const locale = 'sk' // Default to Slovak for now
 

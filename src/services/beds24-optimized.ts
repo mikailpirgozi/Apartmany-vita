@@ -277,7 +277,7 @@ class Beds24OptimizedService {
     return this.parseCalendarResponse(data, request.roomId);
   }
 
-  private parseOffersResponse(data: any, roomId?: string): AvailabilityResponse {
+  private parseOffersResponse(data: Record<string, unknown>, roomId?: string): AvailabilityResponse {
     const available: string[] = [];
     const booked: string[] = [];
     const prices: Record<string, number> = {};
@@ -293,7 +293,7 @@ class Beds24OptimizedService {
     console.log(`Found ${offers.length} offers`);
 
     // Process each offer
-    offers.forEach((offer: any) => {
+    offers.forEach((offer: Record<string, unknown>) => {
       if (!offer || typeof offer !== 'object') return;
 
       const arrival = offer.arrival;
@@ -347,7 +347,7 @@ class Beds24OptimizedService {
     return { available, booked, prices, minStay: 1, maxStay: 30 };
   }
 
-  private parseCalendarResponse(data: any, roomId?: string): AvailabilityResponse {
+  private parseCalendarResponse(data: Record<string, unknown>, roomId?: string): AvailabilityResponse {
     const available: string[] = [];
     const booked: string[] = [];
     const prices: Record<string, number> = {};
@@ -365,7 +365,7 @@ class Beds24OptimizedService {
     // Create a map of date -> calendar info
     const calendarMap: Record<string, { available: number; price: number }> = {};
     
-    calendarData.forEach((item: any) => {
+    calendarData.forEach((item: Record<string, unknown>) => {
       if (item && typeof item === 'object') {
         let date: string | null = null;
         let availableCount: number = 0;

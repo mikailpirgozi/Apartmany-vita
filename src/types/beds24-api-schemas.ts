@@ -66,15 +66,15 @@ export interface MultiplePostResponse {
   success: boolean;
   new?: {
     field: string;
-    subField: any[];
+    subField: unknown[];
   };
   modified?: {
     field: string;
-    subField: any[];
+    subField: unknown[];
   };
-  errors?: any[];
-  warnings?: any[];
-  info?: any[];
+  errors?: unknown[];
+  warnings?: unknown[];
+  info?: unknown[];
 }
 
 // Common Enums

@@ -98,10 +98,13 @@ export async function GET(request: NextRequest) {
     }
 
     // Test 3: Compare results
-    if (results.rawCalendar.success && results.processedCalendar.success) {
+    const rawCalendar = results.rawCalendar as { success: boolean; analysis?: Record<string, unknown> };
+    const processedCalendar = results.processedCalendar as { success: boolean; data?: Record<string, unknown> };
+    
+    if (rawCalendar.success && processedCalendar.success) {
       results.comparison = compareResults(
-        results.rawCalendar.analysis,
-        results.processedCalendar.data
+        rawCalendar.analysis as Record<string, unknown>,
+        processedCalendar.data as Record<string, unknown>
       );
     }
 
@@ -189,7 +192,8 @@ function analyzeCalendarData(data: Record<string, unknown>, startDate: string, e
       } else if (dateData.override) {
         analysis.datesWithOverride.push(dateStr);
         // Check if override blocks the date
-        if (dateData.override.available === false || dateData.override.available === 0) {
+        const override = dateData.override as Record<string, unknown>;
+        if (override.available === false || override.available === 0) {
           analysis.blockedDates++;
         }
       } else {
@@ -219,9 +223,9 @@ function analyzeCalendarData(data: Record<string, unknown>, startDate: string, e
 function compareResults(rawAnalysis: Record<string, unknown>, processedData: Record<string, unknown>) {
   const comparison = {
     rawAvailable: rawAnalysis.availableDates,
-    processedAvailable: processedData.available?.length || 0,
+    processedAvailable: Array.isArray(processedData.available) ? processedData.available.length : 0,
     rawBlocked: rawAnalysis.blockedDates,
-    processedBlocked: processedData.booked?.length || 0,
+    processedBlocked: Array.isArray(processedData.booked) ? processedData.booked.length : 0,
     discrepancies: [] as string[],
     summary: ''
   };

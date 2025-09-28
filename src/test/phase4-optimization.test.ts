@@ -4,7 +4,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
 
@@ -222,7 +222,7 @@ describe('Phase 4: Advanced Optimizations', () => {
       await calendarWebSocket.connect();
       
       // Test performance monitoring
-      const stats = performanceMonitor.getRealTimeStats();
+      // const _stats = performanceMonitor.getRealTimeStats();
       
       // Verify all systems are working
       expect(serviceWorkerManager.initialize).toHaveBeenCalled();

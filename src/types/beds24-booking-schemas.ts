@@ -5,7 +5,6 @@ import {
   BookingStatus, 
   BookingSubStatus, 
   BookingChannel, 
-  BookingType, 
   CancellationType,
   InvoiceItemType,
   MessageSource 
@@ -95,6 +94,7 @@ export interface Booking {
 
 export interface NewBooking extends Omit<Booking, 'id' | 'bookingTime' | 'modifiedTime' | 'cancelTime'> {
   // Additional fields for new bookings
+  [key: string]: unknown;
 }
 
 // Booking Guests

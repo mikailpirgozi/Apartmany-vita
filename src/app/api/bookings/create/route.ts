@@ -39,14 +39,12 @@ const createBookingSchema = z.object({
   lang: z.string().length(2).default("sk")
 });
 
-type CreateBookingRequest = z.infer<typeof createBookingSchema>;
-
-interface Beds24BookingResponse {
-  success: boolean;
-  bookId?: string;
-  error?: string;
-  data?: unknown;
-}
+// interface Beds24BookingResponse {
+//   success: boolean;
+//   bookId?: string;
+//   error?: string;
+//   data?: unknown;
+// }
 
 /**
  * Create new booking in Beds24

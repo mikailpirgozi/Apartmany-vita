@@ -119,7 +119,13 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     };
 
     // Performance insights
-    dashboardData.insights = generatePerformanceInsights(dashboardData);
+    dashboardData.insights = generatePerformanceInsights({
+      summary: dashboardData.summary as {
+        cache: { hitRate: number };
+        calendar: { averageLoadTime: number; errorRate: number };
+        api: { averageResponseTime: number };
+      }
+    });
 
     return NextResponse.json({
       success: true,
@@ -166,7 +172,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       summary: unknown;
       alerts: unknown;
       rawMetrics?: unknown;
-      cacheStats?: { error?: string };
+      cacheStats?: {
+        redis: { connected: boolean; keys?: number };
+        memory: { keys: number; size: string };
+        error?: string;
+      };
     } = {
       exportedAt: new Date().toISOString(),
       timeWindow,
@@ -182,12 +192,23 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     try {
       exportData.cacheStats = await availabilityCache.getCacheStats();
     } catch {
-      exportData.cacheStats = { error: 'Failed to retrieve cache stats' };
+      exportData.cacheStats = {
+        redis: { connected: false },
+        memory: { keys: 0, size: '0KB' },
+        error: 'Failed to retrieve cache stats'
+      };
     }
 
     if (format === 'csv') {
       // Convert to CSV format
-      const csvData = convertToCsv(exportData);
+      const csvData = convertToCsv({
+        ...exportData,
+        summary: exportData.summary as {
+          calendar: { totalLoads: number; averageLoadTime: number; errorRate: number };
+          cache: { hitRate: number };
+          api: { totalRequests: number; averageResponseTime: number };
+        }
+      });
       
       return new NextResponse(csvData, {
         headers: {

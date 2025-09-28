@@ -17,11 +17,11 @@
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "analyze": "cross-env ANALYZE=true npm run build",
+    "analyze": "cross-env ANALYZE=true pnpm run build",
     "lighthouse": "lhci autorun",
-    "security-audit": "npm audit --audit-level=high",
+    "security-audit": "pnpm audit --audit-level=high",
     "port-check": "node scripts/port-checker.js",
-    "dev:safe": "npm run port-check && npm run dev:force",
+    "dev:safe": "pnpm run port-check && pnpm run dev:force",
     "postinstall": "prisma generate"
   },
   "dependencies": {

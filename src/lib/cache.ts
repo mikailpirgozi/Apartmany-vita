@@ -45,7 +45,7 @@ export const CACHE_KEYS = {
  */
 class AvailabilityCache {
   private redis: Redis | null = null;
-  private memoryCache = new Map<string, { data: any; expires: number }>();
+  private memoryCache = new Map<string, { data: unknown; expires: number }>();
   private connectionAttempts = 0;
   private maxConnectionAttempts = 3;
   private isConnecting = false;

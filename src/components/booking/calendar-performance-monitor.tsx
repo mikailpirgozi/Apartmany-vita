@@ -77,11 +77,11 @@ export function CalendarPerformanceMonitor({
 
       setMetrics({
         cacheHitRate: Math.round(cacheHitRate),
-        averageLoadTime: (storedMetrics as any)?.averageLoadTime || 0,
+        averageLoadTime: (storedMetrics as Record<string, unknown>)?.averageLoadTime as number || 0,
         totalRequests: totalQueries,
         cachedRequests: cachedQueries,
-        prefetchSuccessRate: (storedMetrics as any)?.prefetchSuccessRate || 0,
-        navigationSpeed: (storedMetrics as any)?.navigationSpeed || 0
+        prefetchSuccessRate: (storedMetrics as Record<string, unknown>)?.prefetchSuccessRate as number || 0,
+        navigationSpeed: (storedMetrics as Record<string, unknown>)?.navigationSpeed as number || 0
       });
     };
 
@@ -256,7 +256,7 @@ export function useCalendarPerformanceTracking(apartmentSlug: string) {
         if (existingData) {
           try {
             perfData = JSON.parse(existingData);
-          } catch (e) {
+          } catch {
             console.warn('Failed to parse existing performance data');
           }
         }

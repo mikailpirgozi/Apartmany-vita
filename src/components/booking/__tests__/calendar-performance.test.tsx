@@ -7,7 +7,7 @@ import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { OptimizedAvailabilityCalendar } from '../optimized-availability-calendar';
-import { SimpleAvailabilityCalendar } from '../simple-availability-calendar';
+// import { SimpleAvailabilityCalendar } from '../simple-availability-calendar';
 
 // Mock fetch
 global.fetch = vi.fn();
@@ -47,7 +47,7 @@ const TestWrapper = ({ children }: { children: React.ReactNode }) => {
 describe('Calendar Performance Tests', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (fetch as any).mockResolvedValue({
+    (fetch as jest.MockedFunction<typeof fetch>).mockResolvedValue({
       ok: true,
       json: async () => mockAvailabilityData,
     });
@@ -199,7 +199,7 @@ describe('Calendar Performance Tests', () => {
   describe('🔄 Cache Management', () => {
     it('should use hierarchical query keys', async () => {
       const queryClient = createTestQueryClient();
-      const getQueriesSpy = vi.spyOn(queryClient, 'getQueryCache');
+      // const _getQueriesSpy = vi.spyOn(queryClient, 'getQueryCache');
       
       render(
         <QueryClientProvider client={queryClient}>
@@ -259,7 +259,7 @@ describe('Calendar Performance Tests', () => {
 
   describe('🎯 Error Handling', () => {
     it('should handle API errors gracefully', async () => {
-      (fetch as any).mockRejectedValueOnce(new Error('API Error'));
+      (fetch as jest.MockedFunction<typeof fetch>).mockRejectedValueOnce(new Error('API Error'));
       
       render(
         <TestWrapper>
@@ -280,7 +280,7 @@ describe('Calendar Performance Tests', () => {
     });
 
     it('should retry with exponential backoff', async () => {
-      (fetch as any)
+      (fetch as jest.MockedFunction<typeof fetch>)
         .mockRejectedValueOnce(new Error('API Error'))
         .mockRejectedValueOnce(new Error('API Error'))
         .mockResolvedValueOnce({
