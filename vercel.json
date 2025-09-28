@@ -11,8 +11,5 @@
     "env": {
       "PRISMA_GENERATE_DATAPROXY": "false"
     }
-  },
-  "engines": {
-    "node": "20.19.0"
   }
 }

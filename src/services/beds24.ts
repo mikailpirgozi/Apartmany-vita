@@ -2333,7 +2333,7 @@ export async function getApartmentAvailability(
     throw new Error(`No Beds24 mapping found for apartment: ${apartmentSlug}`);
   }
 
-  return beds24Service.getInventory({
+  return beds24Service.get().getInventory({
     propId: apartment.propId,
     roomId: apartment.roomId,
     startDate: startDate.toISOString().split('T')[0],
@@ -2369,7 +2369,7 @@ export async function createApartmentBooking(
     throw new Error(`No Beds24 mapping found for apartment: ${apartmentSlug}`);
   }
 
-  return beds24Service.createBooking({
+  return beds24Service.get().createBooking({
     ...bookingData,
     propId: apartment.propId,
     roomId: apartment.roomId
