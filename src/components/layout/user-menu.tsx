@@ -1,8 +1,7 @@
 'use client'
 
-import { signOut, useSession } from 'next-auth/react'
+import { signOut } from 'next-auth/react'
 import Link from 'next/link'
-import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -15,23 +14,14 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { User, Settings, Calendar, LogOut, Star } from 'lucide-react'
+import { useSessionHydrationSafe } from '@/hooks/use-session-hydration-safe'
 
-export function UserMenu() {
-  const { data: session, status } = useSession()
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  // Prevent hydration mismatch by not rendering anything until mounted
-  if (!mounted) {
-    return null
-  }
+function UserMenuContent() {
+  const { data: session, status, isHydrated } = useSessionHydrationSafe()
 
   if (status === 'loading') {
     return (
-      <div className="w-8 h-8 rounded-full bg-muted" />
+      <div className="w-8 h-8 rounded-full bg-muted animate-pulse" />
     )
   }
 
@@ -119,4 +109,8 @@ export function UserMenu() {
       </DropdownMenuContent>
     </DropdownMenu>
   )
+}
+
+export function UserMenu() {
+  return <UserMenuContent />
 }

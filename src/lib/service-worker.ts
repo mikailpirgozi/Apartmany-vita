@@ -75,14 +75,18 @@ class ServiceWorkerManager {
   /**
    * Handle messages from Service Worker
    */
-  private handleServiceWorkerMessage(data: any): void {
+  private handleServiceWorkerMessage(data: { type: string; data?: unknown }): void {
     switch (data.type) {
       case 'cache_performance':
-        this.trackPerformanceMetric(data.data);
+        if (data.data && typeof data.data === 'object') {
+          this.trackPerformanceMetric(data.data as CachePerformanceData);
+        }
         break;
       
       case 'calendar_update':
-        this.notifyCalendarUpdate(data.data);
+        if (data.data && typeof data.data === 'object') {
+          this.notifyCalendarUpdate(data.data as CalendarUpdateData);
+        }
         break;
       
       default:
@@ -102,8 +106,8 @@ class ServiceWorkerManager {
     }
 
     // Send to analytics if available
-    if (typeof window !== 'undefined' && (window as any).gtag) {
-      (window as any).gtag('event', 'cache_performance', {
+    if (typeof window !== 'undefined' && 'gtag' in window) {
+      (window as { gtag: (event: string, action: string, params: Record<string, unknown>) => void }).gtag('event', 'cache_performance', {
         cache_type: data.type,
         cache_event: data.event,
         value: 1
@@ -183,7 +187,7 @@ class ServiceWorkerManager {
     try {
       // Background sync is not available in all browsers
       if ('sync' in this.registration) {
-        await (this.registration as any).sync.register('calendar-sync');
+        await (this.registration as ServiceWorkerRegistration & { sync: { register: (tag: string) => Promise<void> } }).sync.register('calendar-sync');
         console.log('[SW Manager] Background sync registered');
       }
     } catch (error) {

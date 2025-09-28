@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
@@ -9,16 +9,11 @@ import { Menu, Phone, Mail, Home, LogIn, UserPlus } from 'lucide-react'
 import { CONTACT_INFO } from '@/constants'
 import { fadeInDown, staggerContainer, staggerItem } from '@/lib/animations'
 import { UserMenu } from './user-menu'
-import { useSession } from 'next-auth/react'
+import { useSessionHydrationSafe } from '@/hooks/use-session-hydration-safe'
 
 export function Header() {
   const [isOpen, setIsOpen] = useState(false)
-  const [mounted, setMounted] = useState(false)
-  const { data: session, status } = useSession()
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
+  const { data: session, status, isHydrated } = useSessionHydrationSafe()
 
   const navigation = [
     { name: 'Domov', href: '/' },
@@ -120,11 +115,7 @@ export function Header() {
                   
                   {/* Auth Section */}
                   <div className="pt-4 mt-4 border-t border-muted">
-                    {!mounted ? (
-                      <div className="flex items-center justify-center py-3">
-                        <div className="w-6 h-6 border-2 border-brand-accent border-t-transparent rounded-full animate-spin"></div>
-                      </div>
-                    ) : status === 'loading' ? (
+                    {!isHydrated || status === 'loading' ? (
                       <div className="flex items-center justify-center py-3">
                         <div className="w-6 h-6 border-2 border-brand-accent border-t-transparent rounded-full animate-spin"></div>
                       </div>

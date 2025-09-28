@@ -95,8 +95,8 @@ class Beds24Service {
       propId: this.config.propId,
       hasAccessToken: !!this.config.accessToken,
       hasRefreshToken: !!this.config.refreshToken,
-      tokenExpiresAt: new Date(this.config.tokenExpiresAt || 0).toISOString(),
-      willRefreshOnFirstUse: this.config.tokenExpiresAt < Date.now()
+      tokenExpiresAt: this.config.tokenExpiresAt ? new Date(this.config.tokenExpiresAt).toISOString() : 'not set',
+      willRefreshOnFirstUse: this.config.tokenExpiresAt ? this.config.tokenExpiresAt < Date.now() : false
     });
   }
 
@@ -1525,19 +1525,15 @@ class Beds24Service {
       request: { roomId: request.roomId, startDate: request.startDate, endDate: request.endDate }
     });
 
-    // Generate date range first
-    const startDate = new Date(request.startDate);
-    const endDate = new Date(request.endDate);
-    
     // Handle calendar response format
     let calendarData: unknown[] = [];
-    let responseInfo = { success: false, count: 0, type: 'unknown' };
+    const responseInfo = { success: false, count: 0, type: 'unknown' };
     
     if (data && typeof data === 'object') {
       // Extract response metadata
-      if ('success' in data) responseInfo.success = Boolean((data as any).success);
-      if ('count' in data) responseInfo.count = Number((data as any).count);
-      if ('type' in data) responseInfo.type = String((data as any).type);
+      if ('success' in data) responseInfo.success = Boolean((data as Record<string, unknown>).success);
+      if ('count' in data) responseInfo.count = Number((data as Record<string, unknown>).count);
+      if ('type' in data) responseInfo.type = String((data as Record<string, unknown>).type);
       
       // Extract calendar data array - FIXED: Handle nested calendar structure
       if ('data' in data && Array.isArray((data as { data: unknown[] }).data)) {
@@ -1596,8 +1592,6 @@ class Beds24Service {
         if ('from' in itemObj && 'to' in itemObj && 
             typeof itemObj.from === 'string' && typeof itemObj.to === 'string') {
           // Generate all dates in range
-          const fromDate = new Date(itemObj.from);
-          const toDate = new Date(itemObj.to);
           
           // Use date-fns for reliable date iteration with proper timezone handling
           const startDate = parseISO(itemObj.from);

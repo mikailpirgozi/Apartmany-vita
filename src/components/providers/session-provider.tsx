@@ -8,5 +8,15 @@ interface AuthProviderProps {
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  return <SessionProvider>{children}</SessionProvider>
+  return (
+    <SessionProvider
+      // Disable automatic session refetching to prevent hydration issues
+      refetchInterval={0}
+      refetchOnWindowFocus={false}
+      // Ensure consistent behavior between server and client
+      basePath="/api/auth"
+    >
+      {children}
+    </SessionProvider>
+  )
 }
