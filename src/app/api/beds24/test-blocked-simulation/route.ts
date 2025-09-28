@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
       propId, roomId, startDate, endDate 
     });
 
-    const results: any = {
+    const results: Record<string, unknown> = {
       timestamp: new Date().toISOString(),
       parameters: { propId, roomId, startDate, endDate },
       scenarios: {} as Record<string, unknown>

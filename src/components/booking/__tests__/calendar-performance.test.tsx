@@ -47,6 +47,7 @@ const TestWrapper = ({ children }: { children: React.ReactNode }) => {
 describe('Calendar Performance Tests', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (fetch as any).mockResolvedValue({
       ok: true,
       json: async () => mockAvailabilityData,
@@ -259,6 +260,7 @@ describe('Calendar Performance Tests', () => {
 
   describe('🎯 Error Handling', () => {
     it('should handle API errors gracefully', async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (fetch as any).mockRejectedValueOnce(new Error('API Error'));
       
       render(
@@ -280,6 +282,7 @@ describe('Calendar Performance Tests', () => {
     });
 
     it('should retry with exponential backoff', async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (fetch as any)
         .mockRejectedValueOnce(new Error('API Error'))
         .mockRejectedValueOnce(new Error('API Error'))
