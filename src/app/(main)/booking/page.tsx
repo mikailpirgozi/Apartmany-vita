@@ -93,10 +93,6 @@ async function BookingContent({ searchParams }: BookingPageProps) {
         apartment={apartment}
         bookingData={bookingData}
         availability={availability}
-        onComplete={(bookingId) => {
-          // Redirect to confirmation page
-          window.location.href = `/booking/confirmation/${bookingId}`
-        }}
       />
     </div>
   )

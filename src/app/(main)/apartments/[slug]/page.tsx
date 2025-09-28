@@ -8,6 +8,12 @@ import { Metadata } from 'next'
 
 interface ApartmentPageProps {
   params: Promise<{ slug: string }>
+  searchParams: Promise<{
+    checkIn?: string
+    checkOut?: string
+    guests?: string
+    children?: string
+  }>
 }
 
 export async function generateMetadata({ params }: ApartmentPageProps): Promise<Metadata> {
@@ -44,13 +50,20 @@ export async function generateMetadata({ params }: ApartmentPageProps): Promise<
   }
 }
 
-export default async function ApartmentPage({ params }: ApartmentPageProps) {
+export default async function ApartmentPage({ params, searchParams }: ApartmentPageProps) {
   const { slug } = await params
+  const searchParamsData = await searchParams
   const apartment = await getApartmentBySlug(slug)
   
   if (!apartment) {
     notFound()
   }
+  
+  // Parse search params for booking widget
+  const checkIn = searchParamsData.checkIn ? new Date(searchParamsData.checkIn) : undefined
+  const checkOut = searchParamsData.checkOut ? new Date(searchParamsData.checkOut) : undefined
+  const guests = searchParamsData.guests ? parseInt(searchParamsData.guests) : undefined
+  const children = searchParamsData.children ? parseInt(searchParamsData.children) : undefined
   
   return (
     <div className="container py-8">
@@ -69,7 +82,13 @@ export default async function ApartmentPage({ params }: ApartmentPageProps) {
         
         {/* Right Column - Booking Widget */}
         <div className="lg:col-span-1">
-          <BookingWidget apartment={apartment} />
+          <BookingWidget 
+            apartment={apartment}
+            initialCheckIn={checkIn}
+            initialCheckOut={checkOut}
+            initialGuests={guests || 2}
+            initialChildren={children || 0}
+          />
         </div>
       </div>
     </div>

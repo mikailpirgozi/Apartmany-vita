@@ -23,7 +23,12 @@ const createPaymentIntentSchema = z.object({
     email: z.string().email(),
     phone: z.string(),
     country: z.string(),
-    city: z.string()
+    city: z.string(),
+    needsInvoice: z.boolean().optional(),
+    companyName: z.string().optional(),
+    companyId: z.string().optional(),
+    companyVat: z.string().optional(),
+    companyAddress: z.string().optional()
   }),
   pricing: z.object({
     total: z.number(),
@@ -78,7 +83,13 @@ export async function POST(request: NextRequest) {
         userId: user.id,
         guestName: `${validatedData.guestInfo.firstName} ${validatedData.guestInfo.lastName}`,
         guestEmail: validatedData.guestInfo.email,
-        guestPhone: validatedData.guestInfo.phone
+        guestPhone: validatedData.guestInfo.phone,
+        // Company information
+        needsInvoice: validatedData.guestInfo.needsInvoice || false,
+        companyName: validatedData.guestInfo.companyName,
+        companyId: validatedData.guestInfo.companyId,
+        companyVat: validatedData.guestInfo.companyVat,
+        companyAddress: validatedData.guestInfo.companyAddress
       },
       include: {
         user: true

@@ -27,11 +27,11 @@ export const mockApartments: Apartment[] = [
     id: '2',
     name: 'Design Apartmán',
     slug: 'design-apartman',
-    description: 'Štýlovo zariadený apartmán s moderným dizajnom. Perfektný pre malé rodiny alebo skupiny priateľov.',
+    description: 'Štýlovo zariadený apartmán s moderným dizajnom. Perfektný pre páry.',
     floor: 1,
     size: 45,
-    maxGuests: 4,
-    maxChildren: 2,
+    maxGuests: 6, // ✅ Updated: Design apartmán má 6 hostí
+    maxChildren: 4,
     images: [
       'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop&crop=center',
       'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&h=600&fit=crop&crop=center',
@@ -39,7 +39,7 @@ export const mockApartments: Apartment[] = [
       'https://images.unsplash.com/photo-1560448204-603b3fc33ddc?w=800&h=600&fit=crop&crop=center'
     ],
     amenities: ['wifi', 'kitchen', 'tv', 'heating', 'washer', 'elevator', 'parking'],
-    basePrice: 65,
+    basePrice: 105,
     isActive: true,
     createdAt: new Date('2024-01-01'),
     updatedAt: new Date('2024-01-01')
@@ -51,8 +51,8 @@ export const mockApartments: Apartment[] = [
     description: 'Priestranný apartmán na druhom poschodí s balkónom a krásnym výhľadom na mesto.',
     floor: 2,
     size: 55,
-    maxGuests: 4,
-    maxChildren: 3,
+    maxGuests: 2, // ✅ Updated: Lite apartmán má 2 hostí
+    maxChildren: 1,
     images: [
       'https://images.unsplash.com/photo-1560448204-603b3fc33ddc?w=800&h=600&fit=crop&crop=center',
       'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop&crop=center',
@@ -84,7 +84,7 @@ export const mockApartments: Apartment[] = [
       'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop&crop=center'
     ],
     amenities: ['wifi', 'kitchen', 'tv', 'ac', 'heating', 'washer', 'dishwasher', 'balcony', 'elevator', 'parking'],
-    basePrice: 95,
+    basePrice: 100,
     isActive: true,
     createdAt: new Date('2024-01-01'),
     updatedAt: new Date('2024-01-01')

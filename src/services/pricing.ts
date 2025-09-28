@@ -68,8 +68,8 @@ class PricingService {
       throw new Error('Invalid date range');
     }
     
-    // Get dynamic pricing from Beds24 if available
-    const dynamicPrices = await this.getDynamicPricing(apartment.slug, checkIn, checkOut);
+    // Get dynamic pricing from Beds24 offers API with guest count
+    const dynamicPrices = await this.getDynamicPricing(apartment.slug, checkIn, checkOut, guests, children);
     
     // Calculate daily breakdown
     const breakdown = this.calculateDailyBreakdown(
@@ -114,32 +114,50 @@ class PricingService {
   }
   
   /**
-   * Get dynamic pricing from Beds24
+   * Get dynamic pricing from Beds24 using new inventory method
    */
   private async getDynamicPricing(
     apartmentSlug: string, 
     checkIn: Date, 
-    checkOut: Date
+    checkOut: Date,
+    guests: number = 2,
+    children: number = 0
   ): Promise<Record<string, number>> {
     try {
-      const roomMapping: Record<string, string> = {
-        // 'maly-apartman' - dočasne vypnutý
-        'design-apartman': process.env.BEDS24_ROOM_ID_DESIGN || '483027',
-        'lite-apartman': process.env.BEDS24_ROOM_ID_LITE || '357932',
-        'deluxe-apartman': process.env.BEDS24_ROOM_ID_DELUXE || '357931'
+      const apartmentMapping: Record<string, { propId: string; roomId: string }> = {
+        'design-apartman': { propId: '227484', roomId: '483027' },
+        'lite-apartman': { propId: '168900', roomId: '357932' },
+        'deluxe-apartman': { propId: '161445', roomId: '357931' }
       };
       
-      const roomId = roomMapping[apartmentSlug];
-      if (!roomId) return {};
+      const apartmentConfig = apartmentMapping[apartmentSlug];
+      if (!apartmentConfig) {
+        console.log(`⚠️ No Beds24 mapping for apartment: ${apartmentSlug}`);
+        return {};
+      }
       
-      return await beds24Service.getRoomRates(
-        process.env.BEDS24_PROP_ID!,
-        roomId,
-        format(checkIn, 'yyyy-MM-dd'),
-        format(checkOut, 'yyyy-MM-dd')
-      );
+      console.log(`🎯 Getting dynamic pricing for ${apartmentSlug} with ${guests} guests, ${children} children`);
+      
+      // Use new inventory method for booking pricing (not calendar)
+      const availability = await beds24Service.getInventory({
+        propId: apartmentConfig.propId,
+        roomId: apartmentConfig.roomId,
+        startDate: format(checkIn, 'yyyy-MM-dd'),
+        endDate: format(checkOut, 'yyyy-MM-dd'),
+        adults: guests,
+        children: children,
+        isCalendar: false // This is for booking, not calendar display
+      });
+      
+      console.log(`💰 Dynamic prices from Beds24:`, availability.prices);
+      
+      // If we got prices, return them; otherwise return empty object for fallback
+      return availability.prices && Object.keys(availability.prices).length > 0 
+        ? availability.prices 
+        : {};
+        
     } catch (error) {
-      console.error('Failed to get dynamic pricing:', error);
+      console.error('Failed to get dynamic pricing from Beds24 inventory API:', error);
       return {};
     }
   }

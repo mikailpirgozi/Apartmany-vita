@@ -34,7 +34,7 @@ interface PaymentFormProps {
     country: string;
     city: string;
   };
-  availability: {
+  availability?: {
     success: boolean;
     isAvailable: boolean;
     totalPrice: number;
@@ -62,13 +62,6 @@ interface PaymentElementFormProps {
     phone: string;
     country: string;
     city: string;
-  };
-  availability: {
-    success: boolean;
-    isAvailable: boolean;
-    totalPrice: number;
-    pricePerNight: number;
-    nights: number;
   };
   extrasTotal: number;
   totalPrice: number;
@@ -169,10 +162,15 @@ export function PaymentForm(props: PaymentFormProps) {
   return (
     <Elements stripe={stripePromise} options={stripeOptions}>
       <PaymentElementForm
-        {...props}
+        apartment={props.apartment}
+        guestInfo={props.guestInfo}
+        bookingData={props.bookingData}
+        totalPrice={props.totalPrice}
+        extrasTotal={props.extrasTotal}
         clientSecret={clientSecret}
         onPaymentSuccess={(bookingId) => props.onSuccess?.(bookingId)}
         onPaymentError={(error) => setError(error)}
+        onBack={props.onBack}
       />
     </Elements>
   );
@@ -180,12 +178,12 @@ export function PaymentForm(props: PaymentFormProps) {
 
 // Payment form with Stripe Elements
 function PaymentElementForm({
+  apartment,
   guestInfo,
   onPaymentSuccess,
   onBack,
   totalPrice,
-  bookingData,
-  availability
+  bookingData
 }: PaymentElementFormProps) {
   const stripe = useStripe();
   const elements = useElements();
@@ -206,30 +204,54 @@ function PaymentElementForm({
     setPaymentError(null);
 
     try {
-      const { error, paymentIntent } = await stripe.confirmPayment({
-        elements,
-        confirmParams: {
-          return_url: `${window.location.origin}/booking/confirmation`,
-          receipt_email: guestInfo.email,
+      // First create booking in Beds24
+      console.log('🏨 Creating booking in Beds24...');
+      const bookingResponse = await fetch('/api/bookings/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-        redirect: 'if_required'
+        body: JSON.stringify({
+          apartment: apartment.slug,
+          arrival: bookingData.checkIn.toISOString().split('T')[0],
+          departure: bookingData.checkOut.toISOString().split('T')[0],
+          numAdult: bookingData.guests,
+          numChild: bookingData.children,
+          firstName: guestInfo.firstName,
+          lastName: guestInfo.lastName,
+          email: guestInfo.email,
+          phone: guestInfo.phone,
+          city: guestInfo.city,
+          country: guestInfo.country,
+          price: totalPrice,
+          comments: `Online booking via apartmanvita.sk`
+        })
       });
 
-      if (error) {
-        setPaymentError(error.message || 'Platba sa nepodarila');
-      } else if (paymentIntent?.status === 'requires_capture') {
-        // Payment authorized successfully
-        const bookingId = (paymentIntent as { metadata?: { bookingId?: string } })?.metadata?.bookingId;
-        if (bookingId) {
-          onPaymentSuccess(bookingId);
-        } else {
-          setPaymentError('Chyba pri spracovaní rezervácie');
-        }
-      } else {
-        setPaymentError('Neočakávaný stav platby');
+      if (!bookingResponse.ok) {
+        const errorData = await bookingResponse.json();
+        throw new Error(errorData.error || 'Booking creation failed');
       }
-    } catch {
-      setPaymentError('Nastala chyba pri spracovaní platby');
+
+      const bookingResult = await bookingResponse.json();
+      console.log('✅ Booking created:', bookingResult);
+
+      if (!bookingResult.success || !bookingResult.bookingId) {
+        throw new Error('Invalid booking response');
+      }
+
+      // For now, simulate successful payment and return booking ID
+      // In production, you would process payment here with Stripe
+      console.log('💳 Simulating payment success...');
+      
+      // Simulate payment delay
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      onPaymentSuccess(bookingResult.bookingId);
+
+    } catch (error) {
+      console.error('❌ Booking/Payment error:', error);
+      setPaymentError(error instanceof Error ? error.message : 'Nastala chyba pri spracovaní rezervácie');
     } finally {
       setIsProcessing(false);
     }
@@ -332,7 +354,7 @@ function PaymentElementForm({
               <a href="/cancellation" target="_blank" className="text-primary hover:underline">
                 stornovacími podmienkami
               </a>
-              . Rezerváciu môžem zrušiť bezplatne do 24 hodín pred príchodom.
+              . Rezerváciu môžem zrušiť bezplatne do 7 dní pred príchodom.
             </Label>
           </div>
         </div>

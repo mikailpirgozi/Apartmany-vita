@@ -1,8 +1,35 @@
 "use client";
 
 import { QueryClient, QueryClientProvider as TanStackQueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { useState } from "react";
+import { useState, lazy, Suspense, useEffect } from "react";
+
+// Lazy load devtools only in development
+const ReactQueryDevtools = lazy(() =>
+  process.env.NODE_ENV === 'development'
+    ? import("@tanstack/react-query-devtools").then(module => ({
+        default: module.ReactQueryDevtools
+      }))
+    : Promise.resolve({ default: () => null })
+);
+
+// Client-only wrapper to prevent hydration mismatch
+function ClientOnlyDevtools() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return null;
+  }
+
+  return (
+    <Suspense fallback={null}>
+      <ReactQueryDevtools initialIsOpen={false} />
+    </Suspense>
+  );
+}
 
 interface QueryClientProviderProps {
   children: React.ReactNode;
@@ -37,7 +64,7 @@ export function QueryClientProvider({ children }: QueryClientProviderProps) {
   return (
     <TanStackQueryClientProvider client={queryClient}>
       {children}
-      <ReactQueryDevtools initialIsOpen={false} />
+      <ClientOnlyDevtools />
     </TanStackQueryClientProvider>
   );
 }

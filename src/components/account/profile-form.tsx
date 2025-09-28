@@ -11,7 +11,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form'
 import { Calendar } from '@/components/ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Loader2, Calendar as CalendarIcon, Save } from 'lucide-react'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Textarea } from '@/components/ui/textarea'
+import { Loader2, Calendar as CalendarIcon, Save, User, Building } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 
@@ -19,7 +21,12 @@ const profileSchema = z.object({
   name: z.string().min(2, 'Meno musí mať aspoň 2 znaky'),
   email: z.string().email('Neplatný email'),
   phone: z.string().optional(),
-  dateOfBirth: z.date().optional()
+  dateOfBirth: z.date().optional(),
+  // Company information
+  companyName: z.string().min(2, 'Názov firmy musí mať aspoň 2 znaky').optional().or(z.literal('')),
+  companyId: z.string().regex(/^\d{8}$/, 'IČO musí mať presne 8 číslic').optional().or(z.literal('')),
+  companyVat: z.string().regex(/^SK\d{10}$/, 'DIČ musí byť vo formáte SK1234567890').optional().or(z.literal('')),
+  companyAddress: z.string().min(5, 'Adresa firmy musí mať aspoň 5 znakov').optional().or(z.literal(''))
 })
 
 type ProfileFormData = z.infer<typeof profileSchema>
@@ -30,6 +37,10 @@ interface User {
   email: string
   phone: string | null
   dateOfBirth: Date | null
+  companyName: string | null
+  companyId: string | null
+  companyVat: string | null
+  companyAddress: string | null
 }
 
 interface ProfileFormProps {
@@ -46,7 +57,11 @@ export function ProfileForm({ user, onUpdate }: ProfileFormProps) {
       name: user.name || '',
       email: user.email,
       phone: user.phone || '',
-      dateOfBirth: user.dateOfBirth || undefined
+      dateOfBirth: user.dateOfBirth || undefined,
+      companyName: user.companyName || '',
+      companyId: user.companyId || '',
+      companyVat: user.companyVat || '',
+      companyAddress: user.companyAddress || ''
     }
   })
 
@@ -62,7 +77,11 @@ export function ProfileForm({ user, onUpdate }: ProfileFormProps) {
         body: JSON.stringify({
           name: data.name,
           phone: data.phone,
-          dateOfBirth: data.dateOfBirth?.toISOString()
+          dateOfBirth: data.dateOfBirth?.toISOString(),
+          companyName: data.companyName || undefined,
+          companyId: data.companyId || undefined,
+          companyVat: data.companyVat || undefined,
+          companyAddress: data.companyAddress || undefined
         })
       })
 
@@ -84,104 +103,196 @@ export function ProfileForm({ user, onUpdate }: ProfileFormProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Osobné informácie</CardTitle>
+        <CardTitle>Profil používateľa</CardTitle>
       </CardHeader>
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Meno a priezvisko</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Vaše meno" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <Tabs defaultValue="personal" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="personal" className="flex items-center gap-2">
+                  <User className="h-4 w-4" />
+                  Osobné údaje
+                </TabsTrigger>
+                <TabsTrigger value="company" className="flex items-center gap-2">
+                  <Building className="h-4 w-4" />
+                  Firemné údaje
+                </TabsTrigger>
+              </TabsList>
 
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input type="email" disabled {...field} />
-                  </FormControl>
-                  <FormDescription>
-                    Email sa nedá zmeniť. Pre zmenu kontaktujte podporu.
-                  </FormDescription>
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="phone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Telefónne číslo</FormLabel>
-                  <FormControl>
-                    <Input placeholder="+421 900 123 456" {...field} />
-                  </FormControl>
-                  <FormDescription>
-                    Telefónne číslo pre kontakt v prípade potreby
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="dateOfBirth"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Dátum narodenia</FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
+              <TabsContent value="personal" className="space-y-6 mt-6">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Meno a priezvisko</FormLabel>
                       <FormControl>
-                        <Button
-                          variant="outline"
-                          className={cn(
-                            'w-full pl-3 text-left font-normal',
-                            !field.value && 'text-muted-foreground'
-                          )}
-                        >
-                          {field.value ? (
-                            format(field.value, 'dd.MM.yyyy')
-                          ) : (
-                            <span>Vyberte dátum</span>
-                          )}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
+                        <Input placeholder="Vaše meno" {...field} />
                       </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={field.value}
-                        onSelect={field.onChange}
-                        disabled={(date) =>
-                          date > new Date() || date < new Date('1900-01-01')
-                        }
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                  <FormDescription>
-                    Nepovinné. Pomôže nám lepšie prispôsobiť naše služby.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-            <div className="flex justify-end">
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input type="email" disabled {...field} />
+                      </FormControl>
+                      <FormDescription>
+                        Email sa nedá zmeniť. Pre zmenu kontaktujte podporu.
+                      </FormDescription>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="phone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Telefónne číslo</FormLabel>
+                      <FormControl>
+                        <Input placeholder="+421 900 123 456" {...field} />
+                      </FormControl>
+                      <FormDescription>
+                        Telefónne číslo pre kontakt v prípade potreby
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="dateOfBirth"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>Dátum narodenia</FormLabel>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant="outline"
+                              className={cn(
+                                'w-full pl-3 text-left font-normal',
+                                !field.value && 'text-muted-foreground'
+                              )}
+                            >
+                              {field.value ? (
+                                format(field.value, 'dd.MM.yyyy')
+                              ) : (
+                                <span>Vyberte dátum</span>
+                              )}
+                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={field.value}
+                            onSelect={field.onChange}
+                            disabled={(date) =>
+                              date > new Date() || date < new Date('1900-01-01')
+                            }
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      <FormDescription>
+                        Nepovinné. Pomôže nám lepšie prispôsobiť naše služby.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </TabsContent>
+
+              <TabsContent value="company" className="space-y-6 mt-6">
+                <div className="text-sm text-muted-foreground mb-4">
+                  Vyplňte tieto údaje ak potrebujete faktúru na firmu.
+                </div>
+
+                <FormField
+                  control={form.control}
+                  name="companyName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Názov firmy</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Názov vašej firmy" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="companyId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>IČO</FormLabel>
+                        <FormControl>
+                          <Input placeholder="12345678" {...field} />
+                        </FormControl>
+                        <FormDescription>
+                          8-miestne identifikačné číslo organizácie
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="companyVat"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>DIČ</FormLabel>
+                        <FormControl>
+                          <Input placeholder="SK1234567890" {...field} />
+                        </FormControl>
+                        <FormDescription>
+                          Daňové identifikačné číslo
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <FormField
+                  control={form.control}
+                  name="companyAddress"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Adresa firmy</FormLabel>
+                      <FormControl>
+                        <Textarea 
+                          placeholder="Ulica a číslo&#10;PSČ Mesto&#10;Krajina"
+                          className="min-h-[80px]"
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Úplná adresa sídla firmy
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </TabsContent>
+            </Tabs>
+
+            <div className="flex justify-end pt-4 border-t">
               <Button type="submit" disabled={isLoading}>
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 <Save className="mr-2 h-4 w-4" />

@@ -2,8 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { format } from 'date-fns'
-import { sk } from 'date-fns/locale'
+// Removed date-fns imports to prevent hydration issues
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -118,7 +117,7 @@ export function BookingsList({ bookings }: BookingsListProps) {
                     <Calendar className="h-4 w-4 text-muted-foreground" />
                     <div>
                       <p className="font-medium">
-                        {format(booking.checkIn, 'dd.MM.yyyy', { locale: sk })}
+                        {booking.checkIn.toISOString().split('T')[0].split('-').reverse().join('.')}
                       </p>
                       <p className="text-muted-foreground">Príchod</p>
                     </div>
@@ -128,7 +127,7 @@ export function BookingsList({ bookings }: BookingsListProps) {
                     <Calendar className="h-4 w-4 text-muted-foreground" />
                     <div>
                       <p className="font-medium">
-                        {format(booking.checkOut, 'dd.MM.yyyy', { locale: sk })}
+                        {booking.checkOut.toISOString().split('T')[0].split('-').reverse().join('.')}
                       </p>
                       <p className="text-muted-foreground">Odchod</p>
                     </div>

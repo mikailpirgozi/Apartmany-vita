@@ -346,7 +346,7 @@ function generateBookingConfirmationTemplate(booking: BookingWithDetails): Email
           <div class="highlight">
             <strong>Dôležité informácie o platbe:</strong><br>
             Vaša karta bola zatiaľ len autorizovaná. Skutočná platba prebehne 7 dní pred príchodom.
-            Ak budete potrebovať rezerváciu zrušiť, môžete tak urobiť bezplatne do 24 hodín pred príchodom.
+            Ak budete potrebovať rezerváciu zrušiť, môžete tak urobiť bezplatne do 7 dní pred príchodom.
           </div>
           
           <p><strong>Adresa:</strong><br>

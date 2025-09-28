@@ -61,11 +61,41 @@ export default async function middleware(request: NextRequest) {
   // Add security headers
   const secureResponse = addSecurityHeaders(response)
   
-  // Add additional headers for specific routes
-  if (pathname.startsWith('/api/')) {
+  // 🚀 PHASE 2: Edge caching strategy for Beds24 API
+  if (pathname.startsWith('/api/beds24/')) {
+    // Availability and batch endpoints - cache for 5 minutes
+    if (pathname.includes('/availability') || pathname.includes('/batch-availability')) {
+      secureResponse.headers.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600')
+      secureResponse.headers.set('CDN-Cache-Control', 'public, s-maxage=300')
+      secureResponse.headers.set('Vercel-CDN-Cache-Control', 'public, s-maxage=300')
+      secureResponse.headers.set('X-Cache-Strategy', 'beds24-availability')
+    }
+    // Property/room info - cache for 1 hour (changes rarely)
+    else if (pathname.includes('/properties') || pathname.includes('/rooms')) {
+      secureResponse.headers.set('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=7200')
+      secureResponse.headers.set('CDN-Cache-Control', 'public, s-maxage=3600')
+      secureResponse.headers.set('Vercel-CDN-Cache-Control', 'public, s-maxage=3600')
+      secureResponse.headers.set('X-Cache-Strategy', 'beds24-static')
+    }
+    // Booking endpoints - no cache (dynamic)
+    else if (pathname.includes('/booking') || pathname.includes('/webhooks')) {
+      secureResponse.headers.set('Cache-Control', 'no-store, must-revalidate')
+      secureResponse.headers.set('X-Cache-Strategy', 'beds24-dynamic')
+    }
+    // Default Beds24 API cache - 2 minutes
+    else {
+      secureResponse.headers.set('Cache-Control', 'public, s-maxage=120, stale-while-revalidate=240')
+      secureResponse.headers.set('CDN-Cache-Control', 'public, s-maxage=120')
+      secureResponse.headers.set('Vercel-CDN-Cache-Control', 'public, s-maxage=120')
+      secureResponse.headers.set('X-Cache-Strategy', 'beds24-default')
+    }
+  }
+  // Other API routes - no cache by default
+  else if (pathname.startsWith('/api/')) {
     secureResponse.headers.set('Cache-Control', 'no-store, must-revalidate')
   }
   
+  // Static assets - long cache
   if (pathname.startsWith('/_next/static/')) {
     secureResponse.headers.set('Cache-Control', 'public, max-age=31536000, immutable')
   }

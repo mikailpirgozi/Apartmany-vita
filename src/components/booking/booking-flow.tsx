@@ -2,12 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-// import { useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { format } from "date-fns";
-import { sk } from "date-fns/locale";
 import { Check, ChevronLeft, ChevronRight, User, CreditCard, Calendar, Star, Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -21,7 +20,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Skeleton } from "@/components/ui/skeleton";
 import { PaymentForm, PaymentSuccessState } from "@/components/booking/payment-form";
+import { SimpleAvailabilityCalendar } from "@/components/booking/simple-availability-calendar";
 import type { Apartment } from "@/types";
 
 // Booking steps configuration
@@ -45,7 +46,33 @@ const guestInfoSchema = z.object({
   city: z.string().min(2, "Zadajte mesto"),
   specialRequests: z.string().optional(),
   arrivalTime: z.string().optional(),
-  marketingConsent: z.boolean()
+  marketingConsent: z.boolean(),
+  // Company information
+  needsInvoice: z.boolean().default(false),
+  companyName: z.string().optional(),
+  companyId: z.string().optional(),
+  companyVat: z.string().optional(),
+  companyAddress: z.string().optional()
+}).refine((data) => {
+  if (data.needsInvoice) {
+    return (
+      data.companyName && data.companyName.length >= 2 &&
+      data.companyId && /^\d{8}$/.test(data.companyId) &&
+      data.companyAddress && data.companyAddress.length >= 5
+    );
+  }
+  return true;
+}, {
+  message: "Pri faktúre na firmu sú povinné: Názov firmy, IČO a Adresa firmy",
+  path: ["needsInvoice"]
+}).refine((data) => {
+  if (data.needsInvoice && data.companyVat && data.companyVat.length > 0) {
+    return /^SK\d{10}$/.test(data.companyVat);
+  }
+  return true;
+}, {
+  message: "DIČ musí byť vo formáte SK1234567890",
+  path: ["companyVat"]
 });
 
 const extrasSchema = z.object({
@@ -57,6 +84,7 @@ const extrasSchema = z.object({
   tourBooking: z.boolean().default(false)
 });
 
+// Updated with company information
 type GuestInfoFormData = z.infer<typeof guestInfoSchema>;
 type ExtrasFormData = z.infer<typeof extrasSchema>;
 
@@ -71,7 +99,7 @@ interface BookingFlowProps {
     guests: number;
     children: number;
   };
-  availability: {
+  availability?: {
     success: boolean;
     isAvailable: boolean;
     totalPrice: number;
@@ -163,7 +191,12 @@ export function BookingFlow({ apartment, bookingData, availability, onComplete }
         city: '',
         specialRequests: '',
         arrivalTime: '',
-        marketingConsent: false
+        marketingConsent: false,
+        needsInvoice: false,
+        companyName: '',
+        companyId: '',
+        companyVat: '',
+        companyAddress: ''
       });
     }
   }, [session, guestInfo]);
@@ -193,7 +226,12 @@ export function BookingFlow({ apartment, bookingData, availability, onComplete }
     }, 0);
   };
 
-  const totalPrice = availability.totalPrice + calculateExtrasTotal();
+  const totalPrice = (availability?.totalPrice || 0) + calculateExtrasTotal();
+
+  // Show loading state if availability is not yet loaded
+  if (!availability) {
+    return <BookingFlowSkeleton />;
+  }
 
   return (
     <div className="container py-8">
@@ -338,58 +376,68 @@ function BookingDetailsStep({
   };
   onNext: () => void;
 }) {
+  const [selectedRange, setSelectedRange] = useState<{
+    from: Date | null;
+    to: Date | null;
+  }>({
+    from: bookingData.checkIn,
+    to: bookingData.checkOut
+  });
+
   return (
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-semibold mb-4">Detaily rezervácie</h2>
         <p className="text-muted-foreground">
-          Skontrolujte si detaily vašej rezervácie pred pokračovaním.
+          Skontrolujte si detaily vašej rezervácie a dostupnosť apartmánu.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Booking Summary */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-muted/50 rounded-lg">
         <div className="space-y-2">
-          <Label>Apartmán</Label>
-          <div className="p-3 bg-muted rounded-lg">
-            <p className="font-medium">{apartment.name}</p>
-            <p className="text-sm text-muted-foreground">{apartment.size}m²</p>
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-primary rounded-full"></div>
+            <span className="font-medium">{apartment.name}</span>
           </div>
+          <p className="text-sm text-muted-foreground">{apartment.size}m² • {apartment.maxGuests} hostí max</p>
         </div>
 
         <div className="space-y-2">
-          <Label>Hostia</Label>
-          <div className="p-3 bg-muted rounded-lg">
-            <p className="font-medium">
+          <div className="flex items-center gap-2">
+            <User className="w-4 h-4" />
+            <span className="font-medium">
               {bookingData.guests} dospalý{bookingData.guests !== 1 ? 'ch' : ''}
               {bookingData.children > 0 && `, ${bookingData.children} dieťa${bookingData.children > 1 ? 'ť' : ''}`}
-            </p>
+            </span>
           </div>
         </div>
 
         <div className="space-y-2">
-          <Label>Príchod</Label>
-          <div className="p-3 bg-muted rounded-lg">
-            <p className="font-medium">
-              {format(bookingData.checkIn, 'EEEE, d. MMMM yyyy', { locale: sk })}
-            </p>
-            <p className="text-sm text-muted-foreground">od 15:00</p>
+          <div className="flex items-center gap-2">
+            <Calendar className="w-4 h-4" />
+            <span className="font-medium">
+              {format(bookingData.checkIn, 'dd.MM.yyyy')} - {format(bookingData.checkOut, 'dd.MM.yyyy')}
+            </span>
           </div>
-        </div>
-
-        <div className="space-y-2">
-          <Label>Odchod</Label>
-          <div className="p-3 bg-muted rounded-lg">
-            <p className="font-medium">
-              {format(bookingData.checkOut, 'EEEE, d. MMMM yyyy', { locale: sk })}
-            </p>
-            <p className="text-sm text-muted-foreground">do 11:00</p>
-          </div>
+          <p className="text-sm text-muted-foreground">
+            Príchod od 16:00 • Odchod do 10:00
+          </p>
         </div>
       </div>
 
-      <div className="flex justify-end">
-        <Button onClick={onNext}>
-          Pokračovať
+      {/* Simple Availability Calendar */}
+      <SimpleAvailabilityCalendar
+        apartmentSlug={apartment.slug}
+        selectedRange={selectedRange}
+        onRangeSelect={setSelectedRange}
+        guests={bookingData.guests}
+        className="mt-6"
+      />
+
+      <div className="flex justify-end pt-4">
+        <Button onClick={onNext} size="lg">
+          Pokračovať k údajom hosťa
           <ChevronRight className="ml-2 h-4 w-4" />
         </Button>
       </div>
@@ -417,7 +465,12 @@ function GuestInfoStep({
       city: '',
       specialRequests: '',
       arrivalTime: '',
-      marketingConsent: false
+      marketingConsent: false,
+      needsInvoice: false,
+      companyName: '',
+      companyId: '',
+      companyVat: '',
+      companyAddress: ''
     }
   });
 
@@ -585,6 +638,107 @@ function GuestInfoStep({
             )}
           />
 
+          {/* Company Information Section */}
+          <FormField
+            control={form.control}
+            name="needsInvoice"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <div className="space-y-1 leading-none">
+                  <FormLabel>
+                    Chcem faktúru na firmu
+                  </FormLabel>
+                  <FormDescription>
+                    Vyplňte firemné údaje pre vystavenie faktúry
+                  </FormDescription>
+                </div>
+              </FormItem>
+            )}
+          />
+
+          {form.watch('needsInvoice') && (
+            <div className="space-y-4 p-4 border rounded-lg bg-muted/50">
+              <h3 className="font-medium text-sm">Firemné údaje</h3>
+              
+              <FormField
+                control={form.control}
+                name="companyName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Názov firmy *</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Názov vašej firmy" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="companyId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>IČO *</FormLabel>
+                      <FormControl>
+                        <Input placeholder="12345678" {...field} />
+                      </FormControl>
+                      <FormDescription>
+                        8-miestne identifikačné číslo organizácie
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="companyVat"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>DIČ</FormLabel>
+                      <FormControl>
+                        <Input placeholder="SK1234567890" {...field} />
+                      </FormControl>
+                      <FormDescription>
+                        Daňové identifikačné číslo
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <FormField
+                control={form.control}
+                name="companyAddress"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Adresa firmy *</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        placeholder="Ulica a číslo&#10;PSČ Mesto&#10;Krajina"
+                        className="min-h-[80px]"
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Úplná adresa sídla firmy
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          )}
+
           <FormField
             control={form.control}
             name="marketingConsent"
@@ -743,7 +897,7 @@ function PaymentStep({
     arrivalTime?: string;
     marketingConsent: boolean;
   };
-  availability: {
+  availability?: {
     success: boolean;
     isAvailable: boolean;
     totalPrice: number;
@@ -755,6 +909,7 @@ function PaymentStep({
   onBack: () => void; 
   onComplete?: (bookingId: string) => void;
 }) {
+  const router = useRouter();
   const [paymentCompleted, setPaymentCompleted] = useState(false);
   const [completedBookingId, setCompletedBookingId] = useState<string | null>(null);
 
@@ -767,7 +922,13 @@ function PaymentStep({
   const handlePaymentSuccess = (bookingId: string) => {
     setCompletedBookingId(bookingId);
     setPaymentCompleted(true);
-    onComplete?.(bookingId);
+    
+    // Use onComplete if provided, otherwise redirect to confirmation page
+    if (onComplete) {
+      onComplete(bookingId);
+    } else {
+      router.push(`/booking/confirmation/${bookingId}`);
+    }
   };
 
   if (paymentCompleted && completedBookingId) {
@@ -817,7 +978,7 @@ function BookingSummary({
     guests: number;
     children: number;
   };
-  availability: {
+  availability?: {
     success: boolean;
     isAvailable: boolean;
     totalPrice: number;
@@ -841,7 +1002,7 @@ function BookingSummary({
             {format(bookingData.checkIn, 'd.M.yyyy')} - {format(bookingData.checkOut, 'd.M.yyyy')}
           </p>
           <p className="text-sm text-muted-foreground">
-            {bookingData.guests} hosť{bookingData.guests > 1 ? 'ia' : ''} • {availability.nights} noc{availability.nights > 1 ? 'í' : ''}
+            {bookingData.guests} hosť{bookingData.guests > 1 ? 'ia' : ''} • {availability?.nights || 0} noc{(availability?.nights || 0) > 1 ? 'í' : ''}
           </p>
         </div>
 
@@ -849,8 +1010,8 @@ function BookingSummary({
 
         <div className="space-y-2 text-sm">
           <div className="flex justify-between">
-            <span>Ubytovanie ({availability.nights} noc{availability.nights > 1 ? 'í' : ''})</span>
-            <span>€{availability.totalPrice}</span>
+            <span>Ubytovanie ({availability?.nights || 0} noc{(availability?.nights || 0) > 1 ? 'í' : ''})</span>
+            <span>€{availability?.totalPrice || 0}</span>
           </div>
 
           {selectedExtrasList.map((service, index) => (
@@ -873,6 +1034,67 @@ function BookingSummary({
 }
 
 // Helper component for labels
-function Label({ children }: { children: React.ReactNode }) {
-  return <label className="text-sm font-medium">{children}</label>;
+
+// Loading skeleton for BookingFlow
+function BookingFlowSkeleton() {
+  return (
+    <div className="container py-8">
+      <div className="max-w-4xl mx-auto">
+        <div className="mb-8">
+          <Skeleton className="h-8 w-64 mb-4" />
+          <Skeleton className="h-2 w-full mb-6" />
+          
+          <div className="flex items-center justify-between">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="flex flex-col items-center">
+                <Skeleton className="w-8 h-8 rounded-full mb-2" />
+                <Skeleton className="h-3 w-20" />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2">
+            <Card>
+              <CardContent className="p-6">
+                <Skeleton className="h-6 w-48 mb-4" />
+                <Skeleton className="h-4 w-full mb-2" />
+                <Skeleton className="h-4 w-3/4 mb-6" />
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                  {Array.from({ length: 4 }).map((_, i) => (
+                    <div key={i} className="space-y-2">
+                      <Skeleton className="h-4 w-20" />
+                      <Skeleton className="h-12 w-full" />
+                    </div>
+                  ))}
+                </div>
+                
+                <div className="flex justify-end">
+                  <Skeleton className="h-10 w-32" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="lg:col-span-1">
+            <Card>
+              <CardContent className="p-6">
+                <Skeleton className="h-6 w-32 mb-4" />
+                <div className="space-y-3">
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <div key={i} className="flex justify-between">
+                      <Skeleton className="h-4 w-24" />
+                      <Skeleton className="h-4 w-16" />
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }

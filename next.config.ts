@@ -4,6 +4,19 @@ import type { NextConfig } from "next";
 // Temporarily disabled next-intl plugin to fix notFound() error
 // const withNextIntl = createNextIntlPlugin('./i18n/request.ts');
 
+// 🚨 CRITICAL: Port 3000 enforcement
+const REQUIRED_PORT = 3000;
+const currentPort = process.env.PORT ? parseInt(process.env.PORT, 10) : undefined;
+
+if (currentPort && currentPort !== REQUIRED_PORT) {
+  console.error(`🚨 ERROR: Application MUST run on port ${REQUIRED_PORT}, not ${currentPort}!`);
+  console.error(`🚨 Please set PORT=${REQUIRED_PORT} in your environment variables.`);
+  process.exit(1);
+}
+
+// Ensure PORT is set to 3000
+process.env.PORT = REQUIRED_PORT.toString();
+
 const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,

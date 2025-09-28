@@ -7,6 +7,7 @@ interface ApartmentGridProps {
   startDate?: Date
   endDate?: Date
   guests?: number
+  childrenCount?: number
   className?: string
   variant?: 'default' | 'large'
 }
@@ -16,6 +17,7 @@ export function ApartmentGrid({
   startDate, 
   endDate, 
   guests, 
+  childrenCount,
   className,
   variant = 'default'
 }: ApartmentGridProps) {
@@ -37,6 +39,7 @@ export function ApartmentGrid({
           startDate={startDate}
           endDate={endDate}
           guests={guests}
+          childrenCount={childrenCount}
           priority={index === 0} // Prvý apartmán má priority pre LCP
         />
       ))}

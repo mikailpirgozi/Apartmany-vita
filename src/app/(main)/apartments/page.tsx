@@ -1,5 +1,6 @@
 import { ApartmentGrid } from '@/components/apartment/apartment-grid'
 import { ApartmentSearch } from '@/components/search/apartment-search'
+import { ApartmentSearchResults } from '@/components/apartment/apartment-search-results'
 import { getApartments } from '@/services/apartments'
 import { Metadata } from 'next'
 
@@ -24,13 +25,16 @@ interface ApartmentsPageProps {
 }
 
 export default async function ApartmentsPage({ searchParams }: ApartmentsPageProps) {
-  const apartments = await getApartments()
   const params = await searchParams
   
   // Parse search params
   const checkIn = params.checkIn ? new Date(params.checkIn) : undefined
   const checkOut = params.checkOut ? new Date(params.checkOut) : undefined
   const guests = params.guests ? parseInt(params.guests) : undefined
+  
+  // Always get all apartments for initial display
+  const apartments = await getApartments()
+  const hasSearchParams = !!(checkIn && checkOut && guests)
   
   return (
     <div className="container py-8">
@@ -54,34 +58,11 @@ export default async function ApartmentsPage({ searchParams }: ApartmentsPagePro
         />
       </div>
       
-      {/* Search Results Info */}
-      {(checkIn || checkOut || guests) && (
-        <div className="mb-6 p-4 bg-muted/50 rounded-lg">
-          <h3 className="font-medium mb-2">Výsledky vyhľadávania:</h3>
-          <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-            {checkIn && <span>Príchod: {checkIn.toLocaleDateString('sk-SK')}</span>}
-            {checkOut && <span>Odchod: {checkOut.toLocaleDateString('sk-SK')}</span>}
-            {guests && <span>Hostia: {guests}</span>}
-          </div>
-        </div>
-      )}
-      
-      <ApartmentGrid 
-        apartments={apartments}
-        startDate={checkIn}
-        endDate={checkOut}
-        guests={guests}
-        variant="large"
+      {/* Search Results with Loading State */}
+      <ApartmentSearchResults 
+        initialApartments={apartments}
+        hasSearchParams={hasSearchParams}
       />
-      
-      {apartments.length === 0 && (
-        <div className="text-center py-12">
-          <h3 className="text-lg font-medium mb-2">Žiadne apartmány neboli nájdené</h3>
-          <p className="text-muted-foreground">
-            Skúste zmeniť parametre vyhľadávania alebo sa vráťte neskôr.
-          </p>
-        </div>
-      )}
     </div>
   )
 }

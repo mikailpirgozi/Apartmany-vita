@@ -1,5 +1,6 @@
 import { Apartment, SearchFilters } from '@/types'
 import { mockApartments, getApartmentBySlug as getMockApartmentBySlug, getActiveApartments } from '@/lib/mock-data'
+import { beds24Service } from '@/services/beds24'
 
 // For now, we'll use mock data. Later this will be replaced with actual API calls.
 
@@ -70,11 +71,78 @@ export async function getAvailableApartments(
   checkOut: Date, 
   guests: number = 1
 ): Promise<Apartment[]> {
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 300))
+  console.log('🔍 Checking availability for:', { checkIn, checkOut, guests });
   
-  // For now, return all apartments that can accommodate the guests
-  // Later this will check actual availability from Beds24
   const apartments = getActiveApartments()
-  return apartments.filter(apt => apt.maxGuests >= guests)
+  const availableApartments: Apartment[] = []
+  
+  // Filter apartments that can accommodate the guests first
+  const suitableApartments = apartments.filter(apt => apt.maxGuests >= guests)
+  
+  // Mapovanie apartmánov na Beds24 IDs (same as in API route)
+  const apartmentMapping: Record<string, { propId: string; roomId: string }> = {
+    'design-apartman': { propId: '227484', roomId: '483027' },
+    'lite-apartman': { propId: '168900', roomId: '357932' },   
+    'deluxe-apartman': { propId: '161445', roomId: '357931' },
+    'maly-apartman': { propId: '161445', roomId: '357931' }
+  };
+  
+  // Check availability for each suitable apartment via Beds24 service
+  for (const apartment of suitableApartments) {
+    try {
+      const apartmentConfig = apartmentMapping[apartment.slug];
+      if (!apartmentConfig) {
+        console.warn(`⚠️ No Beds24 mapping for apartment: ${apartment.slug}`);
+        continue;
+      }
+      
+      // Format dates for API call
+      const checkInStr = checkIn.toISOString().split('T')[0]
+      const checkOutStr = checkOut.toISOString().split('T')[0]
+      
+      console.log(`🏠 Checking ${apartment.name} availability via Beds24 service`);
+      
+      // Use Beds24 service directly
+      const availabilityData = await beds24Service.getInventoryCalendar({
+        propId: apartmentConfig.propId,
+        roomId: apartmentConfig.roomId,
+        startDate: checkInStr,
+        endDate: checkOutStr
+      });
+      
+      // Check if all requested dates are available
+      const startDate = new Date(checkIn);
+      const endDate = new Date(checkOut);
+      const requestedDates: string[] = [];
+      
+      for (let d = new Date(startDate); d < endDate; d.setDate(d.getDate() + 1)) {
+        requestedDates.push(d.toISOString().split('T')[0]);
+      }
+      
+      const isAvailable = requestedDates.every(date => 
+        availabilityData.available.includes(date)
+      );
+      
+      console.log(`📊 ${apartment.name} availability:`, {
+        isAvailable,
+        requestedDates: requestedDates.length,
+        availableDates: availabilityData.available.length
+      });
+      
+      // Only include apartment if it's available for the entire period
+      if (isAvailable) {
+        availableApartments.push(apartment)
+        console.log(`✅ ${apartment.name} is available`)
+      } else {
+        console.log(`❌ ${apartment.name} is NOT available`)
+      }
+      
+    } catch (error) {
+      console.error(`💥 Error checking availability for ${apartment.name}:`, error)
+      // In case of error, we don't include the apartment (fail-safe approach)
+    }
+  }
+  
+  console.log(`🎯 Found ${availableApartments.length} available apartments out of ${suitableApartments.length} suitable ones`);
+  return availableApartments
 }

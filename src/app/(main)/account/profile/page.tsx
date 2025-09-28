@@ -8,6 +8,23 @@ import { TypographyH1, TypographyP } from '@/components/ui/typography'
 import { LoyaltyTier } from '@/services/pricing'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
+interface UserWithCompanyData {
+  id: string
+  name: string | null
+  email: string
+  phone: string | null
+  dateOfBirth: Date | null
+  image: string | null
+  companyName: string | null
+  companyId: string | null
+  companyVat: string | null
+  companyAddress: string | null
+  createdAt: Date
+  _count: {
+    bookings: number
+  }
+}
+
 export default async function ProfilePage() {
   const session = await auth()
   
@@ -16,28 +33,23 @@ export default async function ProfilePage() {
   }
 
   const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      phone: true,
-      dateOfBirth: true,
-      image: true,
-      createdAt: true,
-      _count: {
-        select: {
-          bookings: {
-            where: { status: 'COMPLETED' }
-          }
-        }
-      }
-    }
-  })
+    where: { id: session.user.id }
+  }) as UserWithCompanyData | null
 
   if (!user) {
     redirect('/auth/signin')
   }
+
+  // Get booking count separately
+  const bookingCount = await prisma.booking.count({
+    where: { 
+      userId: session.user.id,
+      status: 'COMPLETED'
+    }
+  })
+
+  // Add _count to user object
+  user._count = { bookings: bookingCount }
 
   // Calculate loyalty tier
   const calculateLoyaltyTier = (bookings: number): LoyaltyTier => {
@@ -124,13 +136,38 @@ export default async function ProfilePage() {
                 </div>
               </div>
 
+              {/* Company Info */}
+              {user.companyName && (
+                <div className="space-y-3 pt-4 border-t">
+                  <h4 className="font-medium">Firemné údaje</h4>
+                  <div className="space-y-2 text-sm">
+                    <div>
+                      <span className="text-muted-foreground">Firma:</span>
+                      <p className="font-medium">{user.companyName}</p>
+                    </div>
+                    {user.companyId && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">IČO:</span>
+                        <span>{user.companyId}</span>
+                      </div>
+                    )}
+                    {user.companyVat && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">DIČ:</span>
+                        <span>{user.companyVat}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
               {/* Account Info */}
               <div className="space-y-3 pt-4 border-t">
                 <h4 className="font-medium">Informácie o účte</h4>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Člen od:</span>
-                    <span>{new Date(user.createdAt).toLocaleDateString('sk-SK')}</span>
+                    <span>{user.createdAt.toISOString().split('T')[0].split('-').reverse().join('.')}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Rezervácie:</span>

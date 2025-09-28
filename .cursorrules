@@ -1,0 +1,55 @@
+# 🚨 CRITICAL: PORT 3000 ENFORCEMENT RULES
+
+## ABSOLUTE REQUIREMENT
+**Aplikácia sa MUSÍ vždy spustiť na porte 3000. NIKDY na inom porte!**
+
+## MANDATORY RULES
+
+### 1. Package.json Scripts
+- VŠETKY dev/start scripts MUSÍ obsahovať `--port 3000`
+- NIKDY nepoužívaj iné porty (3001, 3002, 4000, 5000, 8000, 8080)
+- VŽDY používaj `npm run dev:safe` na spustenie
+
+### 2. Environment Variables
+- `.env.local` MUSÍ obsahovať `PORT=3000`
+- NIKDY nemení PORT na inú hodnotu
+- VŠETKY environment súbory majú PORT=3000
+
+### 3. Next.js Configuration
+- `next.config.ts` obsahuje port validation
+- Ak sa detekuje iný port, aplikácia sa ukončí
+
+### 4. Scripts
+- `scripts/port-checker.js` - automaticky ukončí procesy na porte 3000
+- `scripts/pre-commit-port-check.js` - kontroluje pred commitom
+
+## FORBIDDEN ACTIONS
+- ❌ Nikdy nemení port v package.json scripts
+- ❌ Nikdy nemení PORT v .env súboroch
+- ❌ Nikdy nepoužívaj `npm run dev` bez --port 3000
+- ❌ Nikdy nepoužívaj `next dev` bez --port 3000
+- ❌ Nikdy nepoužívaj `PORT=3001 npm run dev`
+
+## REQUIRED ACTIONS
+- ✅ VŽDY používaj `npm run dev:safe` na spustenie
+- ✅ VŽDY skontroluj port pred spustením: `npm run port-check`
+- ✅ VŽDY nastav PORT=3000 v environment súboroch
+- ✅ VŽDY používaj `--port 3000` v Next.js scripts
+
+## TESTING
+Pred každou zmenou spusti:
+```bash
+node scripts/pre-commit-port-check.js
+```
+
+Ak sa zobrazí "✅ Pre-commit check passed!", konfigurácia je správna.
+
+## EMERGENCY
+Ak sa aplikácia spustí na inom porte:
+1. Okamžite ju zastav (Ctrl+C)
+2. Spusti `npm run port-check`
+3. Spusti `npm run dev:safe`
+4. Skontroluj .env.local súbor
+
+## DOCUMENTATION
+Pozri `PORT_3000_ENFORCEMENT.md` pre detailné inštrukcie.

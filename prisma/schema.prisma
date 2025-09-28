@@ -50,6 +50,13 @@ model User {
   phone         String?
   dateOfBirth   DateTime?
   preferences   Json?
+  
+  // Company information
+  companyName    String?
+  companyId      String?  // IČO
+  companyVat     String?  // DIČ
+  companyAddress String?
+  
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
@@ -110,6 +117,13 @@ model Booking {
   guestEmail  String
   guestPhone  String
   specialRequests String?
+  
+  // Company information for invoice
+  needsInvoice    Boolean @default(false)
+  companyName     String?
+  companyId       String?  // IČO
+  companyVat      String?  // DIČ
+  companyAddress  String?
 
   userId      String
   apartmentId String

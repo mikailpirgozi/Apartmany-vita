@@ -12,6 +12,7 @@ interface ApartmentCardProps {
   startDate?: Date
   endDate?: Date
   guests?: number
+  childrenCount?: number
   variant?: 'default' | 'compact'
   priority?: boolean // Pre LCP optimization
 }
@@ -21,7 +22,7 @@ const toNumber = (value: number | Decimal): number => {
   return typeof value === 'number' ? value : value.toNumber()
 }
 
-export function ApartmentCard({ apartment, startDate, endDate, guests, variant = 'default', priority = false }: ApartmentCardProps) {
+export function ApartmentCard({ apartment, startDate, endDate, guests, childrenCount, variant = 'default', priority = false }: ApartmentCardProps) {
   return (
     <Card className={`overflow-hidden transition-all hover:shadow-lg ${variant === 'compact' ? 'compact' : ''}`} data-testid="apartment-card">
       <div className="relative">
@@ -62,15 +63,15 @@ export function ApartmentCard({ apartment, startDate, endDate, guests, variant =
         
         <div className="flex items-center justify-between">
           <div>
-            <span className="text-2xl font-bold">€{toNumber(apartment.basePrice)}</span>
-            <span className="text-muted-foreground">/noc</span>
+            <div className="text-sm text-muted-foreground">Od:</div>
+            <span className="text-2xl font-bold">{toNumber(apartment.basePrice)} eur</span>
           </div>
           
           <Button asChild>
             <Link 
               href={`/apartments/${apartment.slug}${
                 startDate && endDate && guests 
-                  ? `?checkIn=${startDate.toISOString().split('T')[0]}&checkOut=${endDate.toISOString().split('T')[0]}&guests=${guests}`
+                  ? `?checkIn=${startDate.toISOString().split('T')[0]}&checkOut=${endDate.toISOString().split('T')[0]}&guests=${guests}${childrenCount ? `&children=${childrenCount}` : ''}`
                   : ''
               }`}
             >

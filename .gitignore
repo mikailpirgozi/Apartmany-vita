@@ -33,6 +33,13 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# 🚨 PORT 3000 ENFORCEMENT - Prevent accidental port changes
+# These files should NEVER contain different ports
+*.env.backup
+*.env.old
+*.env.temp
+.env.port*
+
 # vercel
 .vercel
 

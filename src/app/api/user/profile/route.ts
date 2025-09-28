@@ -7,7 +7,12 @@ const updateProfileSchema = z.object({
   name: z.string().min(2, 'Meno musí mať aspoň 2 znaky').optional(),
   phone: z.string().optional(),
   dateOfBirth: z.string().datetime().optional(),
-  preferences: z.record(z.any()).optional()
+  preferences: z.record(z.any()).optional(),
+  // Company information
+  companyName: z.string().min(2, 'Názov firmy musí mať aspoň 2 znaky').optional(),
+  companyId: z.string().regex(/^\d{8}$/, 'IČO musí mať presne 8 číslic').optional(),
+  companyVat: z.string().regex(/^SK\d{10}$/, 'DIČ musí byť vo formáte SK1234567890').optional(),
+  companyAddress: z.string().min(5, 'Adresa firmy musí mať aspoň 5 znakov').optional()
 })
 
 export async function GET() {
@@ -30,6 +35,10 @@ export async function GET() {
         phone: true,
         dateOfBirth: true,
         preferences: true,
+        companyName: true,
+        companyId: true,
+        companyVat: true,
+        companyAddress: true,
         createdAt: true,
         _count: {
           select: {
@@ -88,6 +97,10 @@ export async function PUT(request: NextRequest) {
         phone: true,
         dateOfBirth: true,
         preferences: true,
+        companyName: true,
+        companyId: true,
+        companyVat: true,
+        companyAddress: true,
         updatedAt: true
       }
     })

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import type { Session } from "next-auth";
-import { format, addDays, differenceInDays } from "date-fns";
+import { format, differenceInDays } from "date-fns";
 import { Calendar, Users, Minus, Plus, Info, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { OptimizedAvailabilityCalendar } from "@/components/booking/optimized-availability-calendar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 // import { calculateBookingPrice, BookingPricing, LoyaltyTier } from "@/services/pricing"; // Now using Beds24 API pricing
@@ -24,6 +24,7 @@ interface BookingWidgetProps {
   initialCheckIn?: Date;
   initialCheckOut?: Date;
   initialGuests?: number;
+  initialChildren?: number;
   onBookingStart?: (data: BookingData) => void;
   className?: string;
 }
@@ -50,6 +51,7 @@ export function BookingWidget({
   initialCheckIn,
   initialCheckOut,
   initialGuests = 2,
+  initialChildren = 0,
   onBookingStart,
   className
 }: BookingWidgetProps) {
@@ -57,12 +59,12 @@ export function BookingWidget({
   const [checkIn, setCheckIn] = useState<Date | undefined>(initialCheckIn);
   const [checkOut, setCheckOut] = useState<Date | undefined>(initialCheckOut);
   const [guests, setGuests] = useState(initialGuests);
-  const [children, setChildren] = useState(0);
-  const [showCalendar, setShowCalendar] = useState<'checkin' | 'checkout' | null>(null);
+  const [children, setChildren] = useState(initialChildren);
+  const [showCalendar, setShowCalendar] = useState<'checkin' | 'checkout' | 'enhanced' | null>(null);
 
-  // Check availability when dates are selected
+  // Check availability when dates are selected - OPTIMIZED CACHE
   const { data: availability, isLoading: isAvailabilityLoading, error: availabilityError } = useQuery({
-    queryKey: ['availability', apartment.slug, checkIn, checkOut],
+    queryKey: ['booking-availability', apartment.slug, checkIn, checkOut, guests, children],
     queryFn: async () => {
       if (!checkIn || !checkOut) return null;
       
@@ -76,21 +78,29 @@ export function BookingWidget({
       
       const checkInStr = formatDate(checkIn);
       const checkOutStr = formatDate(checkOut);
-      const url = `/api/beds24/availability?apartment=${apartment.slug}&checkIn=${checkInStr}&checkOut=${checkOutStr}`;
-      console.log('Fetching availability from:', url);
+      const url = `/api/beds24/availability?apartment=${apartment.slug}&checkIn=${checkInStr}&checkOut=${checkOutStr}&guests=${guests}&children=${children}`;
+      console.log('🔍 Fetching booking availability from:', url);
       
-      const response = await fetch(url);
+      const response = await fetch(url, {
+        headers: {
+          'Cache-Control': 'public, max-age=300', // 5 minutes browser cache
+        }
+      });
       if (!response.ok) {
         console.error('Availability fetch failed:', response.status, response.statusText);
         throw new Error('Failed to fetch availability');
       }
       
       const data = await response.json();
-      console.log('Availability data received:', data);
+      console.log('✅ Booking availability data received:', data);
       return data;
     },
     enabled: !!(checkIn && checkOut && checkIn < checkOut),
-    staleTime: 2 * 60 * 1000 // 2 minutes
+    staleTime: 10 * 60 * 1000,        // 10 minutes (optimized from 2 minutes)
+    gcTime: 30 * 60 * 1000,           // 30 minutes garbage collection
+    refetchOnWindowFocus: false,      // No automatic refresh
+    retry: 2,                         // Less retries
+    retryDelay: (attemptIndex: number) => Math.min(1000 * 2 ** attemptIndex, 30000)
   });
 
   // Debug logging
@@ -131,17 +141,13 @@ export function BookingWidget({
   
   const isValidBooking = checkIn && checkOut && nights > 0 && totalGuests <= apartment.maxGuests && isDateRangeAvailable && availability?.totalPrice;
 
-  const handleCheckInSelect = (date: Date | undefined) => {
-    setCheckIn(date);
-    if (date && checkOut && date >= checkOut) {
-      setCheckOut(addDays(date, 1));
-    }
-    setShowCalendar(null);
-  };
 
-  const handleCheckOutSelect = (date: Date | undefined) => {
-    setCheckOut(date);
-    setShowCalendar(null);
+  const handleRangeSelect = (range: { from: Date | null; to: Date | null }) => {
+    setCheckIn(range.from || undefined);
+    setCheckOut(range.to || undefined);
+    
+    // Nezatvárať kalendár okamžite - nechať zobrazený cenový súhrn
+    // Kalendár sa zatvorí automaticky keď používateľ klikne mimo neho
   };
 
   const handleBookNow = () => {
@@ -176,8 +182,9 @@ export function BookingWidget({
       <CardHeader className="pb-4">
         <div className="flex items-baseline justify-between">
           <div>
-            <CardTitle className="text-2xl">€{apartment.basePrice.toString()}</CardTitle>
-            <p className="text-muted-foreground">za noc</p>
+            <CardTitle className="text-2xl">Od {apartment.basePrice.toString()} eur</CardTitle>
+            <p className="text-muted-foreground">za noc*</p>
+            <p className="text-xs text-muted-foreground">*Cena závisí od počtu hostí a dĺžky pobytu</p>
           </div>
           
           {/* Loyalty badge removed - using Beds24 pricing */}
@@ -186,60 +193,53 @@ export function BookingWidget({
 
       <CardContent className="space-y-4">
         {/* Date Selection */}
-        <div className="grid grid-cols-2 gap-2">
-          <div>
-            <Label className="text-sm font-medium">Príchod</Label>
-            <Popover open={showCalendar === 'checkin'} onOpenChange={(open) => setShowCalendar(open ? 'checkin' : null)}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className={cn(
-                    "w-full justify-start text-left font-normal",
-                    !checkIn && "text-muted-foreground"
-                  )}
-                >
-                  <Calendar className="mr-2 h-4 w-4" />
-                  {checkIn ? format(checkIn, "dd.MM.yyyy") : "Vyberte dátum"}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <CalendarComponent
-                  mode="single"
-                  selected={checkIn}
-                  onSelect={handleCheckInSelect}
-                  disabled={(date) => date < new Date()}
-                  initialFocus
-                />
-              </PopoverContent>
-            </Popover>
+        <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <Label className="text-sm font-medium">Príchod</Label>
+              <Button
+                variant="outline"
+                className={cn(
+                  "w-full justify-start text-left font-normal",
+                  !checkIn && "text-muted-foreground"
+                )}
+                onClick={() => setShowCalendar(showCalendar === 'enhanced' ? null : 'enhanced')}
+              >
+                <Calendar className="mr-2 h-4 w-4" />
+                {checkIn ? format(checkIn, "dd.MM.yyyy") : "Vyberte dátum"}
+              </Button>
+            </div>
+
+            <div>
+              <Label className="text-sm font-medium">Odchod</Label>
+              <Button
+                variant="outline"
+                className={cn(
+                  "w-full justify-start text-left font-normal",
+                  !checkOut && "text-muted-foreground"
+                )}
+                onClick={() => setShowCalendar(showCalendar === 'enhanced' ? null : 'enhanced')}
+              >
+                <Calendar className="mr-2 h-4 w-4" />
+                {checkOut ? format(checkOut, "dd.MM.yyyy") : "Vyberte dátum"}
+              </Button>
+            </div>
           </div>
 
-          <div>
-            <Label className="text-sm font-medium">Odchod</Label>
-            <Popover open={showCalendar === 'checkout'} onOpenChange={(open) => setShowCalendar(open ? 'checkout' : null)}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className={cn(
-                    "w-full justify-start text-left font-normal",
-                    !checkOut && "text-muted-foreground"
-                  )}
-                >
-                  <Calendar className="mr-2 h-4 w-4" />
-                  {checkOut ? format(checkOut, "dd.MM.yyyy") : "Vyberte dátum"}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <CalendarComponent
-                  mode="single"
-                  selected={checkOut}
-                  onSelect={handleCheckOutSelect}
-                  disabled={(date) => !checkIn || date <= checkIn}
-                  initialFocus
-                />
-              </PopoverContent>
-            </Popover>
-          </div>
+          {/* Optimized Availability Calendar */}
+          {showCalendar === 'enhanced' && (
+            <div className="mt-4">
+              <OptimizedAvailabilityCalendar
+                apartmentSlug={apartment.slug}
+                selectedRange={{
+                  from: checkIn || null,
+                  to: checkOut || null
+                }}
+                onRangeSelect={handleRangeSelect}
+                guests={guests}
+              />
+            </div>
+          )}
         </div>
 
         {/* Guest Selection */}
@@ -249,8 +249,22 @@ export function BookingWidget({
             adults={guests}
             maxGuests={apartment.maxGuests}
             maxChildren={apartment.maxChildren}
-            onAdultsChange={setGuests}
-            onChildrenChange={setChildren}
+            onAdultsChange={(newGuests) => {
+              setGuests(newGuests);
+              // Force calendar refresh when guest count changes
+              if (showCalendar === 'enhanced') {
+                setShowCalendar(null);
+                setTimeout(() => setShowCalendar('enhanced'), 100);
+              }
+            }}
+            onChildrenChange={(newChildren) => {
+              setChildren(newChildren);
+              // Force calendar refresh when children count changes
+              if (showCalendar === 'enhanced') {
+                setShowCalendar(null);
+                setTimeout(() => setShowCalendar('enhanced'), 100);
+              }
+            }}
           >
             {children}
           </GuestSelector>
@@ -346,10 +360,9 @@ export function BookingWidget({
 
         {/* Additional Info */}
         <div className="text-xs text-muted-foreground space-y-1">
-          <p>• Bezplatné zrušenie do 24 hodín pred príchodom</p>
-          <p>• Platba kartou alebo v hotovosti pri príchode</p>
+          <p>• Bezplatné zrušenie do 7 dní pred príchodom</p>
           {!session?.user && (
-            <p>• Prihláste sa a získajte 5% zľavu na rezerváciu</p>
+            <p>• Registrujte sa a získajte 5% zľavu na rezerváciu</p>
           )}
         </div>
       </CardContent>

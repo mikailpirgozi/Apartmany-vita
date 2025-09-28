@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
@@ -13,7 +13,12 @@ import { useSession } from 'next-auth/react'
 
 export function Header() {
   const [isOpen, setIsOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
   const { data: session, status } = useSession()
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const navigation = [
     { name: 'Domov', href: '/' },
@@ -115,7 +120,11 @@ export function Header() {
                   
                   {/* Auth Section */}
                   <div className="pt-4 mt-4 border-t border-muted">
-                    {status === 'loading' ? (
+                    {!mounted ? (
+                      <div className="flex items-center justify-center py-3">
+                        <div className="w-6 h-6 border-2 border-brand-accent border-t-transparent rounded-full animate-spin"></div>
+                      </div>
+                    ) : status === 'loading' ? (
                       <div className="flex items-center justify-center py-3">
                         <div className="w-6 h-6 border-2 border-brand-accent border-t-transparent rounded-full animate-spin"></div>
                       </div>

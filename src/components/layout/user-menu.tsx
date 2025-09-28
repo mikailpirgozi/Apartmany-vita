@@ -2,6 +2,7 @@
 
 import { signOut, useSession } from 'next-auth/react'
 import Link from 'next/link'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -17,10 +18,20 @@ import { User, Settings, Calendar, LogOut, Star } from 'lucide-react'
 
 export function UserMenu() {
   const { data: session, status } = useSession()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  // Prevent hydration mismatch by not rendering anything until mounted
+  if (!mounted) {
+    return null
+  }
 
   if (status === 'loading') {
     return (
-      <div className="w-8 h-8 rounded-full bg-muted animate-pulse" />
+      <div className="w-8 h-8 rounded-full bg-muted" />
     )
   }
 
