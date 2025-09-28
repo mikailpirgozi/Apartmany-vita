@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
       propId, roomId, startDate, endDate 
     });
 
-    const results: any = {
+    const results: Record<string, unknown> = {
       timestamp: new Date().toISOString(),
       parameters: { propId, roomId, startDate, endDate },
       scenarios: {}
@@ -118,27 +118,27 @@ export async function GET(request: NextRequest) {
         console.log(`🧪 Testing scenario: ${scenarioName}`);
         
         // Use private method via bracket notation (for testing only)
-        const parseMethod = (beds24Service as any).parseInventoryCalendarResponseV2;
+        const parseMethod = (beds24Service as Record<string, unknown>).parseInventoryCalendarResponseV2;
         if (typeof parseMethod === 'function') {
-          const parsedResult = parseMethod.call(beds24Service, (scenario as any).mockCalendarData, {
+          const parsedResult = parseMethod.call(beds24Service, (scenario as Record<string, unknown>).mockCalendarData, {
             propId,
             roomId,
             startDate,
             endDate
           });
           
-          (scenario as any).actualResult = parsedResult;
-          (scenario as any).testPassed = compareResults(parsedResult, (scenario as any).expectedResult);
+          (scenario as Record<string, unknown>).actualResult = parsedResult;
+          (scenario as Record<string, unknown>).testPassed = compareResults(parsedResult, (scenario as Record<string, unknown>).expectedResult);
         } else {
-          (scenario as any).error = 'Could not access parsing method';
+          (scenario as Record<string, unknown>).error = 'Could not access parsing method';
         }
       } catch (error) {
-        (scenario as any).error = error instanceof Error ? error.message : String(error);
+        (scenario as Record<string, unknown>).error = error instanceof Error ? error.message : String(error);
       }
     }
 
     // Generate overall test summary
-    const passedTests = Object.values(results.scenarios).filter((s: any) => s.testPassed === true).length;
+    const passedTests = Object.values(results.scenarios as Record<string, Record<string, unknown>>).filter((s: Record<string, unknown>) => s.testPassed === true).length;
     const totalTests = Object.keys(results.scenarios).length;
     
     results.summary = {
@@ -184,7 +184,7 @@ function generateDateRange(startDate: string, endDate: string): string[] {
 /**
  * Compare actual vs expected results
  */
-function compareResults(actual: any, expected: any): boolean {
+function compareResults(actual: Record<string, unknown>, expected: Record<string, unknown>): boolean {
   try {
     // Compare available dates
     if (!arraysEqual(actual.available || [], expected.available || [])) {
@@ -240,10 +240,10 @@ function arraysEqual(a: string[], b: string[]): boolean {
 /**
  * Generate recommendations based on test results
  */
-function generateRecommendations(scenarios: any): string[] {
+function generateRecommendations(scenarios: Record<string, Record<string, unknown>>): string[] {
   const recommendations: string[] = [];
   
-  const failedScenarios = Object.entries(scenarios).filter(([_, scenario]: [string, any]) => 
+  const failedScenarios = Object.entries(scenarios).filter(([, scenario]: [string, Record<string, unknown>]) => 
     scenario.testPassed === false
   );
   
@@ -253,7 +253,7 @@ function generateRecommendations(scenarios: any): string[] {
     recommendations.push('💡 Try testing with a different date range or manually block some dates in Beds24 admin');
   } else {
     recommendations.push('❌ Parsing logic needs fixes for the following scenarios:');
-    failedScenarios.forEach(([name, scenario]: [string, any]) => {
+    failedScenarios.forEach(([name, scenario]: [string, Record<string, unknown>]) => {
       recommendations.push(`  - ${name}: ${scenario.description}`);
     });
   }

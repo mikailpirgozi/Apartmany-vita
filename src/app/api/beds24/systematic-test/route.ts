@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
   const accessToken = process.env.BEDS24_ACCESS_TOKEN || '';
   const baseUrl = 'https://api.beds24.com/v2';
   
-  const testResults: Record<string, any> = {};
+  const testResults: Record<string, unknown> = {};
 
   console.log(`\n🧪 SYSTEMATIC BEDS24 API TESTING - ${apartmentConfig.name}`);
   console.log(`📅 Date range: 2025-10-01 to 2025-10-03`);

@@ -237,9 +237,13 @@ export async function GET(request: NextRequest) {
       totalTests: results.length + errors.length,
       successfulTests: results.length,
       failedTests: errors.length,
-      priceMatches: results.filter((r: any) => r.results.comparison.priceMatch).length,
+      priceMatches: results.filter((r: Record<string, unknown>) => (r.results as Record<string, unknown>)?.comparison && (r.results as Record<string, unknown>).comparison && ((r.results as Record<string, unknown>).comparison as Record<string, unknown>).priceMatch).length,
       averageResponseTime: results.length > 0 
-        ? Math.round((results as any[]).reduce((sum: number, r: any) => sum + r.results.comparison.responseTime, 0) / results.length)
+        ? Math.round((results as Record<string, unknown>[]).reduce((sum: number, r: Record<string, unknown>) => {
+            const results = r.results as Record<string, unknown>;
+            const comparison = results?.comparison as Record<string, unknown>;
+            return sum + (comparison?.responseTime as number || 0);
+          }, 0) / results.length)
         : 0,
       timestamp: new Date().toISOString()
     };

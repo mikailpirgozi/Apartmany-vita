@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
       throw new Error('BEDS24_ACCESS_TOKEN not configured');
     }
 
-    const results: any = {
+    const results: Record<string, unknown> = {
       timestamp: new Date().toISOString(),
       parameters: { propId, roomId, startDate, endDate },
       methods: {}
@@ -256,7 +256,7 @@ export async function GET(request: NextRequest) {
 /**
  * Analyze inventory data for blocked dates
  */
-function analyzeInventoryData(data: any, startDate: string, endDate: string) {
+function analyzeInventoryData(data: Record<string, unknown>, startDate: string, endDate: string) {
   const analysis = {
     hasData: false,
     dataCount: 0,
@@ -277,7 +277,7 @@ function analyzeInventoryData(data: any, startDate: string, endDate: string) {
   };
 
   // Extract data array
-  let dataArray: any[] = [];
+  let dataArray: Record<string, unknown>[] = [];
   if (Array.isArray(data)) {
     dataArray = data;
   } else if (data.data && Array.isArray(data.data)) {
@@ -297,7 +297,7 @@ function analyzeInventoryData(data: any, startDate: string, endDate: string) {
     const dateStr = d.toISOString().split('T')[0];
     
     // Find data for this date
-    const dateData = dataArray.find((item: any) => 
+    const dateData = dataArray.find((item: Record<string, unknown>) => 
       item.date === dateStr || item.day === dateStr
     );
     
@@ -330,7 +330,7 @@ function analyzeInventoryData(data: any, startDate: string, endDate: string) {
 /**
  * Analyze offers data for availability
  */
-function analyzeOffersData(data: any, startDate: string, endDate: string) {
+function analyzeOffersData(data: Record<string, unknown>, startDate: string, endDate: string) {
   const analysis = {
     hasData: false,
     offersCount: 0,
@@ -350,7 +350,7 @@ function analyzeOffersData(data: any, startDate: string, endDate: string) {
   };
 
   // Extract offers array
-  let offersArray: any[] = [];
+  let offersArray: Record<string, unknown>[] = [];
   if (Array.isArray(data)) {
     offersArray = data;
   } else if (data.data && Array.isArray(data.data)) {
@@ -363,7 +363,7 @@ function analyzeOffersData(data: any, startDate: string, endDate: string) {
   }
 
   // Count offers with prices (available) vs without (unavailable)
-  offersArray.forEach((offer: any) => {
+  offersArray.forEach((offer: Record<string, unknown>) => {
     if (offer.price !== undefined && offer.price > 0) {
       analysis.availableDates++;
       analysis.offersWithPrices++;
@@ -378,7 +378,7 @@ function analyzeOffersData(data: any, startDate: string, endDate: string) {
 /**
  * Analyze bookings data for occupied dates
  */
-function analyzeBookingsData(data: any, startDate: string, endDate: string) {
+function analyzeBookingsData(data: Record<string, unknown>, startDate: string, endDate: string) {
   const analysis = {
     hasData: false,
     bookingsCount: 0,
@@ -397,7 +397,7 @@ function analyzeBookingsData(data: any, startDate: string, endDate: string) {
   };
 
   // Extract bookings array
-  let bookingsArray: any[] = [];
+  let bookingsArray: Record<string, unknown>[] = [];
   if (Array.isArray(data)) {
     bookingsArray = data;
   } else if (data.data && Array.isArray(data.data)) {
@@ -410,7 +410,7 @@ function analyzeBookingsData(data: any, startDate: string, endDate: string) {
   }
 
   // Extract occupied dates from bookings
-  bookingsArray.forEach((booking: any) => {
+  bookingsArray.forEach((booking: Record<string, unknown>) => {
     if (booking.arrival && booking.departure) {
       const checkIn = new Date(booking.arrival);
       const checkOut = new Date(booking.departure);
@@ -437,7 +437,7 @@ function analyzeBookingsData(data: any, startDate: string, endDate: string) {
 /**
  * Generate summary of all methods
  */
-function generateSummary(methods: any) {
+function generateSummary(methods: Record<string, unknown>) {
   const summary = {
     workingMethods: [] as string[],
     failedMethods: [] as string[],

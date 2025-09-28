@@ -25,7 +25,37 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const { timeWindow, apartment, includeMetrics, includeAlerts, includeCache } = 
       DashboardRequestSchema.parse(searchParams);
 
-    const dashboardData: any = {
+    const dashboardData: {
+      timestamp: string;
+      timeWindow: number;
+      apartment: string;
+      apartmentMetrics?: {
+        apartment: string;
+        totalRequests: number;
+        averageLoadTime: number;
+        cacheHitRate: number;
+        errorCount: number;
+        recentMetrics: unknown[];
+      };
+      summary?: unknown;
+      alerts?: unknown;
+      cacheStats?: {
+        redis: { connected: boolean };
+        memory: { keys: number; size: string };
+        error?: string;
+      };
+      overview?: {
+        recentActivity: unknown;
+        topApartments: unknown;
+        quickStats: {
+          totalRequests: number;
+          averageResponseTime: number;
+          cacheHitRate: number;
+          errorRate: number;
+        };
+      };
+      insights?: unknown[];
+    } = {
       timestamp: new Date().toISOString(),
       timeWindow,
       apartment: apartment || 'all',
@@ -130,7 +160,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     const { format, timeWindow, includeRawMetrics } = ExportRequestSchema.parse(body);
 
-    const exportData: any = {
+    const exportData: {
+      exportedAt: string;
+      timeWindow: number;
+      summary: unknown;
+      alerts: unknown;
+      rawMetrics?: unknown;
+      cacheStats?: { error?: string };
+    } = {
       exportedAt: new Date().toISOString(),
       timeWindow,
       summary: analytics.getPerformanceSummary(timeWindow),
@@ -197,7 +234,10 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
 
     const { clearMetrics, clearCache, apartment } = ClearRequestSchema.parse(searchParams);
 
-    const results: any = {
+    const results: {
+      cleared: string[];
+      errors: string[];
+    } = {
       cleared: [],
       errors: [],
     };
@@ -247,12 +287,22 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
 /**
  * Generate performance insights based on dashboard data
  */
-function generatePerformanceInsights(dashboardData: any): {
+function generatePerformanceInsights(dashboardData: {
+  summary?: {
+    cache: { hitRate: number };
+    calendar: { averageLoadTime: number; errorRate: number };
+    api: { averageResponseTime: number };
+  };
+}): {
   type: 'success' | 'warning' | 'error';
   message: string;
   recommendation?: string;
 }[] {
-  const insights: any[] = [];
+  const insights: {
+    type: 'success' | 'warning' | 'error';
+    message: string;
+    recommendation?: string;
+  }[] = [];
   
   const summary = dashboardData.summary;
   if (!summary) return insights;
@@ -314,7 +364,19 @@ function generatePerformanceInsights(dashboardData: any): {
 /**
  * Convert dashboard data to CSV format
  */
-function convertToCsv(data: any): string {
+function convertToCsv(data: {
+  exportedAt: string;
+  summary?: {
+    calendar: { totalLoads: number; averageLoadTime: number; errorRate: number };
+    cache: { hitRate: number };
+    api: { totalRequests: number; averageResponseTime: number };
+  };
+  cacheStats?: {
+    error?: string;
+    redis: { connected: boolean; keys?: number };
+    memory: { keys: number };
+  };
+}): string {
   const lines: string[] = [];
   
   // Header

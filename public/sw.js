@@ -152,8 +152,8 @@ async function handleCalendarAPI(request) {
       
       return networkResponse;
     }
-  } catch (error) {
-    console.warn('[SW] Network request failed, trying cache:', error);
+  } catch {
+    console.warn('[SW] Network request failed, trying cache');
   }
   
   // Network failed, try cache
@@ -314,7 +314,7 @@ async function syncCalendarData() {
           if (response.ok) {
             await cache.put(request, response);
           }
-        } catch (error) {
+        } catch {
           console.warn('[SW] Background sync failed for:', request.url);
         }
       })

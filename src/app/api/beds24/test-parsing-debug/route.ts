@@ -41,8 +41,8 @@ export async function GET(request: NextRequest) {
     }> = {};
 
     // Process each calendar item
-    mockCalendarData.forEach((item: any, index: number) => {
-      let dates: string[] = [];
+    mockCalendarData.forEach((item: Record<string, unknown>, index: number) => {
+      const dates: string[] = [];
       let price: number | null = null;
       let isAvailable = true;
       let isBlocked = false;
@@ -95,7 +95,7 @@ export async function GET(request: NextRequest) {
 
     // Generate final results for specific dates
     const testDates = ['2025-10-29', '2025-10-30', '2025-10-31'];
-    const results: Record<string, any> = {};
+    const results: Record<string, Record<string, unknown>> = {};
 
     testDates.forEach(date => {
       const calendar = calendarMap[date];

@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
       propId, roomId, startDate, endDate 
     });
 
-    const results: any = {
+    const results: Record<string, unknown> = {
       timestamp: new Date().toISOString(),
       parameters: { propId, roomId, startDate, endDate }
     };
@@ -125,7 +125,7 @@ export async function GET(request: NextRequest) {
 /**
  * Analyze raw calendar data to identify blocked dates
  */
-function analyzeCalendarData(data: any, startDate: string, endDate: string) {
+function analyzeCalendarData(data: Record<string, unknown>, startDate: string, endDate: string) {
   const analysis = {
     totalDates: 0,
     availableDates: 0,
@@ -135,7 +135,7 @@ function analyzeCalendarData(data: any, startDate: string, endDate: string) {
     datesWithStatusBlocked: [] as string[],
     datesWithStatusUnavailable: [] as string[],
     datesWithOverride: [] as string[],
-    allDates: [] as any[],
+    allDates: [] as Record<string, unknown>[],
     rawDataStructure: {}
   };
 
@@ -152,15 +152,15 @@ function analyzeCalendarData(data: any, startDate: string, endDate: string) {
     
     if (data && typeof data === 'object') {
       if ('data' in data && Array.isArray(data.data)) {
-        dateData = data.data.find((item: any) => 
+        dateData = (data.data as Record<string, unknown>[]).find((item: Record<string, unknown>) => 
           item.date === dateStr || item.day === dateStr
         );
       } else if ('calendar' in data && Array.isArray(data.calendar)) {
-        dateData = data.calendar.find((item: any) => 
+        dateData = (data.calendar as Record<string, unknown>[]).find((item: Record<string, unknown>) => 
           item.date === dateStr || item.day === dateStr
         );
       } else if (Array.isArray(data)) {
-        dateData = data.find((item: any) => 
+        dateData = (data as Record<string, unknown>[]).find((item: Record<string, unknown>) => 
           item.date === dateStr || item.day === dateStr
         );
       }
@@ -216,7 +216,7 @@ function analyzeCalendarData(data: any, startDate: string, endDate: string) {
 /**
  * Compare raw analysis with processed results
  */
-function compareResults(rawAnalysis: any, processedData: any) {
+function compareResults(rawAnalysis: Record<string, unknown>, processedData: Record<string, unknown>) {
   const comparison = {
     rawAvailable: rawAnalysis.availableDates,
     processedAvailable: processedData.available?.length || 0,

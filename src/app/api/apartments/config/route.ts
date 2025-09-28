@@ -44,9 +44,9 @@ export async function GET(request: NextRequest) {
           slug: apartment,
           ...apartmentConfig,
           // Add computed fields
-          checkInTime: `${(apartmentConfig as any).checkInStart}-${(apartmentConfig as any).checkInEnd}`,
-          checkOutTime: (apartmentConfig as any).checkOutEnd,
-          priceRange: `${(apartmentConfig as any).minPrice}€ - ${(apartmentConfig as any).rackRate}€`
+          checkInTime: `${(apartmentConfig as Record<string, unknown>).checkInStart}-${(apartmentConfig as Record<string, unknown>).checkInEnd}`,
+          checkOutTime: (apartmentConfig as Record<string, unknown>).checkOutEnd,
+          priceRange: `${(apartmentConfig as Record<string, unknown>).minPrice}€ - ${(apartmentConfig as Record<string, unknown>).rackRate}€`
         }
       });
     }
@@ -55,9 +55,9 @@ export async function GET(request: NextRequest) {
     const allConfigurations = Object.entries(configurations).map(([slug, apartmentConfig]) => ({
       slug,
       ...apartmentConfig,
-      checkInTime: `${(apartmentConfig as any).checkInStart}-${(apartmentConfig as any).checkInEnd}`,
-      checkOutTime: (apartmentConfig as any).checkOutEnd,
-      priceRange: `${(apartmentConfig as any).minPrice}€ - ${(apartmentConfig as any).rackRate}€`
+      checkInTime: `${(apartmentConfig as Record<string, unknown>).checkInStart}-${(apartmentConfig as Record<string, unknown>).checkInEnd}`,
+      checkOutTime: (apartmentConfig as Record<string, unknown>).checkOutEnd,
+      priceRange: `${(apartmentConfig as Record<string, unknown>).minPrice}€ - ${(apartmentConfig as Record<string, unknown>).rackRate}€`
     }));
 
     return NextResponse.json({

@@ -1,0 +1,3 @@
+# Railway Railpack compatibility
+engine-strict=false
+auto-install-peers=true

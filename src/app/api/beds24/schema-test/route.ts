@@ -6,7 +6,7 @@ const API_TOKEN = process.env.BEDS24_ACCESS_TOKEN || 'XwJnUUA7YS9aHRIBFPhVWiIEBl
 interface TestResult {
   endpoint: string;
   success: boolean;
-  data?: any;
+  data?: unknown;
   error?: string;
   count?: number;
 }

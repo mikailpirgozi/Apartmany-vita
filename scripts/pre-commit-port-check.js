@@ -11,8 +11,7 @@
  * Usage: node scripts/pre-commit-port-check.js
  */
 
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
 
 const REQUIRED_PORT = 3000;
 const FORBIDDEN_PORTS = [3001, 3002, 3003, 4000, 5000, 8000, 8080];

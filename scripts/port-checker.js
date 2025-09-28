@@ -11,8 +11,8 @@
  * Usage: node scripts/port-checker.js
  */
 
-const { exec } = require('child_process');
-const net = require('net');
+import { exec } from 'child_process';
+import net from 'net';
 
 const REQUIRED_PORT = 3000;
 
@@ -38,12 +38,12 @@ function isPortInUse(port) {
 
 // Function to kill process using port
 function killProcessOnPort(port) {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     const command = process.platform === 'win32' 
       ? `netstat -ano | findstr :${port}`
       : `lsof -ti:${port}`;
     
-    exec(command, (error, stdout, stderr) => {
+    exec(command, (error, stdout) => {
       if (error) {
         console.log(`✅ Port ${port} is not in use by any process.`);
         resolve();

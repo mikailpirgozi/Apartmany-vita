@@ -95,12 +95,12 @@ export async function GET(request: NextRequest) {
     console.log('🔍 Response Analysis:', analysis);
 
     if (responseData?.data && Array.isArray(responseData.data)) {
-      responseData.data.forEach((item: any, index: number) => {
+      responseData.data.forEach((item: Record<string, unknown>, index: number) => {
         console.log(`📋 Item ${index + 1}:`, {
           roomId: item.roomId,
           propertyId: item.propertyId,
           offersCount: item.offers?.length || 0,
-          offers: item.offers?.map((offer: any) => ({
+          offers: (item.offers as Record<string, unknown>[])?.map((offer: Record<string, unknown>) => ({
             offerId: offer.offerId,
             offerName: offer.offerName,
             price: offer.price,

@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
       propId, roomId, startDate, endDate, adults, children 
     });
 
-    const requestParams: any = {
+    const requestParams: Record<string, unknown> = {
       propId,
       roomId,
       startDate,

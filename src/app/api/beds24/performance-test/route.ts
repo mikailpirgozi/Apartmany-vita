@@ -190,7 +190,7 @@ export async function POST(request: NextRequest) {
     
     // Test batch API
     const batchResult = await beds24OptimizedService.getBatchAvailability({
-      apartments: apartments.map((apt: any) => ({
+      apartments: apartments.map((apt: Record<string, unknown>) => ({
         slug: apt.slug,
         propId: apt.propId,
         roomId: apt.roomId
@@ -206,7 +206,7 @@ export async function POST(request: NextRequest) {
 
     // Compare with individual requests
     const individualStartTime = Date.now();
-    const individualPromises = apartments.map(async (apt: any) => {
+    const individualPromises = apartments.map(async (apt: Record<string, unknown>) => {
       return beds24OptimizedService.getAvailabilityWithDeduplication({
         propId: apt.propId,
         roomId: apt.roomId,

@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
       propId, roomId, startDate, endDate, adults, children
     });
 
-    const results: Record<string, any> = {};
+    const results: Record<string, unknown> = {};
 
     // Test 1: Properties API
     try {
@@ -226,7 +226,7 @@ export async function GET(request: NextRequest) {
     }
 
     const totalTime = Date.now() - startTime;
-    const successCount = Object.values(results).filter((r: any) => r.success).length;
+    const successCount = Object.values(results).filter((r: Record<string, unknown>) => r.success).length;
     const totalTests = Object.keys(results).length;
 
     console.log(`🎯 Comprehensive test completed in ${totalTime}ms: ${successCount}/${totalTests} tests passed`);
