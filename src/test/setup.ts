@@ -59,9 +59,37 @@ if (typeof globalThis.TextEncoder === 'undefined') {
 // Mock DOM APIs for Node environment
 Object.defineProperty(globalThis, 'document', {
   value: {
-    createElement: () => ({}),
+    createElement: (tagName: string) => {
+      const element = {
+        tagName: tagName.toUpperCase(),
+        appendChild: vi.fn(),
+        removeChild: vi.fn(),
+        querySelector: vi.fn(),
+        querySelectorAll: vi.fn(() => []),
+        getElementById: vi.fn(),
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        setAttribute: vi.fn(),
+        getAttribute: vi.fn(),
+        classList: {
+          add: vi.fn(),
+          remove: vi.fn(),
+          contains: vi.fn(),
+          toggle: vi.fn(),
+        },
+        style: {},
+        textContent: '',
+        innerHTML: '',
+        innerText: '',
+      };
+      return element;
+    },
     getElementById: () => null,
     querySelector: () => null,
+    querySelectorAll: () => [],
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    createTextNode: vi.fn((text: string) => ({ textContent: text })),
   },
   writable: true,
 })
@@ -70,6 +98,12 @@ Object.defineProperty(globalThis, 'window', {
   value: {
     location: { href: 'http://localhost:3000' },
     document: globalThis.document,
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    scrollTo: vi.fn(),
+    scroll: vi.fn(),
+    innerWidth: 1024,
+    innerHeight: 768,
   },
   writable: true,
 })

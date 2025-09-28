@@ -9,11 +9,26 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 export default defineConfig({
   plugins: [react()],
   test: {
-    environment: 'node',
+    environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
     globals: true,
-    css: false,
+    css: true,
     isolate: true,
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html'],
+      exclude: [
+        'node_modules/',
+        'src/test/',
+        '**/*.d.ts',
+        '**/*.config.*',
+        '**/coverage/**',
+        '**/dist/**',
+        '**/.next/**',
+        '**/e2e/**',
+        '**/*.e2e.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
+      ],
+    },
     exclude: [
       '**/node_modules/**',
       '**/dist/**',
@@ -28,5 +43,8 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, './src'),
     },
+  },
+  define: {
+    'process.env.NODE_ENV': '"test"',
   },
 })
