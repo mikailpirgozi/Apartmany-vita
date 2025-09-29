@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { mockApartments } from '@/lib/mock-data'
+import { getApartments } from '@/services/apartments'
 
 export async function GET() {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://apartmanyvita.sk'
@@ -15,7 +15,8 @@ export async function GET() {
   ]
   
   // Dynamic apartment pages
-  const apartmentPages = mockApartments.map(apartment => `/apartments/${apartment.slug}`)
+  const apartments = await getApartments()
+  const apartmentPages = apartments.map(apartment => `/apartments/${apartment.slug}`)
   
   // Combine all pages
   const allPages = [...staticPages, ...apartmentPages]

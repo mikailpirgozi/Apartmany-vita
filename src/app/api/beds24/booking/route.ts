@@ -53,7 +53,15 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    const booking = await getBeds24Service().createBooking({
+    const beds24Service = getBeds24Service();
+    if (!beds24Service) {
+      return NextResponse.json({
+        success: false,
+        message: 'Beds24 service not available'
+      }, { status: 503 });
+    }
+    
+    const booking = await beds24Service.createBooking({
       propId: apartmentData.propId,
       roomId: apartmentData.roomId,
       checkIn,

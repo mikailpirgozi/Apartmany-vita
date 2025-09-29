@@ -35,6 +35,7 @@ export function CalendarPerformanceMonitor({
   apartmentSlug, 
   className 
 }: CalendarPerformanceMonitorProps) {
+  const [isMounted, setIsMounted] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [metrics, setMetrics] = useState<PerformanceMetrics>({
     cacheHitRate: 0,
@@ -47,7 +48,14 @@ export function CalendarPerformanceMonitor({
   
   const queryClient = useQueryClient();
 
+  // Ensure component is mounted before accessing localStorage
   useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isMounted) return;
+    
     // Calculate metrics from query cache
     const calculateMetrics = () => {
       const queries = queryClient.getQueryCache().getAll();
@@ -63,15 +71,17 @@ export function CalendarPerformanceMonitor({
 
       const cacheHitRate = totalQueries > 0 ? (cachedQueries / totalQueries) * 100 : 0;
 
-      // Get performance data from localStorage if available
-      const perfData = localStorage.getItem(`calendar-perf-${apartmentSlug}`);
+      // Get performance data from localStorage if available (client-side only)
       let storedMetrics = {};
-      
-      if (perfData) {
-        try {
-          storedMetrics = JSON.parse(perfData);
-        } catch (e) {
-          console.warn('Failed to parse performance data:', e);
+      if (typeof window !== 'undefined') {
+        const perfData = localStorage.getItem(`calendar-perf-${apartmentSlug}`);
+        
+        if (perfData) {
+          try {
+            storedMetrics = JSON.parse(perfData);
+          } catch (e) {
+            console.warn('Failed to parse performance data:', e);
+          }
         }
       }
 
@@ -90,15 +100,17 @@ export function CalendarPerformanceMonitor({
     const interval = setInterval(calculateMetrics, 5000); // Every 5 seconds
 
     return () => clearInterval(interval);
-  }, [apartmentSlug, queryClient]);
+  }, [apartmentSlug, queryClient, isMounted]);
 
   const clearCache = () => {
     queryClient.invalidateQueries({
       queryKey: ['availability', apartmentSlug]
     });
     
-    // Clear performance data
-    localStorage.removeItem(`calendar-perf-${apartmentSlug}`);
+    // Clear performance data (client-side only)
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(`calendar-perf-${apartmentSlug}`);
+    }
     
     setMetrics({
       cacheHitRate: 0,
@@ -119,6 +131,11 @@ export function CalendarPerformanceMonitor({
   };
 
   const { grade, color } = getPerformanceGrade(metrics.cacheHitRate);
+
+  // Don't render until mounted to prevent hydration mismatch
+  if (!isMounted) {
+    return null;
+  }
 
   if (!isVisible) {
     return (
@@ -243,6 +260,9 @@ export function CalendarPerformanceMonitor({
 // Hook for tracking performance metrics
 export function useCalendarPerformanceTracking(apartmentSlug: string) {
   useEffect(() => {
+    // Only run on client side
+    if (typeof window === 'undefined') return;
+    
     // Track page load performance
     const trackPageLoad = () => {
       const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;

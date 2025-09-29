@@ -23,8 +23,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PaymentForm, PaymentSuccessState } from "@/components/booking/payment-form";
-import { BookingPricing, LoyaltyTier } from "@/services/pricing";
-import { calculateLoyaltyTier, getLoyaltyTierInfo, formatLoyaltyDiscount } from "@/lib/loyalty";
+import { getLoyaltyTierInfo, formatLoyaltyDiscount } from "@/lib/loyalty";
 import type { Apartment } from "@/types";
 
 // Booking steps configuration
@@ -410,7 +409,7 @@ function BookingDetailsStep({
   const { data: session } = useSessionHydrationSafe();
 
   // Calculate comprehensive pricing with loyalty and long stay discounts
-  const { data: loyaltyPricing, isLoading: isLoyaltyLoading } = useQuery({
+  const { data: loyaltyPricing } = useQuery({
     queryKey: ['booking-pricing-details', apartment.slug, bookingData.checkIn, bookingData.checkOut, bookingData.guests, bookingData.children, session?.user?.email],
     queryFn: async () => {
       const response = await fetch('/api/pricing/calculate', {
@@ -1107,7 +1106,7 @@ function BookingSummary({
   const selectedExtrasList = EXTRA_SERVICES.filter(service => selectedExtras[service.id]);
 
   // Calculate comprehensive pricing with loyalty and long stay discounts
-  const { data: loyaltyPricing, isLoading: isLoyaltyLoading } = useQuery({
+  const { data: loyaltyPricing, isLoading } = useQuery({
     queryKey: ['booking-pricing', apartment.slug, bookingData.checkIn, bookingData.checkOut, bookingData.guests, bookingData.children, session?.user?.email],
     queryFn: async () => {
       if (!availability?.success) return null;
@@ -1157,7 +1156,7 @@ function BookingSummary({
 
         <Separator />
 
-        {isLoyaltyLoading ? (
+        {isLoading ? (
           <div className="space-y-2">
             <Skeleton className="h-4 w-full" />
             <Skeleton className="h-4 w-3/4" />

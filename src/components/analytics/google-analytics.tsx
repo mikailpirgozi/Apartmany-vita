@@ -1,7 +1,7 @@
 'use client'
 
 import { GoogleAnalytics as GA } from '@next/third-parties/google'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { trackPageView, initializeRUM } from '@/lib/monitoring'
 
@@ -10,22 +10,29 @@ interface GoogleAnalyticsProps {
 }
 
 export function GoogleAnalytics({ gaId }: GoogleAnalyticsProps) {
+  const [mounted, setMounted] = useState(false)
   const pathname = usePathname()
   const searchParams = useSearchParams()
   
   useEffect(() => {
+    setMounted(true)
     // Initialize Real User Monitoring
     initializeRUM()
   }, [])
   
   useEffect(() => {
-    if (pathname) {
+    if (mounted && pathname && typeof window !== 'undefined') {
       const url = pathname + (searchParams?.toString() ? `?${searchParams.toString()}` : '')
       trackPageView(url, document.title)
     }
-  }, [pathname, searchParams])
+  }, [mounted, pathname, searchParams])
   
   if (!gaId || process.env.NODE_ENV !== 'production') {
+    return null
+  }
+  
+  // Don't render GA component until mounted to prevent hydration mismatch
+  if (!mounted) {
     return null
   }
   

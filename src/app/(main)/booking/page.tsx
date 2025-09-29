@@ -1,7 +1,7 @@
 import { notFound, redirect } from 'next/navigation'
 import { Suspense } from 'react'
 import { format } from 'date-fns'
-import { BookingFlow } from '@/components/booking/booking-flow'
+import { BookingFlow2Step } from '@/components/booking/booking-flow-2step'
 import { getApartmentBySlug } from '@/services/apartments'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Card, CardContent } from '@/components/ui/card'
@@ -125,12 +125,14 @@ async function BookingContent({ searchParams }: BookingPageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <BookingFlow
-        apartment={apartment}
-        bookingData={bookingData}
-        availability={availability}
-      />
+    <div className="min-h-screen bg-background py-8">
+      <div className="container">
+        <BookingFlow2Step
+          apartment={apartment}
+          bookingData={bookingData}
+          availability={availability.isAvailable}
+        />
+      </div>
     </div>
   )
 }

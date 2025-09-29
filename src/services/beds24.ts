@@ -1681,7 +1681,7 @@ class Beds24Service {
             blocked: isBlocked,
             status: status || undefined,
             numAvail: numAvail || undefined,
-            price: price // FIXED: Don't use || undefined which converts 0 to undefined
+            price: price !== null ? price : undefined // FIXED: Handle null properly
           };
           
           // DEBUG: Log price setting for month end dates
@@ -1736,7 +1736,8 @@ class Beds24Service {
         let finalPrice = calendar.price;
         if (!finalPrice && calendar) {
           // Check alternative price field names in case of type issues
-          finalPrice = (calendar as any).price1 || (calendar as any).rate || (calendar as any).amount;
+          const calendarData = calendar as Record<string, unknown>;
+          finalPrice = (calendarData.price1 as number) || (calendarData.rate as number) || (calendarData.amount as number);
         }
         
         if (finalPrice && finalPrice > 0) {

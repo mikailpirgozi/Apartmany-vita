@@ -78,14 +78,14 @@ export function Header() {
         </motion.div>
 
         {/* Mobile Menu */}
-        <Sheet open={isOpen} onOpenChange={setIsOpen}>
-          <SheetTrigger asChild className="md:hidden">
-            <Button variant="ghost" size="sm">
+        <Sheet open={isOpen} onOpenChange={setIsOpen} modal>
+          <SheetTrigger asChild className="md:hidden" suppressHydrationWarning>
+            <Button variant="ghost" size="sm" suppressHydrationWarning>
               <Menu className="h-5 w-5" />
               <span className="sr-only">Toggle menu</span>
             </Button>
           </SheetTrigger>
-          <SheetContent side="right" className="w-[280px] sm:w-[320px] md:w-[360px] p-0">
+          <SheetContent side="right" className="w-[280px] sm:w-[320px] md:w-[360px] p-0" suppressHydrationWarning>
             <div className="flex flex-col h-full">
               {/* Header */}
               <div className="px-6 py-4 border-b bg-muted/30">

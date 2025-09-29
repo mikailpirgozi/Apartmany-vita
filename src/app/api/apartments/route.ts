@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server';
-import { mockApartments } from '@/lib/mock-data';
+import { getApartments } from '@/services/apartments';
 
 export async function GET() {
   try {
-    // Return mock apartments data
-    // In production, this would fetch from database
-    return NextResponse.json(mockApartments, {
+    // Fetch apartments from database with fallback to static data
+    const apartments = await getApartments();
+    
+    return NextResponse.json(apartments, {
       headers: {
         'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400'
       }

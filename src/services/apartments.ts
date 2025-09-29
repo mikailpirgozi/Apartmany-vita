@@ -100,8 +100,8 @@ export async function getApartmentBySlug(slug: string): Promise<Apartment | null
       ...apartment,
       basePrice: Number(apartment.basePrice)
     }
-  } catch (error) {
-    console.warn('Database not available, using static data for slug:', slug);
+  } catch (err) {
+    console.warn('Database not available, using static data for slug:', slug, err);
     return STATIC_APARTMENTS.find(apt => apt.slug === slug && apt.isActive) || null;
   }
 }
@@ -118,15 +118,15 @@ export async function getApartmentById(id: string): Promise<Apartment | null> {
       ...apartment,
       basePrice: Number(apartment.basePrice)
     }
-  } catch (error) {
-    console.warn('Database not available, using static data for id:', id);
+  } catch (err) {
+    console.warn('Database not available, using static data for id:', id, err);
     return STATIC_APARTMENTS.find(apt => apt.id === id && apt.isActive) || null;
   }
 }
 
 export async function searchApartments(filters: Partial<SearchFilters>): Promise<Apartment[]> {
   try {
-    const whereClause: any = { isActive: true }
+    const whereClause: Record<string, unknown> = { isActive: true }
     
     // Price range filter
     if (filters.priceRange) {
@@ -215,8 +215,8 @@ export async function getAvailableApartments(
       ...apt,
       basePrice: Number(apt.basePrice)
     }));
-  } catch (error) {
-    console.warn('Database not available, using static apartments for availability check');
+  } catch (err) {
+    console.warn('Database not available, using static apartments for availability check', err);
     apartments = STATIC_APARTMENTS.filter(apt => apt.isActive && apt.maxGuests >= guests);
   }
   

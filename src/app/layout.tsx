@@ -64,8 +64,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="sk">
-      <body className={`${inter.variable} font-sans antialiased`}>
+    <html lang="sk" suppressHydrationWarning>
+      <body className={`${inter.variable} font-sans antialiased`} suppressHydrationWarning>
         <QueryClientProvider>
           <AuthProvider>
             <div className="min-h-screen flex flex-col">

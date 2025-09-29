@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -30,6 +30,20 @@ export function ApartmentSearch({ initialValues, className }: ApartmentSearchPro
     guests: initialValues?.guests || 2,
     children: initialValues?.children || 0
   })
+
+  // Track if component is mounted (client-side only)
+  const [isMounted, setIsMounted] = useState(false)
+
+  useEffect(() => {
+    // Mark component as mounted after hydration
+    setIsMounted(true)
+  }, [])
+
+  // Calculate minDate only on client side
+  const minDate = useMemo(() => {
+    if (!isMounted) return ''
+    return new Date().toISOString().split('T')[0]
+  }, [isMounted])
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -85,8 +99,9 @@ export function ApartmentSearch({ initialValues, className }: ApartmentSearchPro
                   ...prev, 
                   checkIn: e.target.value ? new Date(e.target.value) : null 
                 }))}
-                min={new Date().toISOString().split('T')[0]}
+                min={minDate}
                 className="pl-10"
+                suppressHydrationWarning
               />
               <Calendar className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
             </div>
@@ -108,9 +123,10 @@ export function ApartmentSearch({ initialValues, className }: ApartmentSearchPro
                 }))}
                 min={searchParams.checkIn ? 
                   new Date(searchParams.checkIn.getTime() + 86400000).toISOString().split('T')[0] : 
-                  new Date().toISOString().split('T')[0]
+                  minDate
                 }
                 className="pl-10"
+                suppressHydrationWarning
               />
               <Calendar className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
             </div>

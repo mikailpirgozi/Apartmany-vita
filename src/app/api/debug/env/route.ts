@@ -1,10 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
 /**
  * Debug endpoint to check environment variables on production
  * Shows which BEDS24 variables are available (without exposing values)
  */
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     console.log('🔍 Checking environment variables on production...');
     

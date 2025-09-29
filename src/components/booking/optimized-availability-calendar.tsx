@@ -23,7 +23,6 @@ import {
   Info, 
   CheckCircle, 
   XCircle,
-  Euro,
   Clock
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -208,10 +207,9 @@ export function OptimizedAvailabilityCalendar({
   selectedRange,
   onRangeSelect,
   guests = 2,
-  childrenCount = 0,
   className
 }: OptimizedAvailabilityCalendarProps) {
-  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [currentMonth, setCurrentMonth] = useState(() => new Date());
   const [selectingRange, setSelectingRange] = useState<Date | null>(null);
   const [hoveredDate, setHoveredDate] = useState<Date | null>(null);
   const [isRangeSelectionMode, setIsRangeSelectionMode] = useState(false);
@@ -347,6 +345,8 @@ export function OptimizedAvailabilityCalendar({
   };
 
   // Get combined availability data for cross-month selection
+  // Future: can be used for detailed pricing across multiple months
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const getCombinedAvailabilityData = (from: Date, to: Date): AvailabilityData | null => {
     if (!availability) return null;
     
@@ -391,10 +391,11 @@ export function OptimizedAvailabilityCalendar({
     return combinedData;
   };
 
-  // Calculate pricing info for selected range
-  const pricingInfo = selectedRange?.from && selectedRange?.to && availability 
-    ? calculatePricingInfo(selectedRange.from, selectedRange.to, getCombinedAvailabilityData(selectedRange.from, selectedRange.to) || availability as AvailabilityData, guests, childrenCount)
-    : null;
+  // Calculate pricing info for selected range - currently not used in UI
+  // Future: can display detailed pricing breakdown
+  // const pricingInfo = selectedRange?.from && selectedRange?.to && availability 
+  //   ? calculatePricingInfo(selectedRange.from, selectedRange.to, getCombinedAvailabilityData(selectedRange.from, selectedRange.to) || availability as AvailabilityData, guests, childrenCount)
+  //   : null;
 
 
   if (error) {
@@ -899,6 +900,8 @@ function isValidCrossMonthRange(
   return true;
 }
 
+// Helper function for future pricing breakdown feature
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function calculatePricingInfo(
   from: Date,
   to: Date,
@@ -973,7 +976,6 @@ function calculatePricingInfo(
   }
   
   const discount = Math.round(adjustedBaseTotal * totalDiscount);
-  const finalTotal = Math.round(adjustedBaseTotal - discount);
   
   // Update discount reason with final percentage
   if (totalDiscount > 0) {

@@ -140,8 +140,9 @@ export function Footer() {
         <motion.div 
           className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0"
           variants={staggerItem}
+          suppressHydrationWarning
         >
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground" suppressHydrationWarning>
             © {new Date().getFullYear()} {APP_NAME}. Všetky práva vyhradené.
           </p>
           <p className="text-sm text-muted-foreground flex items-center gap-1">

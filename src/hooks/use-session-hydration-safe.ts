@@ -15,7 +15,7 @@ export function useSessionHydrationSafe() {
     setIsHydrated(true)
   }, [])
 
-  // During hydration, always return loading state to prevent mismatch
+  // During hydration, always return consistent state to prevent mismatch
   if (!isHydrated) {
     return {
       data: null,

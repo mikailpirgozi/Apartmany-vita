@@ -25,7 +25,14 @@ export async function GET(request: NextRequest) {
     }
 
     // Získaj konfigurácie z Beds24 Properties API
-    const configurations = await getBeds24Service().getApartmentConfigurations();
+    const beds24Service = getBeds24Service();
+    if (!beds24Service) {
+      return NextResponse.json({
+        success: false,
+        error: 'Beds24 service not available'
+      }, { status: 503 });
+    }
+    const configurations = await beds24Service.getApartmentConfigurations();
     
     if (apartment) {
       // Vráť konfiguráciu pre konkrétny apartmán

@@ -59,7 +59,7 @@ export interface BookingRequest {
 
 class PricingService {
   private readonly CLEANING_FEE = 25; // €25 cleaning fee
-  private readonly CITY_TAX_PER_PERSON = 1.5; // €1.50 per person per night
+  private readonly CITY_TAX_PER_PERSON = 2.0; // €2.00 per person per night
   // REMOVED: WEEKEND_MULTIPLIER - Beds24 handles all pricing
   
   /**
@@ -114,18 +114,17 @@ class PricingService {
     const stayDiscount = stayDiscountInfo?.discountAmount || 0;
     const stayDiscountPercent = stayDiscountInfo?.discountPercent || 0;
     
-    // Calculate additional fees
-    const cleaningFee = this.CLEANING_FEE;
-    const cityTax = this.calculateCityTax(guests + children, nights);
+    // Calculate additional fees (INFORMATIONAL ONLY - not included in payment)
+    const cleaningFee = 0; // Included in base price
+    const cityTax = this.calculateCityTax(guests + children, nights); // Paid in cash on-site
     
     // NO SEASONAL ADJUSTMENTS - Beds24 handles all pricing including seasonal rates
     
+    // Total for card payment (NO cleaning fee, NO city tax)
     const total = subtotal 
       - (loyaltyData?.discountAmount || 0)
       - longStayData.discountAmount
-      - stayDiscount // New stay-based discount
-      + cleaningFee 
-      + cityTax;
+      - stayDiscount; // New stay-based discount
     
     return {
       basePrice: Number(apartment.basePrice),
@@ -190,6 +189,10 @@ class PricingService {
       
       // FIXED: Use Calendar API which actually returns prices from Beds24
       const beds24Service = getBeds24Service();
+      if (!beds24Service) {
+        console.warn('⚠️ Beds24 service not available');
+        return {};
+      }
       const calendarData = await beds24Service.getInventoryCalendar({
         propId: apartmentConfig.propId,
         roomId: apartmentConfig.roomId,

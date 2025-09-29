@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getBeds24Service } from '@/services/beds24';
-import { getBeds24LongLifeService } from '@/services/beds24-longlife';
 import { availabilityCache, CACHE_TTL } from '@/lib/cache';
 import { analytics } from '@/lib/analytics';
 

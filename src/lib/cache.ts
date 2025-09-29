@@ -74,12 +74,15 @@ class AvailabilityCache {
       });
 
       this.redis.on('error', (error) => {
-        console.error('❌ Redis connection error:', error.message);
+        // Silent Redis errors in development - fallback to memory cache
+        if (process.env.NODE_ENV === 'production') {
+          console.error('❌ Redis connection error:', error.message);
+        }
         this.handleRedisError();
       });
 
       this.redis.on('close', () => {
-        console.warn('⚠️ Redis connection closed');
+        // Silent close messages - fallback to memory cache
         this.redis = null;
       });
 
@@ -103,13 +106,19 @@ class AvailabilityCache {
 
     if (this.connectionAttempts < this.maxConnectionAttempts) {
       const delay = Math.min(1000 * Math.pow(2, this.connectionAttempts), 30000);
-      console.log(`🔄 Retrying Redis connection in ${delay}ms (attempt ${this.connectionAttempts})`);
+      // Silent retry messages - only log in production
+      if (process.env.NODE_ENV === 'production') {
+        console.log(`🔄 Retrying Redis connection in ${delay}ms (attempt ${this.connectionAttempts})`);
+      }
       
       setTimeout(() => {
         this.initializeRedis();
       }, delay);
     } else {
-      console.warn('⚠️ Max Redis connection attempts reached. Using memory cache fallback.');
+      // Only warn once in development
+      if (this.connectionAttempts === this.maxConnectionAttempts && process.env.NODE_ENV !== 'production') {
+        console.info('ℹ️ Redis unavailable - using memory cache');
+      }
     }
   }
 

@@ -73,7 +73,11 @@ export async function getGoogleReviews(): Promise<GoogleReviewsResponse> {
 }
 
 // Mock reviews for development/fallback
+// Using static timestamps to prevent hydration mismatch
 function getMockReviews(): GoogleReviewsResponse {
+  // Base timestamp: Sept 1, 2025 (consistent for SSR/client)
+  const baseTime = new Date('2025-09-01T00:00:00Z').getTime()
+  
   return {
     reviews: [
       {
@@ -82,7 +86,7 @@ function getMockReviews(): GoogleReviewsResponse {
         rating: 5,
         relative_time_description: '2 týždne dozadu',
         text: 'Úžasný apartmán v centre Trenčína! Krásne zariadený, čistý a s perfektnou polohou. Určite sa vrátime.',
-        time: Date.now() - 14 * 24 * 60 * 60 * 1000,
+        time: baseTime - 14 * 24 * 60 * 60 * 1000,
         language: 'sk'
       },
       {
@@ -91,7 +95,7 @@ function getMockReviews(): GoogleReviewsResponse {
         rating: 5,
         relative_time_description: '1 mesiac dozadu',
         text: 'Výborné ubytovanie, moderné vybavenie a skvelá komunikácia s majiteľmi. Odporúčam!',
-        time: Date.now() - 30 * 24 * 60 * 60 * 1000,
+        time: baseTime - 30 * 24 * 60 * 60 * 1000,
         language: 'sk'
       },
       {
@@ -100,7 +104,7 @@ function getMockReviews(): GoogleReviewsResponse {
         rating: 5,
         relative_time_description: '2 mesiace dozadu',
         text: 'Perfektná poloha na námestí, krásny výhľad a všetko potrebné na dosah. Apartmán je presne ako na fotkách.',
-        time: Date.now() - 60 * 24 * 60 * 60 * 1000,
+        time: baseTime - 60 * 24 * 60 * 60 * 1000,
         language: 'sk'
       },
       {
@@ -109,7 +113,7 @@ function getMockReviews(): GoogleReviewsResponse {
         rating: 4,
         relative_time_description: '3 mesiace dozadu',
         text: 'Veľmi pekný apartmán, čistý a dobre vybavený. Jediné mínus je trochu hlučnejšie námestie, ale to sa dalo čakať.',
-        time: Date.now() - 90 * 24 * 60 * 60 * 1000,
+        time: baseTime - 90 * 24 * 60 * 60 * 1000,
         language: 'sk'
       },
       {
@@ -118,7 +122,7 @@ function getMockReviews(): GoogleReviewsResponse {
         rating: 5,
         relative_time_description: '4 mesiace dozadu',
         text: 'Fantastické ubytovanie! Apartmán je priestranný, moderne zariadený a má všetko potrebné. Majitelia sú veľmi milí a ochotní.',
-        time: Date.now() - 120 * 24 * 60 * 60 * 1000,
+        time: baseTime - 120 * 24 * 60 * 60 * 1000,
         language: 'sk'
       }
     ],
