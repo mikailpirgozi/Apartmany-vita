@@ -3,9 +3,9 @@
  * Provides offline-first calendar experience with intelligent caching
  */
 
-const CACHE_NAME = 'apartmany-vita-calendar-v1';
-const STATIC_CACHE_NAME = 'apartmany-vita-static-v1';
-const API_CACHE_NAME = 'apartmany-vita-api-v1';
+const CACHE_NAME = 'apartmany-vita-calendar-v2'; // UPDATED: v2 to invalidate old cache
+const STATIC_CACHE_NAME = 'apartmany-vita-static-v2'; // UPDATED: v2 to invalidate old cache
+const API_CACHE_NAME = 'apartmany-vita-api-v2'; // UPDATED: v2 to invalidate old cache
 
 // Cache strategies configuration
 const CACHE_STRATEGIES = {
@@ -13,7 +13,7 @@ const CACHE_STRATEGIES = {
   static: [
     '/',
     '/apartments',
-    '/booking',
+    // REMOVED: '/booking' - dynamic page with server-side pricing, should NOT be cached
     '/_next/static/',
     '/favicon.ico'
   ],
