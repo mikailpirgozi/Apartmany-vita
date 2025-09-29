@@ -83,16 +83,15 @@ export function Header() {
           <UserMenu />
         </motion.div>
 
-        {/* Mobile Menu - Always render structure, only functionality after mount */}
-        <div className="md:hidden">
-          {isMounted ? (
-            <Sheet open={isOpen} onOpenChange={setIsOpen} modal>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="sm">
-                  <Menu className="h-5 w-5" />
-                  <span className="sr-only">Toggle menu</span>
-                </Button>
-              </SheetTrigger>
+        {/* Mobile Menu - Client-only to prevent hydration mismatch */}
+        {isMounted ? (
+          <Sheet open={isOpen} onOpenChange={setIsOpen} modal>
+            <SheetTrigger asChild className="md:hidden">
+              <Button variant="ghost" size="sm">
+                <Menu className="h-5 w-5" />
+                <span className="sr-only">Toggle menu</span>
+              </Button>
+            </SheetTrigger>
           <SheetContent side="right" className="w-[280px] sm:w-[320px] md:w-[360px] p-0" suppressHydrationWarning>
             <div className="flex flex-col h-full">
               {/* Header */}
@@ -197,13 +196,7 @@ export function Header() {
             </div>
           </SheetContent>
         </Sheet>
-          ) : (
-            <Button variant="ghost" size="sm">
-              <Menu className="h-5 w-5" />
-              <span className="sr-only">Toggle menu</span>
-            </Button>
-          )}
-        </div>
+        ) : null}
       </div>
     </motion.header>
   )
