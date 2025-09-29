@@ -18,10 +18,10 @@ interface MobileMenuProps {
  */
 export function MobileMenu({ navigation }: MobileMenuProps) {
   const [isOpen, setIsOpen] = useState(false)
-  const { data: session, status, isHydrated } = useSessionHydrationSafe()
+  const { data: session, status } = useSessionHydrationSafe()
 
-  // NOTE: Component is loaded with dynamic import (ssr: false)
-  // So it only runs on client - no need for isHydrated check
+  // NOTE: Loaded via dynamic import with ssr: false
+  // Component only runs on client, session will be available
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen} modal>
@@ -61,11 +61,7 @@ export function MobileMenu({ navigation }: MobileMenuProps) {
               
               {/* Auth Section */}
               <div className="pt-4 mt-4 border-t border-muted">
-                {!isHydrated || status === 'loading' ? (
-                  <div className="flex items-center justify-center py-3">
-                    <div className="w-6 h-6 border-2 border-brand-accent border-t-transparent rounded-full animate-spin"></div>
-                  </div>
-                ) : session ? (
+                {session ? (
                   <div className="space-y-2">
                     <div className="flex items-center space-x-3 py-2 px-4 rounded-lg bg-muted/50">
                       <div className="w-8 h-8 rounded-full bg-brand-accent flex items-center justify-center">

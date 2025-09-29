@@ -17,17 +17,11 @@ import { User, Settings, Calendar, LogOut, Star } from 'lucide-react'
 import { useSessionHydrationSafe } from '@/hooks/use-session-hydration-safe'
 
 function UserMenuContent() {
-  const { data: session, status, isHydrated } = useSessionHydrationSafe()
+  const { data: session, status } = useSessionHydrationSafe()
 
-    // NOTE: Loading state is handled by dynamic import's Suspense boundary
-  // Don't return skeleton here to prevent hydration mismatch
+  // NOTE: Dynamic import handles loading state via Suspense
+  // Component should render immediately without internal loading checks
   
-  if (status === 'loading') {
-    return (
-      <div className="w-8 h-8 rounded-full bg-muted animate-pulse" />
-    )
-  }
-
   if (!session) {
     return (
       <div className="flex items-center space-x-2">
