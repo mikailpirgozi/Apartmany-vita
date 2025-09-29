@@ -174,9 +174,9 @@ export function BookingFlow2Step({ apartment, bookingData, availability }: Booki
     }
   }, [session, contactForm, isHydrated]);
 
-  // Calculate pricing with selected extras - only after hydration
+  // Calculate pricing with selected extras - always enabled
   const userId = session?.user ? (session.user as { id?: string }).id : undefined;
-  const { data: pricing } = useQuery<BookingPricing>({
+  const { data: pricing, isLoading: pricingLoading, error: pricingError } = useQuery<BookingPricing>({
     queryKey: ['pricing', apartment.id, bookingData, userId, selectedExtras],
     queryFn: async () => {
       const response = await fetch('/api/pricing/calculate', {
@@ -192,10 +192,15 @@ export function BookingFlow2Step({ apartment, bookingData, availability }: Booki
         })
       });
       
-      if (!response.ok) throw new Error('Pricing calculation failed');
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Pricing API error:', errorText);
+        throw new Error('Pricing calculation failed');
+      }
       return response.json();
     },
-    enabled: isHydrated // Only run query after hydration
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: 3
   });
 
   // Calculate extras total
@@ -207,11 +212,6 @@ export function BookingFlow2Step({ apartment, bookingData, availability }: Booki
   const totalPrice = pricing 
     ? (pricing.subtotal - pricing.stayDiscount - pricing.loyaltyDiscount + extrasTotal)
     : 0;
-
-  // Show loading state during hydration
-  if (!isHydrated) {
-    return <BookingFlowSkeleton />;
-  }
 
   const handleNextStep = () => {
     if (currentStep === 'details') {
@@ -227,6 +227,9 @@ export function BookingFlow2Step({ apartment, bookingData, availability }: Booki
 
   const currentStepIndex = BOOKING_STEPS.findIndex(step => step.id === currentStep);
   const progress = ((currentStepIndex + 1) / BOOKING_STEPS.length) * 100;
+
+  // Show error alert if pricing fails
+  const showPricingError = pricingError && !pricingLoading;
 
   if (paymentState?.success) {
     return (
@@ -312,12 +315,25 @@ export function BookingFlow2Step({ apartment, bookingData, availability }: Booki
                   </div>
 
                   {/* Pricing Breakdown */}
-                  {pricing && (
-                    <div className="bg-gray-50 p-4 rounded-lg">
-                      <h4 className="font-medium mb-3 flex items-center gap-2">
-                        <Euro className="w-4 h-4" />
-                        Prehľad ceny
-                      </h4>
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <h4 className="font-medium mb-3 flex items-center gap-2">
+                      <Euro className="w-4 h-4" />
+                      Prehľad ceny
+                    </h4>
+                    
+                    {pricingLoading ? (
+                      <div className="space-y-2">
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-3/4" />
+                        <Skeleton className="h-4 w-5/6" />
+                      </div>
+                    ) : showPricingError ? (
+                      <Alert variant="destructive">
+                        <AlertDescription>
+                          Chyba pri načítaní ceny. Skúste obnoviť stránku.
+                        </AlertDescription>
+                      </Alert>
+                    ) : pricing ? (
                       <div className="space-y-2 text-sm">
                         <div className="flex justify-between">
                           <span>{pricing.nights} nocí × {(pricing.baseSubtotal / pricing.nights).toFixed(2)}€</span>
@@ -390,8 +406,8 @@ export function BookingFlow2Step({ apartment, bookingData, availability }: Booki
                           </div>
                         </div>
                       </div>
-                    </div>
-                  )}
+                    ) : null}
+                  </div>
                 </CardContent>
               </Card>
             </div>
