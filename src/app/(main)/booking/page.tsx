@@ -65,8 +65,9 @@ async function BookingContent({ searchParams }: BookingPageProps) {
   }
 
   // Calculate comprehensive pricing using pricing service (server-side)
-  let availability
-  let pricingData
+  let availability;
+  let pricingData;
+  
   try {
     const checkInStr = format(checkInDate, 'yyyy-MM-dd');
     const checkOutStr = format(checkOutDate, 'yyyy-MM-dd');
@@ -102,6 +103,11 @@ async function BookingContent({ searchParams }: BookingPageProps) {
   } catch (error) {
     console.error('❌ Failed to calculate pricing:', error)
     redirect(`/apartments/${apartmentSlug}?error=pricing`)
+  }
+
+  // TypeScript safety: This should never happen because redirect() would have been called in catch
+  if (!pricingData || !availability) {
+    redirect(`/apartments/${apartmentSlug}?error=pricing`);
   }
 
   return (
