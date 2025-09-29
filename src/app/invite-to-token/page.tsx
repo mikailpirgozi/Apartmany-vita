@@ -27,6 +27,10 @@ export default function InviteToTokenPage() {
   const [error, setError] = useState<string | null>(null);
 
   const convertToToken = async () => {
+    console.log('🔥 Convert button clicked, invite code:', inviteCode);
+    console.log('🔥 Invite code length:', inviteCode.length);
+    console.log('🔥 Invite code trimmed:', inviteCode.trim());
+    
     if (!inviteCode.trim()) {
       setError('Please enter an invite code');
       return;
@@ -92,11 +96,16 @@ export default function InviteToTokenPage() {
           {/* Convert Button */}
           <Button 
             onClick={convertToToken} 
-            disabled={loading || !inviteCode.trim()}
+            disabled={loading}
             className="w-full"
           >
             {loading ? 'Converting...' : 'Convert to Token'}
           </Button>
+          
+          {/* Debug info */}
+          <div className="text-xs text-muted-foreground">
+            Debug: Code length: {inviteCode.length}, Trimmed: {inviteCode.trim().length > 0 ? 'Valid' : 'Empty'}
+          </div>
 
           {/* Error Display */}
           {error && (

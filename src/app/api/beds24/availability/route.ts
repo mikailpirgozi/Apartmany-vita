@@ -208,8 +208,21 @@ export async function GET(request: NextRequest) {
     const endDate = new Date(checkOut);
     const requestedDates: string[] = [];
     
-    for (let d = new Date(startDate); d < endDate; d.setDate(d.getDate() + 1)) {
-      requestedDates.push(d.toISOString().split('T')[0]);
+    // For calendar display: include end date if it's end of month (calendar view)
+    // For booking: exclude checkout date (booking logic)
+    const isEndOfMonth = endDate.getDate() === new Date(endDate.getFullYear(), endDate.getMonth() + 1, 0).getDate();
+    const includeEndDate = isEndOfMonth;
+    
+    if (includeEndDate) {
+      // Calendar view - include all days including end of month
+      for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+        requestedDates.push(d.toISOString().split('T')[0]);
+      }
+    } else {
+      // Booking view - exclude checkout date
+      for (let d = new Date(startDate); d < endDate; d.setDate(d.getDate() + 1)) {
+        requestedDates.push(d.toISOString().split('T')[0]);
+      }
     }
 
     const isAvailable = requestedDates.every(date => 

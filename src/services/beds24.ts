@@ -1683,6 +1683,17 @@ class Beds24Service {
             numAvail: numAvail || undefined,
             price: price || undefined
           };
+          
+          // DEBUG: Log price setting for December 31
+          if (date === '2025-12-31') {
+            console.log(`🎯 SETTING PRICE FOR DEC 31: ${price}€`, {
+              date,
+              available: isAvailable,
+              blocked: isBlocked,
+              price,
+              rawItem: itemObj
+            });
+          }
         });
         
         if (index < 5) { // Log first few items for debugging
@@ -1724,18 +1735,18 @@ class Beds24Service {
         // Add price if available
         if (calendar.price) {
           prices[dateStr] = calendar.price;
+          
+          // DEBUG: Log final price setting for December 31
+          if (dateStr === '2025-12-31') {
+            console.log(`🎯 FINAL PRICE SET FOR DEC 31: €${calendar.price}`);
+          }
+        } else if (dateStr === '2025-12-31') {
+          console.log(`❌ NO PRICE FOR DEC 31 in calendar data:`, calendar);
         }
       } else {
-        // No calendar data for this date
-        if (calendarData.length > 0) {
-          // We have some calendar data, but not for this date - assume available
-          available.push(dateStr);
-          console.log(`✅ ${dateStr}: Available (no calendar data - default available)`);
-        } else {
-          // No calendar data at all - API returned empty, don't assume availability
-          // This prevents showing dates as available when API has no data
-          console.log(`❓ ${dateStr}: No API data - skipping`);
-        }
+        // No calendar data for this date - DO NOT ASSUME AVAILABILITY WITHOUT PRICE
+        console.log(`❓ ${dateStr}: No calendar data - not showing as available without price data`);
+        // Skip dates without explicit calendar data to avoid showing €0 prices
       }
     });
 
