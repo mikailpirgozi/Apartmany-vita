@@ -75,15 +75,9 @@ async function BookingContent({ searchParams }: BookingPageProps) {
     const beds24Service = getBeds24Service();
     
     if (!beds24Service) {
-      // If Beds24 service is not available, create mock availability
-      const { getMockAvailability } = await import('@/lib/mock-data');
-      availability = {
-        success: true,
-        isAvailable: true,
-        totalPrice: Number(apartment.basePrice) * Math.ceil((checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24)),
-        pricePerNight: Number(apartment.basePrice),
-        nights: Math.ceil((checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24))
-      };
+      // No fallback - Beds24 service is required for real availability data
+      console.error('❌ Beds24Service not available - cannot get real availability data');
+      redirect(`/apartments/${apartmentSlug}?error=beds24-unavailable`);
     } else {
       // Use Beds24 API
       const apartmentMapping: Record<string, { propId: string; roomId: string }> = {
@@ -105,14 +99,20 @@ async function BookingContent({ searchParams }: BookingPageProps) {
         endDate: checkOutStr
       });
       
-      // Convert to expected format
+      // Convert to expected format with internal pricing
       const beds24Availability = availability;
+      const nights = Math.ceil((checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24));
+      
+      // Use internal pricing instead of Beds24 prices
+      const internalPricePerNight = Number(apartment.basePrice);
+      const totalPrice = internalPricePerNight * nights;
+      
       availability = {
         success: true,
-        isAvailable: true,
-        totalPrice: beds24Availability.prices[checkInStr] || Number(apartment.basePrice),
-        pricePerNight: beds24Availability.prices[checkInStr] || Number(apartment.basePrice),
-        nights: Math.ceil((checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24))
+        isAvailable: beds24Availability.available.length > 0, // Check if dates are available
+        totalPrice,
+        pricePerNight: internalPricePerNight,
+        nights
       };
     }
     

@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getBeds24Service } from '@/services/beds24';
 import { availabilityCache, CACHE_TTL } from '@/lib/cache';
 import { analytics } from '@/lib/analytics';
-import { getMockAvailability } from '@/lib/mock-data';
 
 /**
  * API endpoint pre získanie dostupnosti apartmánov
@@ -67,7 +66,7 @@ export async function GET(request: NextRequest) {
       maxStay?: number;
     } | null = null;
     let cacheHit = false;
-    let source: 'redis' | 'memory' | 'api' | 'mock' | 'mock-fallback' = 'api';
+    let source: 'redis' | 'memory' | 'api' = 'api';
 
     // Try cache first
     try {
@@ -104,33 +103,30 @@ export async function GET(request: NextRequest) {
         // Check if BEDS24 environment variables are available
         const hasBeds24Config = process.env.BEDS24_ACCESS_TOKEN && process.env.BEDS24_REFRESH_TOKEN;
         if (!hasBeds24Config) {
-          console.warn('⚠️ BEDS24 environment variables not available, returning empty availability');
+          console.error('❌ BEDS24 environment variables not available - cannot get real availability data');
           return NextResponse.json({
             success: false,
-            error: 'BEDS24 service not configured',
-            available: [],
-            booked: [],
-            prices: {},
-            minStay: 1,
-            maxStay: 365
-          });
+            error: 'BEDS24 service not configured - real availability data required'
+          }, { status: 503 });
         }
         
         // Use Calendar API directly for calendar display (has prices and blocked dates)
         const beds24Service = getBeds24Service();
         if (!beds24Service) {
-          console.warn('⚠️ Beds24Service not available, using mock data');
-          // Use mock data when Beds24 API is not available
-          availability = getMockAvailability(apartment, checkIn, checkOut, parseInt(guests));
-          source = 'mock';
-        } else {
-          availability = await beds24Service.getInventoryCalendar({
-            propId: apartmentConfig.propId,
-            roomId: apartmentConfig.roomId,
-            startDate: checkIn,
-            endDate: checkOut
-          });
+          console.error('❌ Beds24Service not available - cannot get real availability data');
+          return NextResponse.json({
+            success: false,
+            error: 'BEDS24 service not available - real availability data required'
+          }, { status: 503 });
         }
+
+        // Get real availability data from Beds24 API
+        availability = await beds24Service.getInventoryCalendar({
+          propId: apartmentConfig.propId,
+          roomId: apartmentConfig.roomId,
+          startDate: checkIn,
+          endDate: checkOut
+        });
 
         // Store in cache for future requests
         if (availability) {
@@ -176,10 +172,21 @@ export async function GET(request: NextRequest) {
         }
 
         if (!availability) {
-          // Use mock data as fallback when API fails
-          console.warn('⚠️ API failed, using mock data as fallback');
-          availability = getMockAvailability(apartment, checkIn, checkOut, parseInt(guests));
-          source = 'mock-fallback';
+          // No fallback - API must work for real availability data
+          const errorMessage = apiError instanceof Error ? apiError.message : 'Unknown error';
+          console.error('❌ Beds24 API failed and no fallback allowed:', errorMessage);
+          
+          return NextResponse.json({
+            success: false,
+            error: `Failed to fetch real availability data: ${errorMessage}`,
+            details: {
+              apartment,
+              checkIn,
+              checkOut,
+              timestamp: new Date().toISOString(),
+              hasBeds24Config: !!(process.env.BEDS24_ACCESS_TOKEN && process.env.BEDS24_REFRESH_TOKEN)
+            }
+          }, { status: 503 });
         }
       }
     }
@@ -205,8 +212,8 @@ export async function GET(request: NextRequest) {
       availability!.available.includes(date)
     );
 
-    // ✅ SKUTOČNÉ CENY Z BEDS24 OFFERS API!
-    // Availability už obsahuje správne ceny pre daný počet hostí z offers API
+    // ✅ INTERNÉ CENOVÉ DÁTA (nie z Beds24 API)
+    // Používame naše vlastné ceny s našimi zľavami a pravidlami
     const guestCount = parseInt(guests);
     const childrenCount = parseInt(children);
     
@@ -215,10 +222,16 @@ export async function GET(request: NextRequest) {
       availability!.available.includes(date)
     );
     
-    // Základná cena z Beds24 (pre 2 ľudí)
-    const basePrice = availableDates.reduce((sum, date) => 
-      sum + (availability!.prices[date] || 0), 0
-    );
+    // Interné cenové mapovanie apartmánov
+    const apartmentPricing: Record<string, number> = {
+      'design-apartman': 105,
+      'lite-apartman': 75,
+      'deluxe-apartman': 100,
+      'maly-apartman': 45
+    };
+    
+    const basePricePerNight = apartmentPricing[apartment] || 75;
+    const basePrice = basePricePerNight * availableDates.length;
     
     // Dodatočné poplatky za hostí nad základ 2 ľudí (ZA KAŽDÚ NOC!)
     const additionalAdults = Math.max(0, guestCount - 2);
@@ -241,7 +254,10 @@ export async function GET(request: NextRequest) {
       // Calendar format - required by SimpleAvailabilityCalendar
       available: availability!.available || [],
       booked: availability!.booked || [],
-      prices: availability!.prices || {},
+      prices: availableDates.reduce((acc: Record<string, number>, date: string) => {
+        acc[date] = basePricePerNight; // Use internal pricing
+        return acc;
+      }, {} as Record<string, number>),
       minStay: availability!.minStay || 1,
       maxStay: availability!.maxStay || 30,
       // Legacy format for backward compatibility
@@ -249,21 +265,22 @@ export async function GET(request: NextRequest) {
         requestedDates.includes(date)
       ),
       dailyPrices: requestedDates.reduce((acc: Record<string, number>, date: string) => {
-        acc[date] = availability!.prices[date] || 0;
+        acc[date] = basePricePerNight; // Use internal pricing
         return acc;
       }, {} as Record<string, number>),
-      // Debug info pre ceny z Beds24 offers API
+      // Debug info pre interné cenové dáta
       pricingInfo: {
         guestCount,
         childrenCount,
-        source: source === 'mock' || source === 'mock-fallback' ? 'mock-data' : 'beds24-api',
+        source: 'internal-pricing',
         totalDays: availableDates.length,
         averagePricePerNight: Math.round(totalPrice / (availableDates.length || 1)),
         basePrice,
         additionalGuestFee,
         additionalGuestFeePerNight,
         additionalAdults,
-        additionalChildren
+        additionalChildren,
+        basePricePerNight
       },
       // 🚀 PHASE 3: Enhanced performance metrics with cache info
       performance: {
@@ -282,7 +299,7 @@ export async function GET(request: NextRequest) {
       apartment,
       Date.now() - startTime,
       cacheHit,
-      source === 'mock' || source === 'mock-fallback' ? 'api' : source,
+      source,
       { checkIn, checkOut, guests: parseInt(guests) }
     );
 
