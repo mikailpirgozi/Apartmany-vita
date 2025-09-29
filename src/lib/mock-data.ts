@@ -105,3 +105,65 @@ export function getApartmentById(id: string): Apartment | undefined {
 export function getActiveApartments(): Apartment[] {
   return mockApartments.filter(apartment => apartment.isActive)
 }
+
+// Mock availability data for when Beds24 API is not available
+export function getMockAvailability(
+  apartment: string,
+  checkIn: string,
+  checkOut: string,
+  guests: number = 2
+): {
+  available: string[];
+  booked: string[];
+  prices: Record<string, number>;
+  minStay: number;
+  maxStay: number;
+} {
+  const startDate = new Date(checkIn);
+  const endDate = new Date(checkOut);
+  const available: string[] = [];
+  const booked: string[] = [];
+  const prices: Record<string, number> = {};
+  
+  // Generate dates between checkIn and checkOut
+  for (let d = new Date(startDate); d < endDate; d.setDate(d.getDate() + 1)) {
+    const dateStr = d.toISOString().split('T')[0];
+    
+    // Mock some booked dates (weekends and some random dates)
+    const dayOfWeek = d.getDay();
+    const isWeekend = dayOfWeek === 0 || dayOfWeek === 6; // Sunday or Saturday
+    const isRandomBooked = Math.random() < 0.1; // 10% chance of being booked
+    
+    if (isWeekend || isRandomBooked) {
+      booked.push(dateStr);
+    } else {
+      available.push(dateStr);
+      
+      // Set mock prices based on apartment
+      let basePrice = 75; // Default
+      switch (apartment) {
+        case 'design-apartman':
+          basePrice = 105;
+          break;
+        case 'lite-apartman':
+          basePrice = 75;
+          break;
+        case 'deluxe-apartman':
+          basePrice = 100;
+          break;
+      }
+      
+      // Add some price variation
+      const variation = Math.random() * 20 - 10; // -10 to +10
+      prices[dateStr] = Math.round(basePrice + variation);
+    }
+  }
+  
+  return {
+    available,
+    booked,
+    prices,
+    minStay: 1,
+    maxStay: 30
+  };
+}

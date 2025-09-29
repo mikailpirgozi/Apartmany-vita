@@ -175,17 +175,15 @@ class Beds24Service {
     try {
       console.log('Refreshing Beds24 access token...');
       
-      // Use POST method with refreshToken in body (correct Beds24 API format)
+      // RESTORED: Use GET method with refreshToken in header (original working version)
       const response = await fetch(`${this.config.baseUrl}/authentication/token`, {
-        method: 'POST',
+        method: 'GET',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
+          'refreshToken': this.config.refreshToken,
           'User-Agent': 'ApartmanyVita/1.0'
-        },
-        body: JSON.stringify({
-          refreshToken: this.config.refreshToken
-        })
+        }
       });
 
       if (!response.ok) {
@@ -2300,11 +2298,16 @@ class Beds24Service {
 // Singleton instance with lazy initialization
 let _beds24Service: Beds24Service | null = null;
 
-export function getBeds24Service(): Beds24Service {
-  if (!_beds24Service) {
-    _beds24Service = new Beds24Service();
+export function getBeds24Service(): Beds24Service | null {
+  try {
+    if (!_beds24Service) {
+      _beds24Service = new Beds24Service();
+    }
+    return _beds24Service;
+  } catch (error) {
+    console.error('Failed to initialize Beds24Service:', error);
+    return null;
   }
-  return _beds24Service;
 }
 
 // For backward compatibility
@@ -2341,7 +2344,12 @@ export async function getApartmentAvailability(
     throw new Error(`No Beds24 mapping found for apartment: ${apartmentSlug}`);
   }
 
-  return beds24Service.get().getInventory({
+  const service = beds24Service.get();
+  if (!service) {
+    throw new Error('Beds24Service not available');
+  }
+  
+  return service.getInventory({
     propId: apartment.propId,
     roomId: apartment.roomId,
     startDate: startDate.toISOString().split('T')[0],
@@ -2377,7 +2385,12 @@ export async function createApartmentBooking(
     throw new Error(`No Beds24 mapping found for apartment: ${apartmentSlug}`);
   }
 
-  return beds24Service.get().createBooking({
+  const service = beds24Service.get();
+  if (!service) {
+    throw new Error('Beds24Service not available');
+  }
+  
+  return service.createBooking({
     ...bookingData,
     propId: apartment.propId,
     roomId: apartment.roomId

@@ -11,6 +11,18 @@ export async function GET(request: NextRequest) {
     
     const beds24Service = getBeds24Service();
     
+    if (!beds24Service) {
+      return NextResponse.json({
+        success: false,
+        error: 'Beds24Service not available - check environment variables',
+        debug: {
+          hasAccessToken: !!process.env.BEDS24_ACCESS_TOKEN,
+          hasRefreshToken: !!process.env.BEDS24_REFRESH_TOKEN,
+          timestamp: new Date().toISOString()
+        }
+      }, { status: 500 });
+    }
+    
     // Get current token (this will trigger refresh if needed)
     const accessToken = await beds24Service.ensureValidToken();
     
@@ -26,12 +38,7 @@ export async function GET(request: NextRequest) {
       })
     });
     
-    let testData;
-    try {
-      testData = await testResponse.json();
-    } catch (jsonError) {
-      testData = { error: 'Failed to parse JSON', text: await testResponse.text() };
-    }
+    const testData = await testResponse.json();
     
     return NextResponse.json({
       success: true,
@@ -48,8 +55,7 @@ export async function GET(request: NextRequest) {
           status: testResponse.status,
           ok: testResponse.ok,
           hasData: !!testData,
-          dataKeys: Object.keys(testData || {}),
-          data: testData
+          dataKeys: Object.keys(testData || {})
         },
         timestamp: new Date().toISOString()
       }

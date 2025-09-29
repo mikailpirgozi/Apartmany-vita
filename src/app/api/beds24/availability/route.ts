@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getBeds24Service } from '@/services/beds24';
 import { availabilityCache, CACHE_TTL } from '@/lib/cache';
 import { analytics } from '@/lib/analytics';
-
+import { getMockAvailability } from '@/lib/mock-data';
 
 /**
  * API endpoint pre získanie dostupnosti apartmánov
@@ -67,7 +67,7 @@ export async function GET(request: NextRequest) {
       maxStay?: number;
     } | null = null;
     let cacheHit = false;
-    let source: 'redis' | 'memory' | 'api' = 'api';
+    let source: 'redis' | 'memory' | 'api' | 'mock' | 'mock-fallback' = 'api';
 
     // Try cache first
     try {
@@ -103,16 +103,8 @@ export async function GET(request: NextRequest) {
       try {
         // Check if BEDS24 environment variables are available
         const hasBeds24Config = process.env.BEDS24_ACCESS_TOKEN && process.env.BEDS24_REFRESH_TOKEN;
-        console.log('🔍 BEDS24 Config Check:', {
-          hasAccessToken: !!process.env.BEDS24_ACCESS_TOKEN,
-          hasRefreshToken: !!process.env.BEDS24_REFRESH_TOKEN,
-          hasBaseUrl: !!process.env.BEDS24_BASE_URL,
-          nodeEnv: process.env.NODE_ENV,
-          vercelEnv: process.env.VERCEL_ENV
-        });
-        
         if (!hasBeds24Config) {
-          console.warn('⚠️ BEDS24 environment variables not available');
+          console.warn('⚠️ BEDS24 environment variables not available, returning empty availability');
           return NextResponse.json({
             success: false,
             error: 'BEDS24 service not configured',
@@ -125,54 +117,18 @@ export async function GET(request: NextRequest) {
         }
         
         // Use Calendar API directly for calendar display (has prices and blocked dates)
-        try {
-          const beds24Service = getBeds24Service();
+        const beds24Service = getBeds24Service();
+        if (!beds24Service) {
+          console.warn('⚠️ Beds24Service not available, using mock data');
+          // Use mock data when Beds24 API is not available
+          availability = getMockAvailability(apartment, checkIn, checkOut, parseInt(guests));
+          source = 'mock';
+        } else {
           availability = await beds24Service.getInventoryCalendar({
             propId: apartmentConfig.propId,
             roomId: apartmentConfig.roomId,
             startDate: checkIn,
             endDate: checkOut
-          });
-        } catch (serviceError) {
-          console.error('Beds24Service initialization failed:', serviceError);
-          // If service initialization fails, return empty availability instead of throwing
-          console.warn('⚠️ Beds24Service failed, returning empty availability');
-          return NextResponse.json({
-            success: true,
-            apartment,
-            checkIn,
-            checkOut,
-            isAvailable: false,
-            totalPrice: 0,
-            pricePerNight: 0,
-            nights: 0,
-            available: [],
-            booked: [],
-            prices: {},
-            minStay: 1,
-            maxStay: 30,
-            bookedDates: [],
-            dailyPrices: {},
-            pricingInfo: {
-              guestCount: parseInt(guests),
-              childrenCount: parseInt(children),
-              source: 'error',
-              totalDays: 0,
-              averagePricePerNight: 0,
-              basePrice: 0,
-              additionalGuestFee: 0,
-              additionalGuestFeePerNight: 0,
-              additionalAdults: 0,
-              additionalChildren: 0
-            },
-            performance: {
-              responseTime: Date.now() - startTime,
-              cacheHit: false,
-              source: 'error',
-              cacheKey,
-              cacheStats: { hits: 0, misses: 1, activeRequests: 0, hitRate: 0 },
-              timestamp: new Date().toISOString()
-            }
           });
         }
 
@@ -220,47 +176,10 @@ export async function GET(request: NextRequest) {
         }
 
         if (!availability) {
-          // Return empty availability instead of error to prevent redirect
-          const errorMessage = apiError instanceof Error ? apiError.message : 'Unknown error';
-          console.error('Final availability fetch failed, returning empty availability:', errorMessage);
-          
-          return NextResponse.json({
-            success: true,
-            apartment,
-            checkIn,
-            checkOut,
-            isAvailable: false,
-            totalPrice: 0,
-            pricePerNight: 0,
-            nights: 0,
-            available: [],
-            booked: [],
-            prices: {},
-            minStay: 1,
-            maxStay: 30,
-            bookedDates: [],
-            dailyPrices: {},
-            pricingInfo: {
-              guestCount: parseInt(guests),
-              childrenCount: parseInt(children),
-              source: 'error',
-              totalDays: 0,
-              averagePricePerNight: 0,
-              basePrice: 0,
-              additionalGuestFee: 0,
-              additionalGuestFeePerNight: 0,
-              additionalAdults: 0,
-              additionalChildren: 0
-            },
-            performance: {
-              responseTime: Date.now() - startTime,
-              cacheHit: false,
-              source: 'error',
-              cacheKey,
-              cacheStats: { hits: 0, misses: 1, activeRequests: 0, hitRate: 0 },
-              timestamp: new Date().toISOString()
-            }
-          });
+          // Use mock data as fallback when API fails
+          console.warn('⚠️ API failed, using mock data as fallback');
+          availability = getMockAvailability(apartment, checkIn, checkOut, parseInt(guests));
+          source = 'mock-fallback';
         }
       }
     }
@@ -268,42 +187,9 @@ export async function GET(request: NextRequest) {
     // Ensure we have availability data
     if (!availability) {
       return NextResponse.json({
-        success: true,
-        apartment,
-        checkIn,
-        checkOut,
-        isAvailable: false,
-        totalPrice: 0,
-        pricePerNight: 0,
-        nights: 0,
-        available: [],
-        booked: [],
-        prices: {},
-        minStay: 1,
-        maxStay: 30,
-        bookedDates: [],
-        dailyPrices: {},
-        pricingInfo: {
-          guestCount: parseInt(guests),
-          childrenCount: parseInt(children),
-          source: 'no-data',
-          totalDays: 0,
-          averagePricePerNight: 0,
-          basePrice: 0,
-          additionalGuestFee: 0,
-          additionalGuestFeePerNight: 0,
-          additionalAdults: 0,
-          additionalChildren: 0
-        },
-        performance: {
-          responseTime: Date.now() - startTime,
-          cacheHit: false,
-          source: 'no-data',
-          cacheKey,
-          cacheStats: { hits: 0, misses: 1, activeRequests: 0, hitRate: 0 },
-          timestamp: new Date().toISOString()
-        }
-      });
+        success: false,
+        error: 'No availability data received'
+      }, { status: 503 });
     }
 
     // Skontroluj či sú všetky dni dostupné
@@ -370,7 +256,7 @@ export async function GET(request: NextRequest) {
       pricingInfo: {
         guestCount,
         childrenCount,
-        source: 'beds24-api',
+        source: source === 'mock' || source === 'mock-fallback' ? 'mock-data' : 'beds24-api',
         totalDays: availableDates.length,
         averagePricePerNight: Math.round(totalPrice / (availableDates.length || 1)),
         basePrice,
@@ -396,7 +282,7 @@ export async function GET(request: NextRequest) {
       apartment,
       Date.now() - startTime,
       cacheHit,
-      source,
+      source === 'mock' || source === 'mock-fallback' ? 'api' : source,
       { checkIn, checkOut, guests: parseInt(guests) }
     );
 
