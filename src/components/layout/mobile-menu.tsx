@@ -135,6 +135,5 @@ export function MobileMenu({ navigation }: MobileMenuProps) {
         </div>
       </SheetContent>
     </Sheet>
-    </div>
   )
 }

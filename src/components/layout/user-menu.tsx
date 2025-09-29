@@ -19,7 +19,7 @@ import { useSessionHydrationSafe } from '@/hooks/use-session-hydration-safe'
 function UserMenuContent() {
   const { data: session, status, isHydrated } = useSessionHydrationSafe()
 
-  // NOTE: Loading state is handled by dynamic import's Suspense boundary
+    // NOTE: Loading state is handled by dynamic import's Suspense boundary
   // Don't return skeleton here to prevent hydration mismatch
   
   if (status === 'loading') {
