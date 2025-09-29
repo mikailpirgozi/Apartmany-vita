@@ -61,7 +61,7 @@ export function SimpleUserMenu({ isLoggedIn, userName, userEmail, userImage }: S
   }
 
   return (
-    <div className="relative" ref={menuRef}>
+    <div className="relative inline-block" ref={menuRef}>
       {/* Avatar Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
@@ -143,6 +143,6 @@ export function SimpleUserMenu({ isLoggedIn, userName, userEmail, userImage }: S
           </div>
         </div>
       )}
-    </>
+    </div>
   )
 }

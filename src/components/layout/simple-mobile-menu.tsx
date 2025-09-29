@@ -20,7 +20,7 @@ export function SimpleMobileMenu({ navigation, isLoggedIn, userName, userEmail }
   const [isOpen, setIsOpen] = useState(false)
 
   return (
-    <>
+    <div className="md:hidden">
       {/* Menu Button */}
       <button
         onClick={() => setIsOpen(true)}
@@ -151,6 +151,6 @@ export function SimpleMobileMenu({ navigation, isLoggedIn, userName, userEmail }
           </div>
         </div>
       </div>
-    </>
+    </div>
   )
 }
