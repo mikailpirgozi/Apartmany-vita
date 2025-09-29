@@ -60,7 +60,7 @@ export interface BookingRequest {
 class PricingService {
   private readonly CLEANING_FEE = 25; // €25 cleaning fee
   private readonly CITY_TAX_PER_PERSON = 1.5; // €1.50 per person per night
-  private readonly WEEKEND_MULTIPLIER = 1.2; // 20% weekend premium
+  // REMOVED: WEEKEND_MULTIPLIER - Beds24 handles all pricing
   
   /**
    * Calculate comprehensive booking pricing
@@ -118,14 +118,12 @@ class PricingService {
     const cleaningFee = this.CLEANING_FEE;
     const cityTax = this.calculateCityTax(guests + children, nights);
     
-    // Seasonal adjustments (summer/winter rates)
-    const seasonalAdjustment = this.calculateSeasonalAdjustment(checkIn, subtotal);
+    // NO SEASONAL ADJUSTMENTS - Beds24 handles all pricing including seasonal rates
     
     const total = subtotal 
       - (loyaltyData?.discountAmount || 0)
       - longStayData.discountAmount
       - stayDiscount // New stay-based discount
-      + seasonalAdjustment
       + cleaningFee 
       + cityTax;
     
@@ -141,7 +139,7 @@ class PricingService {
       stayDiscount,
       stayDiscountPercent,
       stayDiscountInfo,
-      seasonalAdjustment,
+      seasonalAdjustment: 0, // REMOVED: Beds24 handles seasonal pricing
       cleaningFee,
       cityTax,
       total: Math.max(0, total),
@@ -241,19 +239,15 @@ class PricingService {
         price = basePrice;
       }
       
-      // Apply weekend premium if no dynamic pricing
-      if (isWeekend && !dynamicPrices[dateStr]) {
-        price *= this.WEEKEND_MULTIPLIER;
-      }
+      // REMOVED: Weekend premium - Beds24 handles all pricing including weekends
       
-      const seasonalRate = this.getSeasonalRate(date);
-      price *= seasonalRate;
+      // REMOVED: Seasonal rate - Beds24 API already includes seasonal pricing
       
       return {
         date: dateStr,
         price: Math.round(price * 100) / 100,
         isWeekend,
-        seasonalRate
+        seasonalRate: 1.0 // Always 1.0 - Beds24 handles seasonal pricing
       };
     });
   }
@@ -313,31 +307,7 @@ class PricingService {
     };
   }
   
-  /**
-   * Calculate seasonal rate multiplier
-   */
-  private getSeasonalRate(date: Date): number {
-    const month = date.getMonth() + 1; // 1-12
-    
-    // Summer season (June-August): +15%
-    if (month >= 6 && month <= 8) return 1.15;
-    
-    // Winter holidays (December-January): +10%
-    if (month === 12 || month === 1) return 1.10;
-    
-    // Spring/Fall: standard rate
-    return 1.0;
-  }
-  
-  /**
-   * Calculate seasonal adjustment for total price
-   * FIXED: Avoid double application of seasonal rates - already applied in daily breakdown
-   */
-  private calculateSeasonalAdjustment(checkIn: Date, subtotal: number): number {
-    // FIXED: Seasonal rates are already applied in calculateDailyBreakdown()
-    // No additional seasonal adjustments needed to avoid double application
-    return 0;
-  }
+  // REMOVED: Seasonal rate functions - Beds24 API handles all seasonal pricing
   
   /**
    * Calculate city tax

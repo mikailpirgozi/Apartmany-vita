@@ -132,24 +132,7 @@ export function BookingWidget({
     basePrice: availability?.totalPrice
   });
 
-  // Note: Pricing is now handled by Beds24 API in availability response
-  // const { data: pricing, isLoading: isPricingLoading, error: pricingError } = useQuery({
-  //   queryKey: ['booking-pricing', apartment.id, checkIn, checkOut, guests, children, session?.user?.id],
-  //   queryFn: async () => {
-  //     if (!checkIn || !checkOut) return null;
-  //     
-  //     return calculateBookingPrice({
-  //       apartmentId: apartment.id,
-  //       checkIn,
-  //       checkOut,
-  //       guests,
-  //       children,
-  //       userId: session?.user?.id
-  //     });
-  //   },
-  //   enabled: !!(checkIn && checkOut && checkIn < checkOut),
-  //   staleTime: 2 * 60 * 1000 // 2 minutes
-  // });
+  // REMOVED: Old pricing logic - now handled by Beds24 API in availability response
 
   const nights = checkIn && checkOut ? differenceInDays(checkOut, checkIn) : 0;
   const totalGuests = guests + children;

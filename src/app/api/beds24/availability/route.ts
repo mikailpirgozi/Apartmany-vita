@@ -283,7 +283,7 @@ export async function GET(request: NextRequest) {
       totalPrice,
       pricePerNight: availableDates.length > 0 ? totalPrice / availableDates.length : 0,
       nights: availableDates.length,
-      // Calendar format - required by SimpleAvailabilityCalendar
+      // Calendar format - required by OptimizedAvailabilityCalendar
       available: availability!.available || [],
       booked: availability!.booked || [],
       prices: dailyPricesFromBeds24, // FIXED: Use real Beds24 prices
