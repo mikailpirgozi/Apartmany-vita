@@ -43,7 +43,8 @@ export async function GET(request: NextRequest) {
           status: testResponse.status,
           ok: testResponse.ok,
           hasData: !!testData,
-          dataKeys: Object.keys(testData || {})
+          dataKeys: Object.keys(testData || {}),
+          data: testData
         },
         timestamp: new Date().toISOString()
       }
