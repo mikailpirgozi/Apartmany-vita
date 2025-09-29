@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
@@ -13,7 +13,13 @@ import { useSessionHydrationSafe } from '@/hooks/use-session-hydration-safe'
 
 export function Header() {
   const [isOpen, setIsOpen] = useState(false)
+  const [isMounted, setIsMounted] = useState(false)
   const { data: session, status, isHydrated } = useSessionHydrationSafe()
+
+  // Prevent hydration mismatch by only rendering Sheet after mount
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
 
   const navigation = [
     { name: 'Domov', href: '/' },
@@ -77,14 +83,15 @@ export function Header() {
           <UserMenu />
         </motion.div>
 
-        {/* Mobile Menu */}
-        <Sheet open={isOpen} onOpenChange={setIsOpen} modal>
-          <SheetTrigger asChild className="md:hidden" suppressHydrationWarning>
-            <Button variant="ghost" size="sm" suppressHydrationWarning>
-              <Menu className="h-5 w-5" />
-              <span className="sr-only">Toggle menu</span>
-            </Button>
-          </SheetTrigger>
+        {/* Mobile Menu - Only render after hydration to prevent mismatch */}
+        {isMounted && (
+          <Sheet open={isOpen} onOpenChange={setIsOpen} modal>
+            <SheetTrigger asChild className="md:hidden">
+              <Button variant="ghost" size="sm">
+                <Menu className="h-5 w-5" />
+                <span className="sr-only">Toggle menu</span>
+              </Button>
+            </SheetTrigger>
           <SheetContent side="right" className="w-[280px] sm:w-[320px] md:w-[360px] p-0" suppressHydrationWarning>
             <div className="flex flex-col h-full">
               {/* Header */}
@@ -189,6 +196,15 @@ export function Header() {
             </div>
           </SheetContent>
         </Sheet>
+        )}
+        
+        {/* Fallback mobile button before hydration */}
+        {!isMounted && (
+          <Button variant="ghost" size="sm" className="md:hidden" disabled>
+            <Menu className="h-5 w-5" />
+            <span className="sr-only">Toggle menu</span>
+          </Button>
+        )}
       </div>
     </motion.header>
   )
