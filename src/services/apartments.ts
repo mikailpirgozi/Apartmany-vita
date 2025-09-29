@@ -2,95 +2,196 @@ import { Apartment, SearchFilters } from '@/types'
 import { prisma } from '@/lib/db'
 import { getBeds24Service } from '@/services/beds24'
 
-// Real data from database - NO MOCK DATA
+// Static apartment data (used when database is not available)
+const STATIC_APARTMENTS: Apartment[] = [
+  {
+    id: '2',
+    name: 'Design Apartmán',
+    slug: 'design-apartman',
+    description: 'Štýlovo zariadený apartmán s moderným dizajnom. Perfektný pre páry.',
+    floor: 1,
+    size: 45,
+    maxGuests: 6,
+    maxChildren: 4,
+    images: [
+      'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop&crop=center',
+      'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&h=600&fit=crop&crop=center',
+      'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop&crop=center',
+      'https://images.unsplash.com/photo-1560448204-603b3fc33ddc?w=800&h=600&fit=crop&crop=center'
+    ],
+    amenities: ['wifi', 'kitchen', 'tv', 'heating', 'washer', 'elevator', 'parking'],
+    basePrice: 105, // NOTE: Real prices come from Beds24 API
+    isActive: true,
+    createdAt: new Date('2024-01-01'),
+    updatedAt: new Date('2024-01-01')
+  },
+  {
+    id: '3',
+    name: 'Lite Apartmán',
+    slug: 'lite-apartman',
+    description: 'Priestranný apartmán na druhom poschodí s balkónom a krásnym výhľadom na mesto.',
+    floor: 2,
+    size: 55,
+    maxGuests: 2,
+    maxChildren: 1,
+    images: [
+      'https://images.unsplash.com/photo-1560448204-603b3fc33ddc?w=800&h=600&fit=crop&crop=center',
+      'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop&crop=center',
+      'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&h=600&fit=crop&crop=center',
+      'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop&crop=center',
+      'https://images.unsplash.com/photo-1560448204-603b3fc33ddc?w=800&h=600&fit=crop&crop=center'
+    ],
+    amenities: ['wifi', 'kitchen', 'tv', 'heating', 'washer', 'dishwasher', 'balcony', 'elevator', 'parking'],
+    basePrice: 75, // NOTE: Real prices come from Beds24 API
+    isActive: true,
+    createdAt: new Date('2024-01-01'),
+    updatedAt: new Date('2024-01-01')
+  },
+  {
+    id: '4',
+    name: 'Deluxe Apartmán',
+    slug: 'deluxe-apartman',
+    description: 'Najluxusnejší apartmán s krásnym výhľadom a kompletným vybavením pre až 6 hostí.',
+    floor: 2,
+    size: 70,
+    maxGuests: 6,
+    maxChildren: 4,
+    images: [
+      'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop&crop=center',
+      'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop&crop=center',
+      'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&h=600&fit=crop&crop=center',
+      'https://images.unsplash.com/photo-1560448204-603b3fc33ddc?w=800&h=600&fit=crop&crop=center'
+    ],
+    amenities: ['wifi', 'kitchen', 'tv', 'heating', 'washer', 'dishwasher', 'balcony', 'elevator', 'parking', 'aircon'],
+    basePrice: 100, // NOTE: Real prices come from Beds24 API
+    isActive: true,
+    createdAt: new Date('2024-01-01'),
+    updatedAt: new Date('2024-01-01')
+  }
+];
+
+// Real data from database with fallback to static data
 export async function getApartments(): Promise<Apartment[]> {
-  const apartments = await prisma.apartment.findMany({
-    where: { isActive: true },
-    orderBy: { createdAt: 'asc' }
-  })
-  
-  return apartments.map(apt => ({
-    ...apt,
-    basePrice: Number(apt.basePrice)
-  }))
+  try {
+    const apartments = await prisma.apartment.findMany({
+      where: { isActive: true },
+      orderBy: { createdAt: 'asc' }
+    })
+    
+    return apartments.map(apt => ({
+      ...apt,
+      basePrice: Number(apt.basePrice)
+    }))
+  } catch (error) {
+    console.warn('Database not available, using static apartment data:', error);
+    return STATIC_APARTMENTS.filter(apt => apt.isActive);
+  }
 }
 
 export async function getApartmentBySlug(slug: string): Promise<Apartment | null> {
-  const apartment = await prisma.apartment.findUnique({
-    where: { slug, isActive: true }
-  })
+  try {
+    const apartment = await prisma.apartment.findUnique({
+      where: { slug, isActive: true }
+    })
 
-  if (!apartment) return null
+    if (!apartment) return null
 
-  return {
-    ...apartment,
-    basePrice: Number(apartment.basePrice)
+    return {
+      ...apartment,
+      basePrice: Number(apartment.basePrice)
+    }
+  } catch (error) {
+    console.warn('Database not available, using static data for slug:', slug);
+    return STATIC_APARTMENTS.find(apt => apt.slug === slug && apt.isActive) || null;
   }
 }
 
 export async function getApartmentById(id: string): Promise<Apartment | null> {
-  const apartment = await prisma.apartment.findUnique({
-    where: { id, isActive: true }
-  })
+  try {
+    const apartment = await prisma.apartment.findUnique({
+      where: { id, isActive: true }
+    })
 
-  if (!apartment) return null
+    if (!apartment) return null
 
-  return {
-    ...apartment,
-    basePrice: Number(apartment.basePrice)
+    return {
+      ...apartment,
+      basePrice: Number(apartment.basePrice)
+    }
+  } catch (error) {
+    console.warn('Database not available, using static data for id:', id);
+    return STATIC_APARTMENTS.find(apt => apt.id === id && apt.isActive) || null;
   }
 }
 
 export async function searchApartments(filters: Partial<SearchFilters>): Promise<Apartment[]> {
-  const whereClause: any = { isActive: true }
-  
-  // Price range filter
-  if (filters.priceRange) {
-    whereClause.basePrice = {
-      gte: filters.priceRange[0],
-      lte: filters.priceRange[1]
+  try {
+    const whereClause: any = { isActive: true }
+    
+    // Price range filter
+    if (filters.priceRange) {
+      whereClause.basePrice = {
+        gte: filters.priceRange[0],
+        lte: filters.priceRange[1]
+      }
     }
-  }
 
-  // Size filter
-  if (filters.size) {
-    whereClause.size = {
-      gte: filters.size[0],
-      lte: filters.size[1]
+    // Size filter
+    if (filters.size) {
+      whereClause.size = {
+        gte: filters.size[0],
+        lte: filters.size[1]
+      }
     }
-  }
 
-  // Floor filter
-  if (filters.floor && filters.floor.length > 0) {
-    whereClause.floor = {
-      in: filters.floor
+    // Floor filter
+    if (filters.floor && filters.floor.length > 0) {
+      whereClause.floor = {
+        in: filters.floor
+      }
     }
-  }
 
-  // Max guests filter
-  if (filters.maxGuests) {
-    whereClause.maxGuests = {
-      gte: filters.maxGuests
+    // Max guests filter
+    if (filters.maxGuests) {
+      whereClause.maxGuests = {
+        gte: filters.maxGuests
+      }
     }
-  }
 
-  const apartments = await prisma.apartment.findMany({
-    where: whereClause,
-    orderBy: { createdAt: 'asc' }
-  })
-  
-  // Amenities filter (array contains check)
-  let filteredApartments = apartments
-  if (filters.amenities && filters.amenities.length > 0) {
-    filteredApartments = apartments.filter(apt => 
-      filters.amenities!.every(amenity => apt.amenities.includes(amenity))
-    )
-  }
+    const apartments = await prisma.apartment.findMany({
+      where: whereClause,
+      orderBy: { createdAt: 'asc' }
+    })
+    
+    // Amenities filter (array contains check)
+    let filteredApartments = apartments
+    if (filters.amenities && filters.amenities.length > 0) {
+      filteredApartments = apartments.filter(apt => 
+        filters.amenities!.every(amenity => apt.amenities.includes(amenity))
+      )
+    }
 
-  return filteredApartments.map(apt => ({
-    ...apt,
-    basePrice: Number(apt.basePrice)
-  }))
+    return filteredApartments.map(apt => ({
+      ...apt,
+      basePrice: Number(apt.basePrice)
+    }))
+  } catch (error) {
+    console.warn('Database not available, using static data with filters:', error);
+    // Apply filters to static data
+    let apartments = STATIC_APARTMENTS.filter(apt => apt.isActive);
+    
+    if (filters.maxGuests) {
+      apartments = apartments.filter(apt => apt.maxGuests >= filters.maxGuests!);
+    }
+    
+    if (filters.amenities && filters.amenities.length > 0) {
+      apartments = apartments.filter(apt => 
+        filters.amenities!.every(amenity => apt.amenities.includes(amenity))
+      );
+    }
+    
+    return apartments;
+  }
 }
 
 export async function getAvailableApartments(
@@ -100,14 +201,24 @@ export async function getAvailableApartments(
 ): Promise<Apartment[]> {
   console.log('🔍 Checking availability for:', { checkIn, checkOut, guests });
   
-  // Get suitable apartments from database
-  const apartments = await prisma.apartment.findMany({
-    where: { 
-      isActive: true,
-      maxGuests: { gte: guests }
-    },
-    orderBy: { createdAt: 'asc' }
-  })
+  // Get suitable apartments (database with fallback to static)
+  let apartments: Apartment[];
+  try {
+    const dbApartments = await prisma.apartment.findMany({
+      where: { 
+        isActive: true,
+        maxGuests: { gte: guests }
+      },
+      orderBy: { createdAt: 'asc' }
+    })
+    apartments = dbApartments.map(apt => ({
+      ...apt,
+      basePrice: Number(apt.basePrice)
+    }));
+  } catch (error) {
+    console.warn('Database not available, using static apartments for availability check');
+    apartments = STATIC_APARTMENTS.filter(apt => apt.isActive && apt.maxGuests >= guests);
+  }
   
   const availableApartments: Apartment[] = []
   
@@ -162,10 +273,7 @@ export async function getAvailableApartments(
       );
       
       if (isAvailable) {
-        availableApartments.push({
-          ...apartment,
-          basePrice: Number(apartment.basePrice)
-        })
+        availableApartments.push(apartment)
       }
       
     } catch (error) {
