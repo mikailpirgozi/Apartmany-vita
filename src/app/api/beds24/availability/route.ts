@@ -102,6 +102,14 @@ export async function GET(request: NextRequest) {
       try {
         // Check if BEDS24 environment variables are available
         const hasBeds24Config = process.env.BEDS24_ACCESS_TOKEN && process.env.BEDS24_REFRESH_TOKEN;
+        console.log('🔍 BEDS24 Config Check:', {
+          hasAccessToken: !!process.env.BEDS24_ACCESS_TOKEN,
+          hasRefreshToken: !!process.env.BEDS24_REFRESH_TOKEN,
+          hasBaseUrl: !!process.env.BEDS24_BASE_URL,
+          nodeEnv: process.env.NODE_ENV,
+          vercelEnv: process.env.VERCEL_ENV
+        });
+        
         if (!hasBeds24Config) {
           console.warn('⚠️ BEDS24 environment variables not available, returning empty availability');
           return NextResponse.json({
@@ -116,13 +124,18 @@ export async function GET(request: NextRequest) {
         }
         
         // Use Calendar API directly for calendar display (has prices and blocked dates)
-        const beds24Service = getBeds24Service();
-        availability = await beds24Service.getInventoryCalendar({
-          propId: apartmentConfig.propId,
-          roomId: apartmentConfig.roomId,
-          startDate: checkIn,
-          endDate: checkOut
-        });
+        try {
+          const beds24Service = getBeds24Service();
+          availability = await beds24Service.getInventoryCalendar({
+            propId: apartmentConfig.propId,
+            roomId: apartmentConfig.roomId,
+            startDate: checkIn,
+            endDate: checkOut
+          });
+        } catch (serviceError) {
+          console.error('Beds24Service initialization failed:', serviceError);
+          throw new Error('Beds24 service initialization failed - check environment variables');
+        }
 
         // Store in cache for future requests
         if (availability) {
