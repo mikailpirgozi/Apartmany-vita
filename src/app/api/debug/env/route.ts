@@ -5,9 +5,19 @@ import { NextResponse } from 'next/server';
  * Only shows if variables exist, not their values
  */
 export async function GET() {
+  // Import database validation
+  const { validateDatabaseUrl, getDatabaseInfo } = await import('@/lib/db-check');
+  const dbValidation = validateDatabaseUrl();
+  const dbInfo = getDatabaseInfo();
+  
   const envCheck = {
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV,
+    databaseValidation: {
+      isValid: dbValidation.valid,
+      error: dbValidation.error || null,
+      info: dbInfo
+    },
     beds24: {
       hasLongLifeToken: !!process.env.BEDS24_LONG_LIFE_TOKEN,
       longLifeTokenLength: process.env.BEDS24_LONG_LIFE_TOKEN?.length || 0,

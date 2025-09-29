@@ -25,6 +25,19 @@ export default async function BookingPage({ searchParams }: BookingPageProps) {
 }
 
 async function BookingContent({ searchParams }: BookingPageProps) {
+  // CRITICAL: Validate database connection FIRST
+  const { validateDatabaseUrl, getDatabaseInfo } = await import('@/lib/db-check');
+  const dbValidation = validateDatabaseUrl();
+  
+  if (!dbValidation.valid) {
+    console.error('❌ DATABASE ERROR:', {
+      error: dbValidation.error,
+      info: getDatabaseInfo()
+    });
+    // In production, this should never happen - redirect with clear error
+    redirect('/apartments?error=database-config');
+  }
+  
   const { apartment: apartmentSlug, checkin, checkout, guests, children } = await searchParams
 
   // Validate required parameters
