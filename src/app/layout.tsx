@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { Header } from "@/components/layout/header";
+import { SimpleHeader } from "@/components/layout/simple-header";
 import { Footer } from "@/components/layout/footer";
 import { AuthProvider } from "@/components/providers/session-provider";
 import { ToastProvider as ToastProviderComponent } from "@/components/ui/toast";
@@ -69,7 +69,7 @@ export default function RootLayout({
         <QueryClientProvider>
           <AuthProvider>
             <div className="min-h-screen flex flex-col">
-              <Header />
+              <SimpleHeader />
               <main className="flex-1">{children}</main>
               <Footer />
             </div>
