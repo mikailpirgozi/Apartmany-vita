@@ -1,13 +1,23 @@
 'use client'
 
 import Link from 'next/link'
+import dynamic from 'next/dynamic'
 import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Phone, Home } from 'lucide-react'
 import { CONTACT_INFO } from '@/constants'
 import { fadeInDown, staggerContainer, staggerItem } from '@/lib/animations'
-import { UserMenu } from './user-menu'
-import { MobileMenu } from './mobile-menu'
+
+// Dynamic imports to prevent hydration errors (client-only components)
+const UserMenu = dynamic(() => import('./user-menu').then(mod => ({ default: mod.UserMenu })), {
+  ssr: false,
+  loading: () => <div className="w-8 h-8 rounded-full bg-muted animate-pulse" />
+})
+
+const MobileMenu = dynamic(() => import('./mobile-menu').then(mod => ({ default: mod.MobileMenu })), {
+  ssr: false,
+  loading: () => null // No loading state needed for mobile menu
+})
 
 export function Header() {
 
