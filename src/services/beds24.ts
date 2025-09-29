@@ -72,13 +72,30 @@ class Beds24Service {
   } = {};
 
   constructor() {
-    // Use environment variables for tokens - REQUIRED
+    // PRIORITY 1: Try Long Life Token (official method)
+    const longLifeToken = process.env.BEDS24_LONG_LIFE_TOKEN;
+    
+    if (longLifeToken) {
+      console.log('Using Long Life Token authentication (official method)');
+      this.config = {
+        accessToken: longLifeToken,
+        refreshToken: '', // Not needed for Long Life Token
+        baseUrl: process.env.BEDS24_BASE_URL || 'https://api.beds24.com/v2',
+        propId: process.env.BEDS24_PROP_ID || '357931',
+        tokenExpiresAt: Date.now() + (365 * 24 * 60 * 60 * 1000) // Long life token expires in 1 year
+      };
+      return;
+    }
+
+    // FALLBACK: Use legacy refresh token system
     const accessToken = process.env.BEDS24_ACCESS_TOKEN;
     const refreshToken = process.env.BEDS24_REFRESH_TOKEN;
     
     if (!accessToken || !refreshToken) {
-      throw new Error('BEDS24_ACCESS_TOKEN and BEDS24_REFRESH_TOKEN environment variables are required');
+      throw new Error('Either BEDS24_LONG_LIFE_TOKEN or both BEDS24_ACCESS_TOKEN and BEDS24_REFRESH_TOKEN environment variables are required');
     }
+    
+    console.log('Using legacy refresh token authentication (fallback method)');
     
     this.config = {
       accessToken,
@@ -2034,13 +2051,13 @@ class Beds24Service {
   }
 
   /**
-   * Get base price for calendar display (without discounts to avoid confusion)
-   * STRICT: Only use prices from Beds24 API - no hardcoded fallbacks
+   * Get base price for calendar display - STRICT: Only real Beds24 data
+   * NO FALLBACKS - Must load actual prices from Beds24 API
    */
   getCalendarPrice(roomId?: string): number {
-    // STRICT: No hardcoded prices - must be loaded from Beds24 API
-    console.warn(`⚠️ getCalendarPrice called for roomId ${roomId} - no hardcoded prices available`);
-    return 0; // Return 0 to indicate no price data
+    // NO FALLBACK PRICES - Return 0 to indicate missing data
+    console.warn(`⚠️ getCalendarPrice called for roomId ${roomId} - NO FALLBACK PRICES, must use real Beds24 data`);
+    return 0; // Return 0 to force loading from Beds24 API
   }
 
   /**

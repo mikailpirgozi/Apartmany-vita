@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getBeds24Service } from '@/services/beds24';
+import { getBeds24LongLifeService } from '@/services/beds24-longlife';
 import { availabilityCache, CACHE_TTL } from '@/lib/cache';
 import { analytics } from '@/lib/analytics';
 
@@ -100,17 +101,18 @@ export async function GET(request: NextRequest) {
       console.log(`❌ Cache MISS for ${apartment} - fetching from API`);
       
       try {
-        // Check if BEDS24 environment variables are available
-        const hasBeds24Config = process.env.BEDS24_ACCESS_TOKEN && process.env.BEDS24_REFRESH_TOKEN;
+        // FIXED: Support both Long Life Token and legacy refresh tokens for consistency with pricing service
+        console.log('🎯 Using BEDS24 service with Long Life Token or legacy tokens');
+        
+        const hasBeds24Config = process.env.BEDS24_LONG_LIFE_TOKEN || (process.env.BEDS24_ACCESS_TOKEN && process.env.BEDS24_REFRESH_TOKEN);
         if (!hasBeds24Config) {
-          console.error('❌ BEDS24 environment variables not available - cannot get real availability data');
+          console.error('❌ No BEDS24 authentication available');
           return NextResponse.json({
             success: false,
-            error: 'BEDS24 service not configured - real availability data required'
+            error: 'BEDS24 service not configured - need BEDS24_LONG_LIFE_TOKEN or both BEDS24_ACCESS_TOKEN+BEDS24_REFRESH_TOKEN'
           }, { status: 503 });
         }
         
-        // Use Calendar API directly for calendar display (has prices and blocked dates)
         const beds24Service = getBeds24Service();
         if (!beds24Service) {
           console.error('❌ Beds24Service not available - cannot get real availability data');
@@ -120,13 +122,15 @@ export async function GET(request: NextRequest) {
           }, { status: 503 });
         }
 
-        // Get real availability data from Beds24 API
+        // Get real availability data from Beds24 API (same as pricing service)
         availability = await beds24Service.getInventoryCalendar({
           propId: apartmentConfig.propId,
           roomId: apartmentConfig.roomId,
           startDate: checkIn,
           endDate: checkOut
         });
+        
+        source = 'api';
 
         // Store in cache for future requests
         if (availability) {
@@ -212,8 +216,8 @@ export async function GET(request: NextRequest) {
       availability!.available.includes(date)
     );
 
-    // ✅ INTERNÉ CENOVÉ DÁTA (nie z Beds24 API)
-    // Používame naše vlastné ceny s našimi zľavami a pravidlami
+    // ✅ REÁLNE CENOVÉ DÁTA Z BEDS24 API (FIXED)
+    // Používame skutočné ceny z Beds24 Calendar API s našimi zľavami a pravidlami
     const guestCount = parseInt(guests);
     const childrenCount = parseInt(children);
     
@@ -222,16 +226,23 @@ export async function GET(request: NextRequest) {
       availability!.available.includes(date)
     );
     
-    // Interné cenové mapovanie apartmánov
-    const apartmentPricing: Record<string, number> = {
-      'design-apartman': 105,
-      'lite-apartman': 75,
-      'deluxe-apartman': 100,
-      'maly-apartman': 45
-    };
+    // FIXED: Použiť reálne ceny z Beds24 Calendar API
+    let basePrice = 0;
+    const dailyPricesFromBeds24: Record<string, number> = {};
     
-    const basePricePerNight = apartmentPricing[apartment] || 75;
-    const basePrice = basePricePerNight * availableDates.length;
+    // NO FALLBACK PRICING - Only real Beds24 data allowed
+    
+    availableDates.forEach(date => {
+      // STRICT: Only use Beds24 prices - NO FALLBACKS
+      const beds24Price = availability!.prices?.[date];
+      if (beds24Price && beds24Price > 0) {
+        dailyPricesFromBeds24[date] = beds24Price;
+        basePrice += beds24Price;
+      } else {
+        console.warn(`⚠️ No Beds24 price for ${apartment} on ${date} - skipping date`);
+        // Skip dates without real Beds24 pricing
+      }
+    });
     
     // Dodatočné poplatky za hostí nad základ 2 ľudí (ZA KAŽDÚ NOC!)
     const additionalAdults = Math.max(0, guestCount - 2);
@@ -239,8 +250,17 @@ export async function GET(request: NextRequest) {
     const additionalGuestFeePerNight = (additionalAdults * 20) + (additionalChildren * 10);
     const additionalGuestFee = additionalGuestFeePerNight * availableDates.length;
     
-    // Celková cena = základná cena + poplatky za ďalších hostí
+    // Celková cena = Beds24 ceny + poplatky za ďalších hostí
     const totalPrice = basePrice + additionalGuestFee;
+    
+    console.log(`💰 Pricing calculation for ${apartment}:`, {
+      beds24Prices: availability!.prices,
+      dailyPricesUsed: dailyPricesFromBeds24,
+      basePrice,
+      additionalGuestFee,
+      totalPrice,
+      usingBeds24Prices: Object.keys(availability!.prices || {}).length > 0
+    });
 
     const response = {
       success: true,
@@ -254,25 +274,19 @@ export async function GET(request: NextRequest) {
       // Calendar format - required by SimpleAvailabilityCalendar
       available: availability!.available || [],
       booked: availability!.booked || [],
-      prices: availableDates.reduce((acc: Record<string, number>, date: string) => {
-        acc[date] = basePricePerNight; // Use internal pricing
-        return acc;
-      }, {} as Record<string, number>),
+      prices: dailyPricesFromBeds24, // FIXED: Use real Beds24 prices
       minStay: availability!.minStay || 1,
       maxStay: availability!.maxStay || 30,
       // Legacy format for backward compatibility
       bookedDates: availability!.booked.filter((date: string) => 
         requestedDates.includes(date)
       ),
-      dailyPrices: requestedDates.reduce((acc: Record<string, number>, date: string) => {
-        acc[date] = basePricePerNight; // Use internal pricing
-        return acc;
-      }, {} as Record<string, number>),
-      // Debug info pre interné cenové dáta
+      dailyPrices: dailyPricesFromBeds24, // FIXED: Use real Beds24 prices
+      // Debug info pre Beds24 cenové dáta
       pricingInfo: {
         guestCount,
         childrenCount,
-        source: 'internal-pricing',
+        source: Object.keys(availability!.prices || {}).length > 0 ? 'beds24-calendar-api' : 'fallback-pricing',
         totalDays: availableDates.length,
         averagePricePerNight: Math.round(totalPrice / (availableDates.length || 1)),
         basePrice,
@@ -280,7 +294,8 @@ export async function GET(request: NextRequest) {
         additionalGuestFeePerNight,
         additionalAdults,
         additionalChildren,
-        basePricePerNight
+        beds24PricesCount: Object.keys(availability!.prices || {}).length,
+        dailyPricesFromBeds24
       },
       // 🚀 PHASE 3: Enhanced performance metrics with cache info
       performance: {

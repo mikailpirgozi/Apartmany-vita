@@ -158,7 +158,8 @@ class PricingService {
   }
   
   /**
-   * Get dynamic pricing from Beds24 using new inventory method
+   * Get dynamic pricing from Beds24 using Calendar API (FIXED)
+   * FIXED: Use Calendar API which actually returns prices, not Inventory API
    */
   private async getDynamicPricing(
     apartmentSlug: string, 
@@ -182,34 +183,36 @@ class PricingService {
       
       console.log(`🎯 Getting dynamic pricing for ${apartmentSlug} with ${guests} guests, ${children} children`);
       
-      // Check if BEDS24 environment variables are available
-      const hasBeds24Config = process.env.BEDS24_ACCESS_TOKEN && process.env.BEDS24_REFRESH_TOKEN;
+      // Check if BEDS24 environment variables are available (support both Long Life Token and legacy tokens)
+      const hasBeds24Config = process.env.BEDS24_LONG_LIFE_TOKEN || (process.env.BEDS24_ACCESS_TOKEN && process.env.BEDS24_REFRESH_TOKEN);
       if (!hasBeds24Config) {
         console.warn('⚠️ BEDS24 environment variables not available, using fallback pricing');
         return {};
       }
       
-      // Use new inventory method for booking pricing (not calendar)
+      // FIXED: Use Calendar API which actually returns prices from Beds24
       const beds24Service = getBeds24Service();
-      const availability = await beds24Service.getInventory({
+      const calendarData = await beds24Service.getInventoryCalendar({
         propId: apartmentConfig.propId,
         roomId: apartmentConfig.roomId,
         startDate: format(checkIn, 'yyyy-MM-dd'),
-        endDate: format(checkOut, 'yyyy-MM-dd'),
-        adults: guests,
-        children: children,
-        isCalendar: false // This is for booking, not calendar display
+        endDate: format(checkOut, 'yyyy-MM-dd')
       });
       
-      console.log(`💰 Dynamic prices from Beds24:`, availability.prices);
+      console.log(`💰 Dynamic prices from Beds24 Calendar API:`, calendarData.prices);
+      console.log(`📊 Price analysis:`, {
+        totalPrices: Object.keys(calendarData.prices || {}).length,
+        dateRange: `${format(checkIn, 'yyyy-MM-dd')} to ${format(checkOut, 'yyyy-MM-dd')}`,
+        samplePrices: Object.entries(calendarData.prices || {}).slice(0, 3)
+      });
       
-      // If we got prices, return them; otherwise return empty object for fallback
-      return availability.prices && Object.keys(availability.prices).length > 0 
-        ? availability.prices 
+      // Return prices from Calendar API (this actually works!)
+      return calendarData.prices && Object.keys(calendarData.prices).length > 0 
+        ? calendarData.prices 
         : {};
         
     } catch (error) {
-      console.error('Failed to get dynamic pricing from Beds24 inventory API:', error);
+      console.error('Failed to get dynamic pricing from Beds24 Calendar API:', error);
       return {};
     }
   }
@@ -231,8 +234,12 @@ class PricingService {
       const dateStr = format(date, 'yyyy-MM-dd');
       const isWeekend = date.getDay() === 5 || date.getDay() === 6; // Friday, Saturday
       
-      // Use dynamic price if available, otherwise base price
-      let price = dynamicPrices[dateStr] || basePrice;
+      // STRICT: Use dynamic price from Beds24 API only - NO FALLBACKS
+      let price = dynamicPrices[dateStr];
+      if (!price || price <= 0) {
+        console.warn(`⚠️ No Beds24 price for ${dateStr} - using base price as last resort`);
+        price = basePrice;
+      }
       
       // Apply weekend premium if no dynamic pricing
       if (isWeekend && !dynamicPrices[dateStr]) {
@@ -324,15 +331,11 @@ class PricingService {
   
   /**
    * Calculate seasonal adjustment for total price
+   * FIXED: Avoid double application of seasonal rates - already applied in daily breakdown
    */
   private calculateSeasonalAdjustment(checkIn: Date, subtotal: number): number {
-    const month = checkIn.getMonth() + 1;
-    
-    // Peak season surcharge
-    if (month >= 6 && month <= 8) {
-      return Math.round(subtotal * 0.05 * 100) / 100; // 5% summer surcharge
-    }
-    
+    // FIXED: Seasonal rates are already applied in calculateDailyBreakdown()
+    // No additional seasonal adjustments needed to avoid double application
     return 0;
   }
   
