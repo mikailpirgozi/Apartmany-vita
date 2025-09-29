@@ -26,7 +26,12 @@ export async function GET(request: NextRequest) {
       })
     });
     
-    const testData = await testResponse.json();
+    let testData;
+    try {
+      testData = await testResponse.json();
+    } catch (jsonError) {
+      testData = { error: 'Failed to parse JSON', text: await testResponse.text() };
+    }
     
     return NextResponse.json({
       success: true,
