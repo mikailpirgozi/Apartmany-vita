@@ -67,6 +67,9 @@ jobs:
         name: codecov-umbrella
         fail_ci_if_error: false
         
+    - name: Install Playwright browsers
+      run: pnpm exec playwright install --with-deps
+      
     - name: Run E2E tests
       run: pnpm test:e2e
       
