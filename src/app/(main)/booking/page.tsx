@@ -101,12 +101,25 @@ async function BookingContent({ searchParams }: BookingPageProps) {
       nights: pricingData.nights
     };
   } catch (error) {
-    console.error('❌ Failed to calculate pricing:', error)
-    redirect(`/apartments/${apartmentSlug}?error=pricing`)
+    console.error('❌ Failed to calculate pricing:', {
+      error,
+      apartmentId: apartment.id,
+      slug: apartmentSlug,
+      checkIn: checkInDate,
+      checkOut: checkOutDate,
+      guests: guestCount,
+      children: childrenCount,
+      errorMessage: error instanceof Error ? error.message : 'Unknown error',
+      errorStack: error instanceof Error ? error.stack : undefined
+    })
+    
+    // Redirect with detailed error info
+    redirect(`/apartments/${apartmentSlug}?error=pricing&details=${encodeURIComponent(error instanceof Error ? error.message : 'Unknown')}`)
   }
 
   // TypeScript safety: This should never happen because redirect() would have been called in catch
   if (!pricingData || !availability) {
+    console.error('❌ Pricing data or availability is undefined after calculation');
     redirect(`/apartments/${apartmentSlug}?error=pricing`);
   }
 

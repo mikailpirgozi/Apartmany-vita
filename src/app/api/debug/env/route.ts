@@ -1,57 +1,42 @@
 import { NextResponse } from 'next/server';
 
 /**
- * Debug endpoint to check environment variables on production
- * Shows which BEDS24 variables are available (without exposing values)
+ * Debug endpoint to check environment variables (PRODUCTION SAFE)
+ * Only shows if variables exist, not their values
  */
 export async function GET() {
-  try {
-    console.log('🔍 Checking environment variables on production...');
-    
-    const envCheck = {
-      // BEDS24 Configuration
-      hasBeds24AccessToken: !!process.env.BEDS24_ACCESS_TOKEN,
-      beds24AccessTokenLength: process.env.BEDS24_ACCESS_TOKEN?.length || 0,
-      hasBeds24RefreshToken: !!process.env.BEDS24_REFRESH_TOKEN,
-      beds24RefreshTokenLength: process.env.BEDS24_REFRESH_TOKEN?.length || 0,
-      // LONG LIFE TOKEN
-      hasBeds24LongLifeToken: !!process.env.BEDS24_LONG_LIFE_TOKEN,
-      beds24LongLifeTokenLength: process.env.BEDS24_LONG_LIFE_TOKEN?.length || 0,
-      beds24BaseUrl: process.env.BEDS24_BASE_URL || 'not set',
-      beds24PropId: process.env.BEDS24_PROP_ID || 'not set',
-      
-      // Database
-      hasDatabaseUrl: !!process.env.DATABASE_URL,
-      
-      // NextAuth
-      hasNextAuthSecret: !!process.env.NEXTAUTH_SECRET,
-      hasNextAuthUrl: !!process.env.NEXTAUTH_URL,
-      
-      // Environment
-      nodeEnv: process.env.NODE_ENV || 'not set',
-      vercelEnv: process.env.VERCEL_ENV || 'not set',
-      
-      // App URL
-      appUrl: process.env.NEXT_PUBLIC_APP_URL || 'not set',
-      
-      timestamp: new Date().toISOString()
-    };
-    
-    console.log('Environment check result:', envCheck);
-    
-    return NextResponse.json({
-      success: true,
-      environment: envCheck,
-      message: 'Environment variables check completed'
-    });
-    
-  } catch (error) {
-    console.error('❌ Environment check failed:', error);
-    
-    return NextResponse.json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
-      timestamp: new Date().toISOString()
-    }, { status: 500 });
-  }
+  const envCheck = {
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV,
+    beds24: {
+      hasLongLifeToken: !!process.env.BEDS24_LONG_LIFE_TOKEN,
+      longLifeTokenLength: process.env.BEDS24_LONG_LIFE_TOKEN?.length || 0,
+      hasAccessToken: !!process.env.BEDS24_ACCESS_TOKEN,
+      accessTokenLength: process.env.BEDS24_ACCESS_TOKEN?.length || 0,
+      hasRefreshToken: !!process.env.BEDS24_REFRESH_TOKEN,
+      refreshTokenLength: process.env.BEDS24_REFRESH_TOKEN?.length || 0,
+    },
+    database: {
+      hasUrl: !!process.env.DATABASE_URL,
+      urlLength: process.env.DATABASE_URL?.length || 0,
+      urlPrefix: process.env.DATABASE_URL?.substring(0, 20) || 'N/A'
+    },
+    nextAuth: {
+      hasSecret: !!process.env.NEXTAUTH_SECRET,
+      secretLength: process.env.NEXTAUTH_SECRET?.length || 0,
+      hasUrl: !!process.env.NEXTAUTH_URL,
+      url: process.env.NEXTAUTH_URL
+    },
+    stripe: {
+      hasPublicKey: !!process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
+      hasSecretKey: !!process.env.STRIPE_SECRET_KEY,
+      hasWebhookSecret: !!process.env.STRIPE_WEBHOOK_SECRET
+    },
+    redis: {
+      hasUrl: !!process.env.REDIS_URL,
+      hasHost: !!process.env.REDIS_HOST
+    }
+  };
+
+  return NextResponse.json(envCheck);
 }
