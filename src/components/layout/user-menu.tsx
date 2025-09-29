@@ -1,7 +1,6 @@
 'use client'
 
 import { signOut } from 'next-auth/react'
-import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import {
@@ -18,15 +17,10 @@ import { User, Settings, Calendar, LogOut, Star } from 'lucide-react'
 import { useSessionHydrationSafe } from '@/hooks/use-session-hydration-safe'
 
 function UserMenuContent() {
-  const [isMounted, setIsMounted] = useState(false)
-  const { data: session, status } = useSessionHydrationSafe()
+  const { data: session, status, isHydrated } = useSessionHydrationSafe()
 
-  useEffect(() => {
-    setIsMounted(true)
-  }, [])
-
-  // Show loading state before mount or during loading
-  if (!isMounted || status === 'loading') {
+  // Show loading state during hydration or loading
+  if (!isHydrated || status === 'loading') {
     return (
       <div className="w-8 h-8 rounded-full bg-muted animate-pulse" />
     )
@@ -120,5 +114,9 @@ function UserMenuContent() {
 }
 
 export function UserMenu() {
-  return <UserMenuContent />
+  return (
+    <div suppressHydrationWarning>
+      <UserMenuContent />
+    </div>
+  )
 }

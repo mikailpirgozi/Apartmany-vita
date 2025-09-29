@@ -12,7 +12,12 @@ export function useSessionHydrationSafe() {
   const [isHydrated, setIsHydrated] = useState(false)
 
   useEffect(() => {
-    setIsHydrated(true)
+    // Use requestAnimationFrame to ensure this runs after hydration
+    const timer = requestAnimationFrame(() => {
+      setIsHydrated(true)
+    })
+    
+    return () => cancelAnimationFrame(timer)
   }, [])
 
   // During hydration, always return consistent state to prevent mismatch

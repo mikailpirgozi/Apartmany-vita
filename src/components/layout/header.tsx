@@ -34,6 +34,7 @@ export function Header() {
       initial="initial"
       animate="animate"
       variants={fadeInDown}
+      suppressHydrationWarning
     >
       <div className="container flex h-16 items-center justify-between">
         {/* Logo */}

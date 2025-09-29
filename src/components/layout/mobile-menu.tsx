@@ -18,20 +18,16 @@ interface MobileMenuProps {
  */
 export function MobileMenu({ navigation }: MobileMenuProps) {
   const [isOpen, setIsOpen] = useState(false)
-  const [isMounted, setIsMounted] = useState(false)
   const { data: session, status, isHydrated } = useSessionHydrationSafe()
 
-  useEffect(() => {
-    setIsMounted(true)
-  }, [])
-
-  // Don't render anything until mounted (prevents hydration mismatch)
-  if (!isMounted) {
+  // Don't render anything until hydrated (prevents hydration mismatch)
+  if (!isHydrated) {
     return null
   }
 
   return (
-    <Sheet open={isOpen} onOpenChange={setIsOpen} modal>
+    <div suppressHydrationWarning>
+      <Sheet open={isOpen} onOpenChange={setIsOpen} modal>
       <SheetTrigger asChild className="md:hidden">
         <Button variant="ghost" size="sm">
           <Menu className="h-5 w-5" />
@@ -142,5 +138,6 @@ export function MobileMenu({ navigation }: MobileMenuProps) {
         </div>
       </SheetContent>
     </Sheet>
+    </div>
   )
 }
