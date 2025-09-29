@@ -3,6 +3,7 @@ import { getBeds24Service } from '@/services/beds24';
 import { availabilityCache, CACHE_TTL } from '@/lib/cache';
 import { analytics } from '@/lib/analytics';
 
+
 /**
  * API endpoint pre získanie dostupnosti apartmánov
  * Používa sa v booking widget
@@ -111,7 +112,7 @@ export async function GET(request: NextRequest) {
         });
         
         if (!hasBeds24Config) {
-          console.warn('⚠️ BEDS24 environment variables not available, returning empty availability');
+          console.warn('⚠️ BEDS24 environment variables not available');
           return NextResponse.json({
             success: false,
             error: 'BEDS24 service not configured',
@@ -134,7 +135,45 @@ export async function GET(request: NextRequest) {
           });
         } catch (serviceError) {
           console.error('Beds24Service initialization failed:', serviceError);
-          throw new Error('Beds24 service initialization failed - check environment variables');
+          // If service initialization fails, return empty availability instead of throwing
+          console.warn('⚠️ Beds24Service failed, returning empty availability');
+          return NextResponse.json({
+            success: true,
+            apartment,
+            checkIn,
+            checkOut,
+            isAvailable: false,
+            totalPrice: 0,
+            pricePerNight: 0,
+            nights: 0,
+            available: [],
+            booked: [],
+            prices: {},
+            minStay: 1,
+            maxStay: 30,
+            bookedDates: [],
+            dailyPrices: {},
+            pricingInfo: {
+              guestCount: parseInt(guests),
+              childrenCount: parseInt(children),
+              source: 'error',
+              totalDays: 0,
+              averagePricePerNight: 0,
+              basePrice: 0,
+              additionalGuestFee: 0,
+              additionalGuestFeePerNight: 0,
+              additionalAdults: 0,
+              additionalChildren: 0
+            },
+            performance: {
+              responseTime: Date.now() - startTime,
+              cacheHit: false,
+              source: 'error',
+              cacheKey,
+              cacheStats: { hits: 0, misses: 1, activeRequests: 0, hitRate: 0 },
+              timestamp: new Date().toISOString()
+            }
+          });
         }
 
         // Store in cache for future requests
@@ -181,21 +220,47 @@ export async function GET(request: NextRequest) {
         }
 
         if (!availability) {
-          // Enhanced error response with more details
+          // Return empty availability instead of error to prevent redirect
           const errorMessage = apiError instanceof Error ? apiError.message : 'Unknown error';
-          console.error('Final availability fetch failed:', errorMessage);
+          console.error('Final availability fetch failed, returning empty availability:', errorMessage);
           
           return NextResponse.json({
-            success: false,
-            error: `Failed to fetch availability: ${errorMessage}`,
-            details: {
-              apartment,
-              checkIn,
-              checkOut,
-              timestamp: new Date().toISOString(),
-              hasBeds24Config: !!(process.env.BEDS24_ACCESS_TOKEN && process.env.BEDS24_REFRESH_TOKEN)
+            success: true,
+            apartment,
+            checkIn,
+            checkOut,
+            isAvailable: false,
+            totalPrice: 0,
+            pricePerNight: 0,
+            nights: 0,
+            available: [],
+            booked: [],
+            prices: {},
+            minStay: 1,
+            maxStay: 30,
+            bookedDates: [],
+            dailyPrices: {},
+            pricingInfo: {
+              guestCount: parseInt(guests),
+              childrenCount: parseInt(children),
+              source: 'error',
+              totalDays: 0,
+              averagePricePerNight: 0,
+              basePrice: 0,
+              additionalGuestFee: 0,
+              additionalGuestFeePerNight: 0,
+              additionalAdults: 0,
+              additionalChildren: 0
+            },
+            performance: {
+              responseTime: Date.now() - startTime,
+              cacheHit: false,
+              source: 'error',
+              cacheKey,
+              cacheStats: { hits: 0, misses: 1, activeRequests: 0, hitRate: 0 },
+              timestamp: new Date().toISOString()
             }
-          }, { status: 503 });
+          });
         }
       }
     }
@@ -203,9 +268,42 @@ export async function GET(request: NextRequest) {
     // Ensure we have availability data
     if (!availability) {
       return NextResponse.json({
-        success: false,
-        error: 'No availability data received'
-      }, { status: 503 });
+        success: true,
+        apartment,
+        checkIn,
+        checkOut,
+        isAvailable: false,
+        totalPrice: 0,
+        pricePerNight: 0,
+        nights: 0,
+        available: [],
+        booked: [],
+        prices: {},
+        minStay: 1,
+        maxStay: 30,
+        bookedDates: [],
+        dailyPrices: {},
+        pricingInfo: {
+          guestCount: parseInt(guests),
+          childrenCount: parseInt(children),
+          source: 'no-data',
+          totalDays: 0,
+          averagePricePerNight: 0,
+          basePrice: 0,
+          additionalGuestFee: 0,
+          additionalGuestFeePerNight: 0,
+          additionalAdults: 0,
+          additionalChildren: 0
+        },
+        performance: {
+          responseTime: Date.now() - startTime,
+          cacheHit: false,
+          source: 'no-data',
+          cacheKey,
+          cacheStats: { hits: 0, misses: 1, activeRequests: 0, hitRate: 0 },
+          timestamp: new Date().toISOString()
+        }
+      });
     }
 
     // Skontroluj či sú všetky dni dostupné

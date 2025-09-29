@@ -175,15 +175,17 @@ class Beds24Service {
     try {
       console.log('Refreshing Beds24 access token...');
       
-      // RESTORED: Use GET method with refreshToken in header (original working version)
+      // Use POST method with refreshToken in body (correct Beds24 API format)
       const response = await fetch(`${this.config.baseUrl}/authentication/token`, {
-        method: 'GET',
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-          'refreshToken': this.config.refreshToken,
           'User-Agent': 'ApartmanyVita/1.0'
-        }
+        },
+        body: JSON.stringify({
+          refreshToken: this.config.refreshToken
+        })
       });
 
       if (!response.ok) {
