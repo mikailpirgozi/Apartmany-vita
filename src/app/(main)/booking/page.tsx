@@ -64,63 +64,36 @@ async function BookingContent({ searchParams }: BookingPageProps) {
     children: childrenCount
   }
 
-  // Get pricing from Beds24 API instead of local calculation
+  // Calculate comprehensive pricing using pricing service (server-side)
   let availability
+  let pricingData
   try {
     const checkInStr = format(checkInDate, 'yyyy-MM-dd');
     const checkOutStr = format(checkOutDate, 'yyyy-MM-dd');
     
-    // Use internal API call instead of external fetch
-    const { getBeds24Service } = await import('@/services/beds24');
-    const beds24Service = getBeds24Service();
+    // Import pricing service
+    const { calculateBookingPrice } = await import('@/services/pricing');
     
-    if (!beds24Service) {
-      // No fallback - Beds24 service is required for real availability data
-      console.error('❌ Beds24Service not available - cannot get real availability data');
-      redirect(`/apartments/${apartmentSlug}?error=beds24-unavailable`);
-    } else {
-      // Use Beds24 API
-      const apartmentMapping: Record<string, { propId: string; roomId: string }> = {
-        'design-apartman': { propId: '227484', roomId: '483027' },
-        'lite-apartman': { propId: '168900', roomId: '357932' },
-        'deluxe-apartman': { propId: '161445', roomId: '357931' },
-        'maly-apartman': { propId: '161445', roomId: '357931' }
-      };
-      
-      const apartmentConfig = apartmentMapping[apartmentSlug];
-      if (!apartmentConfig) {
-        throw new Error(`Unknown apartment: ${apartmentSlug}`);
-      }
-      
-      availability = await beds24Service.getInventoryCalendar({
-        propId: apartmentConfig.propId,
-        roomId: apartmentConfig.roomId,
-        startDate: checkInStr,
-        endDate: checkOutStr
-      });
-      
-      // Convert to expected format with internal pricing
-      const beds24Availability = availability;
-      const nights = Math.ceil((checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24));
-      
-      // Use internal pricing instead of Beds24 prices
-      const internalPricePerNight = Number(apartment.basePrice);
-      const totalPrice = internalPricePerNight * nights;
-      
-      availability = {
-        success: true,
-        isAvailable: beds24Availability.available.length > 0, // Check if dates are available
-        totalPrice,
-        pricePerNight: internalPricePerNight,
-        nights
-      };
-    }
+    // Calculate pricing server-side (includes Beds24 API calls)
+    pricingData = await calculateBookingPrice({
+      apartmentId: apartment.id,
+      checkIn: checkInDate,
+      checkOut: checkOutDate,
+      guests: guestCount,
+      children: childrenCount
+      // No userId here - loyalty discount will be calculated in client component if user is logged in
+    });
     
-    if (!availability.success || !availability.isAvailable) {
-      redirect(`/apartments/${apartmentSlug}?error=unavailable`)
-    }
+    // Availability is determined by successful pricing calculation
+    availability = {
+      success: true,
+      isAvailable: true, // If pricing succeeds, dates are available
+      totalPrice: pricingData.total,
+      pricePerNight: pricingData.pricePerNight,
+      nights: pricingData.nights
+    };
   } catch (error) {
-    console.error('Failed to get availability:', error)
+    console.error('Failed to calculate pricing:', error)
     redirect(`/apartments/${apartmentSlug}?error=pricing`)
   }
 
@@ -131,6 +104,7 @@ async function BookingContent({ searchParams }: BookingPageProps) {
           apartment={apartment}
           bookingData={bookingData}
           availability={availability.isAvailable}
+          initialPricing={pricingData}
         />
       </div>
     </div>

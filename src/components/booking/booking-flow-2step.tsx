@@ -78,6 +78,7 @@ interface BookingFlowProps {
     children: number;
   };
   availability: boolean;
+  initialPricing: BookingPricing; // Pre-calculated pricing from server
 }
 
 // Extra services configuration
@@ -134,7 +135,7 @@ const EXTRA_SERVICES: ExtraService[] = [
   }
 ];
 
-export function BookingFlow2Step({ apartment, bookingData, availability }: BookingFlowProps) {
+export function BookingFlow2Step({ apartment, bookingData, availability, initialPricing }: BookingFlowProps) {
   const router = useRouter();
   const { data: session, isHydrated } = useSessionHydrationSafe();
   const [currentStep, setCurrentStep] = useState<BookingStep>('details');
@@ -147,6 +148,7 @@ export function BookingFlow2Step({ apartment, bookingData, availability }: Booki
     tourBooking: false
   });
   const [paymentState, setPaymentState] = useState<PaymentState | null>(null);
+  const [pricing, setPricing] = useState<BookingPricing>(initialPricing);
 
   // Contact form - use consistent default values to prevent hydration mismatch
   const contactForm = useForm<ContactFormData>({
@@ -174,11 +176,16 @@ export function BookingFlow2Step({ apartment, bookingData, availability }: Booki
     }
   }, [session, contactForm, isHydrated]);
 
-  // Calculate pricing with selected extras - always enabled
+  // Recalculate loyalty discount when user logs in (optional enhancement)
+  // For now, use server-calculated pricing from initialPricing
   const userId = session?.user ? (session.user as { id?: string }).id : undefined;
-  const { data: pricing, isLoading: pricingLoading, error: pricingError } = useQuery<BookingPricing>({
-    queryKey: ['pricing', apartment.id, bookingData, userId, selectedExtras],
+  
+  // If user is logged in and we haven't recalculated loyalty discount yet, fetch updated pricing
+  const { data: updatedPricing, isLoading: pricingLoading } = useQuery<BookingPricing>({
+    queryKey: ['pricing-loyalty', apartment.id, userId],
     queryFn: async () => {
+      if (!userId) return null;
+      
       const response = await fetch('/api/pricing/calculate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -193,15 +200,21 @@ export function BookingFlow2Step({ apartment, bookingData, availability }: Booki
       });
       
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Pricing API error:', errorText);
-        throw new Error('Pricing calculation failed');
+        console.error('Failed to recalculate loyalty discount');
+        return null;
       }
       return response.json();
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    retry: 3
+    enabled: !!userId && isHydrated, // Only fetch if user is logged in
+    staleTime: 5 * 60 * 1000
   });
+
+  // Use updated pricing with loyalty discount if available, otherwise use initial pricing
+  useEffect(() => {
+    if (updatedPricing) {
+      setPricing(updatedPricing);
+    }
+  }, [updatedPricing]);
 
   // Calculate extras total
   const extrasTotal = EXTRA_SERVICES.reduce((total, service) => {
@@ -227,9 +240,6 @@ export function BookingFlow2Step({ apartment, bookingData, availability }: Booki
 
   const currentStepIndex = BOOKING_STEPS.findIndex(step => step.id === currentStep);
   const progress = ((currentStepIndex + 1) / BOOKING_STEPS.length) * 100;
-
-  // Show error alert if pricing fails
-  const showPricingError = pricingError && !pricingLoading;
 
   if (paymentState?.success) {
     return (
@@ -319,21 +329,12 @@ export function BookingFlow2Step({ apartment, bookingData, availability }: Booki
                     <h4 className="font-medium mb-3 flex items-center gap-2">
                       <Euro className="w-4 h-4" />
                       Prehľad ceny
+                      {pricingLoading && userId && (
+                        <span className="text-xs text-blue-600">(prepočítavam loyalty zľavu...)</span>
+                      )}
                     </h4>
                     
-                    {pricingLoading ? (
-                      <div className="space-y-2">
-                        <Skeleton className="h-4 w-full" />
-                        <Skeleton className="h-4 w-3/4" />
-                        <Skeleton className="h-4 w-5/6" />
-                      </div>
-                    ) : showPricingError ? (
-                      <Alert variant="destructive">
-                        <AlertDescription>
-                          Chyba pri načítaní ceny. Skúste obnoviť stránku.
-                        </AlertDescription>
-                      </Alert>
-                    ) : pricing ? (
+                    {pricing ? (
                       <div className="space-y-2 text-sm">
                         <div className="flex justify-between">
                           <span>{pricing.nights} nocí × {(pricing.baseSubtotal / pricing.nights).toFixed(2)}€</span>
