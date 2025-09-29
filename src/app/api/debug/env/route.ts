@@ -14,6 +14,9 @@ export async function GET(request: NextRequest) {
       beds24AccessTokenLength: process.env.BEDS24_ACCESS_TOKEN?.length || 0,
       hasBeds24RefreshToken: !!process.env.BEDS24_REFRESH_TOKEN,
       beds24RefreshTokenLength: process.env.BEDS24_REFRESH_TOKEN?.length || 0,
+      // LONG LIFE TOKEN
+      hasBeds24LongLifeToken: !!process.env.BEDS24_LONG_LIFE_TOKEN,
+      beds24LongLifeTokenLength: process.env.BEDS24_LONG_LIFE_TOKEN?.length || 0,
       beds24BaseUrl: process.env.BEDS24_BASE_URL || 'not set',
       beds24PropId: process.env.BEDS24_PROP_ID || 'not set',
       
