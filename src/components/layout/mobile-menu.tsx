@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
@@ -18,7 +18,7 @@ interface MobileMenuProps {
  */
 export function MobileMenu({ navigation }: MobileMenuProps) {
   const [isOpen, setIsOpen] = useState(false)
-  const { data: session, status } = useSessionHydrationSafe()
+  const { data: session } = useSessionHydrationSafe()
 
   // NOTE: Loaded via dynamic import with ssr: false
   // Component only runs on client, session will be available

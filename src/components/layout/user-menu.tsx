@@ -17,7 +17,7 @@ import { User, Settings, Calendar, LogOut, Star } from 'lucide-react'
 import { useSessionHydrationSafe } from '@/hooks/use-session-hydration-safe'
 
 function UserMenuContent() {
-  const { data: session, status } = useSessionHydrationSafe()
+  const { data: session } = useSessionHydrationSafe()
 
   // NOTE: Dynamic import handles loading state via Suspense
   // Component should render immediately without internal loading checks

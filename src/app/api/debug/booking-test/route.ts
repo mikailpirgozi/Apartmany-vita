@@ -5,9 +5,9 @@ import { prisma } from '@/lib/db';
  * Debug endpoint to test full booking flow
  * Tests each step that could cause redirect
  */
-export async function GET(request: NextRequest) {
+export async function GET() {
   const startTime = Date.now();
-  const diagnostics: Record<string, any> = {
+  const diagnostics: Record<string, unknown> = {
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV,
     steps: []
@@ -134,7 +134,7 @@ export async function GET(request: NextRequest) {
     }
 
     diagnostics.duration = Date.now() - startTime;
-    diagnostics.overallStatus = diagnostics.steps.every((s: any) => s.status === 'PASS') ? 'ALL_PASS' : 'SOME_FAILED';
+    diagnostics.overallStatus = diagnostics.steps.every((s: { status: string }) => s.status === 'PASS') ? 'ALL_PASS' : 'SOME_FAILED';
 
   } catch (error) {
     diagnostics.overallStatus = 'CRITICAL_FAILURE';

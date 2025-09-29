@@ -82,8 +82,6 @@ async function BookingContent({ searchParams }: BookingPageProps) {
   let pricingData;
   
   try {
-    const checkInStr = format(checkInDate, 'yyyy-MM-dd');
-    const checkOutStr = format(checkOutDate, 'yyyy-MM-dd');
     
     // Import pricing service
     const { calculateBookingPrice } = await import('@/services/pricing');

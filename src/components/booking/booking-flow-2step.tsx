@@ -1,14 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useSessionHydrationSafe } from "@/hooks/use-session-hydration-safe";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { format } from "date-fns";
 import { Check, ChevronLeft, ChevronRight, User, CreditCard, Calendar, Euro, Percent, Building, MessageSquare } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -148,7 +146,6 @@ export function BookingFlow2Step({ apartment, bookingData, availability, initial
   });
   const [paymentState, setPaymentState] = useState<PaymentState | null>(null);
   const [pricing] = useState<BookingPricing>(initialPricing);
-  const [isMounted, setIsMounted] = useState(false);
 
   // Prevent hydration mismatch - only access session after mount
   useEffect(() => {
