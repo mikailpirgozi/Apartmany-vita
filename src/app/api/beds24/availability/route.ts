@@ -203,26 +203,14 @@ export async function GET(request: NextRequest) {
       }, { status: 503 });
     }
 
-    // Skontroluj či sú všetky dni dostupné
+    // Skontroluj či sú všetky dni dostupné - SIMPLIFIED
     const startDate = new Date(checkIn);
     const endDate = new Date(checkOut);
     const requestedDates: string[] = [];
     
-    // For calendar display: include end date if it's end of month (calendar view)
-    // For booking: exclude checkout date (booking logic)
-    const isEndOfMonth = endDate.getDate() === new Date(endDate.getFullYear(), endDate.getMonth() + 1, 0).getDate();
-    const includeEndDate = isEndOfMonth;
-    
-    if (includeEndDate) {
-      // Calendar view - include all days including end of month
-      for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
-        requestedDates.push(d.toISOString().split('T')[0]);
-      }
-    } else {
-      // Booking view - exclude checkout date
-      for (let d = new Date(startDate); d < endDate; d.setDate(d.getDate() + 1)) {
-        requestedDates.push(d.toISOString().split('T')[0]);
-      }
+    // ALWAYS include end date for calendar month view - Beds24 provides prices for all days
+    for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+      requestedDates.push(d.toISOString().split('T')[0]);
     }
 
     const isAvailable = requestedDates.every(date => 
@@ -245,16 +233,27 @@ export async function GET(request: NextRequest) {
     
     // NO FALLBACK PRICING - Only real Beds24 data allowed
     
+    // FIXED: Copy ALL prices from Beds24 service response - no filtering
+    Object.assign(dailyPricesFromBeds24, availability!.prices || {});
+    
+    // Calculate basePrice only from available dates
     availableDates.forEach(date => {
-      // STRICT: Only use Beds24 prices - NO FALLBACKS
-      const beds24Price = availability!.prices?.[date];
-      if (beds24Price && beds24Price > 0) {
-        dailyPricesFromBeds24[date] = beds24Price;
-        basePrice += beds24Price;
+      const datePrice = dailyPricesFromBeds24[date];
+      if (datePrice && datePrice > 0) {
+        basePrice += datePrice;
+        console.log(`✅ Price for ${date}: €${datePrice}`);
       } else {
-        console.warn(`⚠️ No Beds24 price for ${apartment} on ${date} - skipping date`);
-        // Skip dates without real Beds24 pricing
+        console.warn(`⚠️ Available date ${date} has no price in Beds24 data`);
       }
+    });
+
+    // DEBUG: Log final prices object
+    console.log(`📊 Final prices for ${apartment}:`, {
+      totalDates: availableDates.length,
+      pricesCount: Object.keys(dailyPricesFromBeds24).length,
+      missingPrices: availableDates.filter(date => !dailyPricesFromBeds24[date]),
+      lastDate: availableDates[availableDates.length - 1],
+      lastDatePrice: dailyPricesFromBeds24[availableDates[availableDates.length - 1]]
     });
     
     // Dodatočné poplatky za hostí nad základ 2 ľudí (ZA KAŽDÚ NOC!)

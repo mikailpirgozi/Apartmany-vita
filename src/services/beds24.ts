@@ -1681,12 +1681,12 @@ class Beds24Service {
             blocked: isBlocked,
             status: status || undefined,
             numAvail: numAvail || undefined,
-            price: price || undefined
+            price: price // FIXED: Don't use || undefined which converts 0 to undefined
           };
           
-          // DEBUG: Log price setting for December 31
-          if (date === '2025-12-31') {
-            console.log(`🎯 SETTING PRICE FOR DEC 31: ${price}€`, {
+          // DEBUG: Log price setting for month end dates
+          if (date === '2025-12-31' || date === '2025-10-31' || date === '2025-11-30') {
+            console.log(`🎯 SETTING PRICE FOR MONTH END: ${date} = ${price}€`, {
               date,
               available: isAvailable,
               blocked: isBlocked,
@@ -1732,16 +1732,22 @@ class Beds24Service {
           console.log(`🚫 ${dateStr}: Blocked (${calendar.status || 'unavailable'}, numAvail: ${calendar.numAvail})`);
         }
         
-        // Add price if available
-        if (calendar.price) {
-          prices[dateStr] = calendar.price;
+        // Add price if available - FIXED: Check all possible price fields
+        let finalPrice = calendar.price;
+        if (!finalPrice && calendar) {
+          // Check alternative price field names in case of type issues
+          finalPrice = (calendar as any).price1 || (calendar as any).rate || (calendar as any).amount;
+        }
+        
+        if (finalPrice && finalPrice > 0) {
+          prices[dateStr] = finalPrice;
           
-          // DEBUG: Log final price setting for December 31
-          if (dateStr === '2025-12-31') {
-            console.log(`🎯 FINAL PRICE SET FOR DEC 31: €${calendar.price}`);
+          // DEBUG: Log final price setting for month end dates
+          if (dateStr === '2025-12-31' || dateStr === '2025-10-31' || dateStr === '2025-11-30') {
+            console.log(`🎯 FINAL PRICE SET FOR MONTH END ${dateStr}: €${finalPrice}`);
           }
-        } else if (dateStr === '2025-12-31') {
-          console.log(`❌ NO PRICE FOR DEC 31 in calendar data:`, calendar);
+        } else if (dateStr === '2025-12-31' || dateStr === '2025-10-31' || dateStr === '2025-11-30') {
+          console.log(`❌ NO PRICE FOR MONTH END ${dateStr} in calendar data:`, calendar);
         }
       } else {
         // No calendar data for this date - DO NOT ASSUME AVAILABILITY WITHOUT PRICE
