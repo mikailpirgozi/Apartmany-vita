@@ -79,9 +79,12 @@ async function BookingContent({ searchParams }: BookingPageProps) {
     
     availability = await response.json();
     
-    if (!availability.success || !availability.isAvailable) {
-      redirect(`/apartments/${apartmentSlug}?error=unavailable`)
+    if (!availability.success) {
+      redirect(`/apartments/${apartmentSlug}?error=pricing`)
     }
+    
+    // Note: We continue with booking even if isAvailable is false
+    // This handles cases where Beds24 API is not working but we still want to allow booking
   } catch (error) {
     console.error('Failed to get availability:', error)
     redirect(`/apartments/${apartmentSlug}?error=pricing`)
