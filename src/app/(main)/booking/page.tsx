@@ -84,6 +84,13 @@ async function BookingContent({ searchParams }: BookingPageProps) {
       // No userId here - loyalty discount will be calculated in client component if user is logged in
     });
     
+    console.log('✅ Pricing calculated successfully:', {
+      total: pricingData.total,
+      nights: pricingData.nights,
+      hasBreakdown: !!pricingData.breakdown,
+      breakdownLength: pricingData.breakdown?.length
+    });
+    
     // Availability is determined by successful pricing calculation
     availability = {
       success: true,
@@ -93,7 +100,7 @@ async function BookingContent({ searchParams }: BookingPageProps) {
       nights: pricingData.nights
     };
   } catch (error) {
-    console.error('Failed to calculate pricing:', error)
+    console.error('❌ Failed to calculate pricing:', error)
     redirect(`/apartments/${apartmentSlug}?error=pricing`)
   }
 
