@@ -69,22 +69,56 @@ async function BookingContent({ searchParams }: BookingPageProps) {
   try {
     const checkInStr = format(checkInDate, 'yyyy-MM-dd');
     const checkOutStr = format(checkOutDate, 'yyyy-MM-dd');
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/beds24/availability?apartment=${apartmentSlug}&checkIn=${checkInStr}&checkOut=${checkOutStr}&guests=${guestCount}&children=${childrenCount}`, {
-      cache: 'no-store' // Always get fresh data
-    });
     
-    if (!response.ok) {
-      throw new Error('Failed to fetch availability');
+    // Use internal API call instead of external fetch
+    const { getBeds24Service } = await import('@/services/beds24');
+    const beds24Service = getBeds24Service();
+    
+    if (!beds24Service) {
+      // If Beds24 service is not available, create mock availability
+      const { getMockAvailability } = await import('@/lib/mock-data');
+      availability = {
+        success: true,
+        isAvailable: true,
+        totalPrice: Number(apartment.basePrice) * Math.ceil((checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24)),
+        pricePerNight: Number(apartment.basePrice),
+        nights: Math.ceil((checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24))
+      };
+    } else {
+      // Use Beds24 API
+      const apartmentMapping: Record<string, { propId: string; roomId: string }> = {
+        'design-apartman': { propId: '227484', roomId: '483027' },
+        'lite-apartman': { propId: '168900', roomId: '357932' },
+        'deluxe-apartman': { propId: '161445', roomId: '357931' },
+        'maly-apartman': { propId: '161445', roomId: '357931' }
+      };
+      
+      const apartmentConfig = apartmentMapping[apartmentSlug];
+      if (!apartmentConfig) {
+        throw new Error(`Unknown apartment: ${apartmentSlug}`);
+      }
+      
+      availability = await beds24Service.getInventoryCalendar({
+        propId: apartmentConfig.propId,
+        roomId: apartmentConfig.roomId,
+        startDate: checkInStr,
+        endDate: checkOutStr
+      });
+      
+      // Convert to expected format
+      const beds24Availability = availability;
+      availability = {
+        success: true,
+        isAvailable: true,
+        totalPrice: beds24Availability.prices[checkInStr] || Number(apartment.basePrice),
+        pricePerNight: beds24Availability.prices[checkInStr] || Number(apartment.basePrice),
+        nights: Math.ceil((checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24))
+      };
     }
     
-    availability = await response.json();
-    
-    if (!availability.success) {
-      redirect(`/apartments/${apartmentSlug}?error=pricing`)
+    if (!availability.success || !availability.isAvailable) {
+      redirect(`/apartments/${apartmentSlug}?error=unavailable`)
     }
-    
-    // Note: We continue with booking even if isAvailable is false
-    // This handles cases where Beds24 API is not working but we still want to allow booking
   } catch (error) {
     console.error('Failed to get availability:', error)
     redirect(`/apartments/${apartmentSlug}?error=pricing`)
