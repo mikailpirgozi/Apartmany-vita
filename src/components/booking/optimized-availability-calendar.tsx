@@ -705,7 +705,11 @@ function generateCalendarDays(
     const isCurrentMonth = date.getMonth() === currentMonth.getMonth();
     let isAvailable = availability?.available?.includes(dateStr) || false;
     const isBooked = availability?.booked?.includes(dateStr) || false;
+    
+    // STRICT: Only use real Beds24 prices - NO FALLBACKS
     const price = availability?.prices?.[dateStr] || 0;
+    // If no price from Beds24, don't show price (will show €0 or empty)
+    
     const isPast = isBefore(date, today);
     
     // V range selection mode, kontroluj či je dátum selectable
