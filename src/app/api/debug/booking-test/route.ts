@@ -1,16 +1,32 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 
 /**
  * Debug endpoint to test full booking flow
  * Tests each step that could cause redirect
  */
+interface DiagnosticStep {
+  step: number;
+  name: string;
+  status: string;
+  [key: string]: unknown;
+}
+
+interface Diagnostics {
+  timestamp: string;
+  environment: string | undefined;
+  steps: DiagnosticStep[];
+  duration?: number;
+  overallStatus?: string;
+  criticalError?: string;
+}
+
 export async function GET() {
   const startTime = Date.now();
-  const diagnostics: Record<string, unknown> = {
+  const diagnostics: Diagnostics = {
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV,
-    steps: []
+    steps: [] as DiagnosticStep[]
   };
 
   try {
@@ -134,7 +150,7 @@ export async function GET() {
     }
 
     diagnostics.duration = Date.now() - startTime;
-    diagnostics.overallStatus = diagnostics.steps.every((s: { status: string }) => s.status === 'PASS') ? 'ALL_PASS' : 'SOME_FAILED';
+    diagnostics.overallStatus = diagnostics.steps.every(s => s.status === 'PASS') ? 'ALL_PASS' : 'SOME_FAILED';
 
   } catch (error) {
     diagnostics.overallStatus = 'CRITICAL_FAILURE';

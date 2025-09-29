@@ -1,6 +1,5 @@
 import { notFound, redirect } from 'next/navigation'
 import { Suspense } from 'react'
-import { format } from 'date-fns'
 import { BookingFlow2Step } from '@/components/booking/booking-flow-2step'
 import { getApartmentBySlug } from '@/services/apartments'
 import { Skeleton } from '@/components/ui/skeleton'

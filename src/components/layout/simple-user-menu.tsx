@@ -72,6 +72,7 @@ export function SimpleUserMenu({ isLoggedIn, userName, userEmail, userImage }: S
             src={userImage}
             alt={userName || userEmail || ''}
             className="h-10 w-10 rounded-full object-cover"
+            // eslint-disable-next-line @next/next/no-img-element
           />
         ) : (
           <div className="h-10 w-10 rounded-full bg-brand-accent flex items-center justify-center text-white font-semibold">

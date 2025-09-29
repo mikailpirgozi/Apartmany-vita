@@ -18,7 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Skeleton } from "@/components/ui/skeleton";
+// import { Skeleton } from "@/components/ui/skeleton"; // Currently unused
 import { PaymentForm } from "@/components/booking/payment-form";
 import { BookingPricing } from "@/services/pricing";
 import type { Apartment } from "@/types";
@@ -146,11 +146,6 @@ export function BookingFlow2Step({ apartment, bookingData, availability, initial
   });
   const [paymentState, setPaymentState] = useState<PaymentState | null>(null);
   const [pricing] = useState<BookingPricing>(initialPricing);
-
-  // Prevent hydration mismatch - only access session after mount
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
 
   // Contact form - use consistent default values to prevent hydration mismatch
   const contactForm = useForm<ContactFormData>({
@@ -694,11 +689,11 @@ export function BookingFlow2Step({ apartment, bookingData, availability, initial
   );
 }
 
-// Loading skeleton for booking flow
-function BookingFlowSkeleton() {
+// Loading skeleton for booking flow (currently unused)
+/*
+function _BookingFlowSkeleton() {
   return (
     <div className="max-w-7xl mx-auto">
-      {/* Progress Header Skeleton */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
           {Array.from({ length: 2 }).map((_, i) => (
@@ -717,7 +712,6 @@ function BookingFlowSkeleton() {
         <Skeleton className="h-2 w-full" />
       </div>
 
-      {/* Content Skeleton */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
         <div className="lg:col-span-3 space-y-6">
           <Card>
@@ -763,3 +757,4 @@ function BookingFlowSkeleton() {
     </div>
   );
 }
+*/
