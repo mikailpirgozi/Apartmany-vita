@@ -20,14 +20,11 @@ export function MobileMenu({ navigation }: MobileMenuProps) {
   const [isOpen, setIsOpen] = useState(false)
   const { data: session, status, isHydrated } = useSessionHydrationSafe()
 
-  // Don't render anything until hydrated (prevents hydration mismatch)
-  if (!isHydrated) {
-    return null
-  }
+  // NOTE: Component is loaded with dynamic import (ssr: false)
+  // So it only runs on client - no need for isHydrated check
 
   return (
-    <div suppressHydrationWarning>
-      <Sheet open={isOpen} onOpenChange={setIsOpen} modal>
+    <Sheet open={isOpen} onOpenChange={setIsOpen} modal>
       <SheetTrigger asChild className="md:hidden">
         <Button variant="ghost" size="sm">
           <Menu className="h-5 w-5" />

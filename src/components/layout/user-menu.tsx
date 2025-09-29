@@ -19,8 +19,10 @@ import { useSessionHydrationSafe } from '@/hooks/use-session-hydration-safe'
 function UserMenuContent() {
   const { data: session, status, isHydrated } = useSessionHydrationSafe()
 
-  // Show loading state during hydration or loading
-  if (!isHydrated || status === 'loading') {
+  // NOTE: Loading state is handled by dynamic import's Suspense boundary
+  // Don't return skeleton here to prevent hydration mismatch
+  
+  if (status === 'loading') {
     return (
       <div className="w-8 h-8 rounded-full bg-muted animate-pulse" />
     )
