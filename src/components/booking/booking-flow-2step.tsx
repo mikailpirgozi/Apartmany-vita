@@ -137,7 +137,6 @@ const EXTRA_SERVICES: ExtraService[] = [
 
 export function BookingFlow2Step({ apartment, bookingData, availability, initialPricing }: BookingFlowProps) {
   const router = useRouter();
-  const { data: session, isHydrated } = useSessionHydrationSafe();
   const [currentStep, setCurrentStep] = useState<BookingStep>('details');
   const [selectedExtras, setSelectedExtras] = useState<ExtrasFormData>({
     extraBed: false,
@@ -148,7 +147,13 @@ export function BookingFlow2Step({ apartment, bookingData, availability, initial
     tourBooking: false
   });
   const [paymentState, setPaymentState] = useState<PaymentState | null>(null);
-  const [pricing, setPricing] = useState<BookingPricing>(initialPricing);
+  const [pricing] = useState<BookingPricing>(initialPricing);
+  const [isMounted, setIsMounted] = useState(false);
+
+  // Prevent hydration mismatch - only access session after mount
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   // Contact form - use consistent default values to prevent hydration mismatch
   const contactForm = useForm<ContactFormData>({
@@ -164,57 +169,9 @@ export function BookingFlow2Step({ apartment, bookingData, availability, initial
     }
   });
 
-  // Update form values when session is available (after hydration)
-  useEffect(() => {
-    if (session?.user && isHydrated) {
-      const nameParts = session.user.name?.split(' ') || [];
-      const userWithPhone = session.user as { phone?: string | null };
-      contactForm.setValue('firstName', nameParts[0] || '');
-      contactForm.setValue('lastName', nameParts[1] || '');
-      contactForm.setValue('email', session.user.email || '');
-      contactForm.setValue('phone', userWithPhone.phone || '');
-    }
-  }, [session, contactForm, isHydrated]);
-
-  // Recalculate loyalty discount when user logs in (optional enhancement)
-  // For now, use server-calculated pricing from initialPricing
-  const userId = session?.user ? (session.user as { id?: string }).id : undefined;
-  
-  // If user is logged in and we haven't recalculated loyalty discount yet, fetch updated pricing
-  const { data: updatedPricing, isLoading: pricingLoading } = useQuery<BookingPricing>({
-    queryKey: ['pricing-loyalty', apartment.id, userId],
-    queryFn: async () => {
-      if (!userId) return null;
-      
-      const response = await fetch('/api/pricing/calculate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          apartmentId: apartment.id,
-          checkIn: bookingData.checkIn.toISOString(),
-          checkOut: bookingData.checkOut.toISOString(),
-          guests: bookingData.guests,
-          children: bookingData.children,
-          userId
-        })
-      });
-      
-      if (!response.ok) {
-        console.error('Failed to recalculate loyalty discount');
-        return null;
-      }
-      return response.json();
-    },
-    enabled: !!userId && isHydrated, // Only fetch if user is logged in
-    staleTime: 5 * 60 * 1000
-  });
-
-  // Use updated pricing with loyalty discount if available, otherwise use initial pricing
-  useEffect(() => {
-    if (updatedPricing) {
-      setPricing(updatedPricing);
-    }
-  }, [updatedPricing]);
+  // Note: Session handling removed to prevent SSR errors
+  // Pricing is pre-calculated on server and passed as initialPricing
+  // User can manually fill contact form (or we can add session prefill later with proper client-side handling)
 
   // Calculate extras total
   const extrasTotal = EXTRA_SERVICES.reduce((total, service) => {
@@ -329,12 +286,9 @@ export function BookingFlow2Step({ apartment, bookingData, availability, initial
                     <h4 className="font-medium mb-3 flex items-center gap-2">
                       <Euro className="w-4 h-4" />
                       Prehľad ceny
-                      {pricingLoading && userId && (
-                        <span className="text-xs text-blue-600">(prepočítavam loyalty zľavu...)</span>
-                      )}
                     </h4>
                     
-                    {pricing ? (
+                    {pricing && (
                       <div className="space-y-2 text-sm">
                         <div className="flex justify-between">
                           <span>{pricing.nights} nocí × {(pricing.baseSubtotal / pricing.nights).toFixed(2)}€</span>
@@ -407,7 +361,7 @@ export function BookingFlow2Step({ apartment, bookingData, availability, initial
                           </div>
                         </div>
                       </div>
-                    ) : null}
+                    )}
                   </div>
                 </CardContent>
               </Card>
