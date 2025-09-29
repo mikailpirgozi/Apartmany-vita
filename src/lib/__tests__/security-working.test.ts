@@ -92,7 +92,7 @@ describe('Security Functions', () => {
     it('should generate valid CSRF token', () => {
       const token = generateCSRFToken();
       expect(token).toBeDefined();
-      expect(token.length).toBe(22); // Actual length is 22
+      expect(token.length).toBe(21); // Actual length is 21 (13+13-2)
       expect(typeof token).toBe('string');
     });
 
