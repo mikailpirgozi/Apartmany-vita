@@ -20,7 +20,8 @@ function ClientOnlyDevtools() {
     setMounted(true);
   }, []);
 
-  if (!mounted) {
+  // Always return null during SSR and initial hydration
+  if (!mounted || typeof window === 'undefined') {
     return null;
   }
 

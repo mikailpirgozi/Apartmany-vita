@@ -7,6 +7,8 @@ import { differenceInDays, eachDayOfInterval, format } from "date-fns";
 import { prisma } from "@/lib/db";
 import { getBeds24Service } from "./beds24";
 import { LoyaltyTier } from "@/lib/loyalty";
+import { PRICING_CONSTANTS } from "@/constants";
+import { calculateStayDiscount, type StayDiscount } from "@/lib/discounts";
 
 // Re-export LoyaltyTier for backward compatibility
 export { LoyaltyTier } from "@/lib/loyalty";
@@ -17,6 +19,12 @@ export interface BookingPricing {
   subtotal: number;
   loyaltyDiscount: number;
   loyaltyDiscountPercent: number;
+  longStayDiscount: number;
+  longStayDiscountPercent: number;
+  // New stay-based discount system
+  stayDiscount: number;
+  stayDiscountPercent: number;
+  stayDiscountInfo: StayDiscount | null;
   seasonalAdjustment: number;
   cleaningFee: number;
   cityTax: number;
@@ -24,6 +32,12 @@ export interface BookingPricing {
   pricePerNight: number;
   breakdown: PriceBreakdown[];
   loyaltyTier?: LoyaltyTier;
+      // Dodatočné informácie o poplatkoch za hostí
+      additionalGuestFee: number;
+      additionalGuestFeePerNight: number;
+      additionalAdults: number;
+      additionalChildren: number;
+      baseSubtotal: number;
 }
 
 export interface PriceBreakdown {
@@ -79,10 +93,26 @@ class PricingService {
       dynamicPrices
     );
     
-    const subtotal = breakdown.reduce((sum, day) => sum + day.price, 0);
+    const baseSubtotal = breakdown.reduce((sum, day) => sum + day.price, 0);
+    
+    // Dodatočné poplatky za hostí nad základ 2 ľudí (ZA KAŽDÚ NOC!)
+    const additionalAdults = Math.max(0, guests - 2);
+    const additionalChildren = Math.max(0, children);
+    const additionalGuestFeePerNight = (additionalAdults * 20) + (additionalChildren * 10);
+    const additionalGuestFee = additionalGuestFeePerNight * nights;
+    
+    const subtotal = baseSubtotal + additionalGuestFee;
     
     // Calculate loyalty discount
     const loyaltyData = userId ? await this.calculateLoyaltyDiscount(userId, subtotal) : null;
+    
+    // Calculate long stay discount (7+ nights) - DEPRECATED
+    const longStayData = this.calculateLongStayDiscount(nights, subtotal);
+    
+    // Calculate new stay-based discount system (independent of user registration)
+    const stayDiscountInfo = calculateStayDiscount(nights, subtotal);
+    const stayDiscount = stayDiscountInfo?.discountAmount || 0;
+    const stayDiscountPercent = stayDiscountInfo?.discountPercent || 0;
     
     // Calculate additional fees
     const cleaningFee = this.CLEANING_FEE;
@@ -93,6 +123,8 @@ class PricingService {
     
     const total = subtotal 
       - (loyaltyData?.discountAmount || 0)
+      - longStayData.discountAmount
+      - stayDiscount // New stay-based discount
       + seasonalAdjustment
       + cleaningFee 
       + cityTax;
@@ -103,13 +135,25 @@ class PricingService {
       subtotal,
       loyaltyDiscount: loyaltyData?.discountAmount || 0,
       loyaltyDiscountPercent: loyaltyData?.discountPercent || 0,
+      longStayDiscount: longStayData.discountAmount,
+      longStayDiscountPercent: longStayData.discountPercent,
+      // New stay-based discount system
+      stayDiscount,
+      stayDiscountPercent,
+      stayDiscountInfo,
       seasonalAdjustment,
       cleaningFee,
       cityTax,
       total: Math.max(0, total),
       pricePerNight: subtotal / nights,
       breakdown,
-      loyaltyTier: loyaltyData?.tier
+      loyaltyTier: loyaltyData?.tier,
+      // Dodatočné informácie o poplatkoch za hostí
+      additionalGuestFee,
+      additionalGuestFeePerNight,
+      additionalAdults,
+      additionalChildren,
+      baseSubtotal
     };
   }
   
@@ -247,6 +291,19 @@ class PricingService {
       case LoyaltyTier.SILVER: return 0.07;  // 7%
       case LoyaltyTier.BRONZE: return 0.05;  // 5%
     }
+  }
+  
+  /**
+   * Calculate long stay discount (7+ nights)
+   */
+  private calculateLongStayDiscount(nights: number, subtotal: number) {
+    const discountPercent = nights >= 7 ? PRICING_CONSTANTS.LONG_STAY_DISCOUNT : 0;
+    const discountAmount = subtotal * discountPercent;
+    
+    return {
+      discountPercent,
+      discountAmount: Math.round(discountAmount * 100) / 100
+    };
   }
   
   /**

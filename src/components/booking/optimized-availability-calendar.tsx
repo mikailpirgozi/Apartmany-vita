@@ -40,6 +40,7 @@ interface OptimizedAvailabilityCalendarProps {
   };
   onRangeSelect?: (range: { from: Date | null; to: Date | null }) => void;
   guests?: number;
+  childrenCount?: number;
   className?: string;
 }
 
@@ -207,6 +208,7 @@ export function OptimizedAvailabilityCalendar({
   selectedRange,
   onRangeSelect,
   guests = 2,
+  childrenCount = 0,
   className
 }: OptimizedAvailabilityCalendarProps) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -391,7 +393,7 @@ export function OptimizedAvailabilityCalendar({
 
   // Calculate pricing info for selected range
   const pricingInfo = selectedRange?.from && selectedRange?.to && availability 
-    ? calculatePricingInfo(selectedRange.from, selectedRange.to, getCombinedAvailabilityData(selectedRange.from, selectedRange.to) || availability as AvailabilityData, guests)
+    ? calculatePricingInfo(selectedRange.from, selectedRange.to, getCombinedAvailabilityData(selectedRange.from, selectedRange.to) || availability as AvailabilityData, guests, childrenCount)
     : null;
 
 
@@ -524,58 +526,6 @@ export function OptimizedAvailabilityCalendar({
               </div>
             </div>
 
-            {/* Pricing summary for selected range */}
-            {pricingInfo && (
-              <div className="pt-4 border-t space-y-4">
-                <h4 className="font-medium flex items-center gap-2">
-                  <Euro className="h-4 w-4" />
-                  Cenový súhrn
-                </h4>
-                
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <div className="space-y-2">
-                    <p className="text-sm text-muted-foreground">Základná cena</p>
-                    <p className="text-lg font-medium">€{pricingInfo.baseTotal}</p>
-                    <p className="text-xs text-muted-foreground">{pricingInfo.nights} noc{pricingInfo.nights > 1 ? 'í' : ''}</p>
-                  </div>
-                  
-                  {'guestAdjustment' in pricingInfo && (pricingInfo as { guestAdjustment: number }).guestAdjustment > 0 && (
-                    <div className="space-y-2">
-                      <p className="text-sm text-muted-foreground">Úprava pre hostí</p>
-                      <p className="text-lg font-medium text-blue-600">+€{(pricingInfo as { guestAdjustment: number }).guestAdjustment}</p>
-                      <p className="text-xs text-muted-foreground">{guests} hostí</p>
-                    </div>
-                  )}
-                  
-                  {pricingInfo.discount > 0 && (
-                    <div className="space-y-2">
-                      <p className="text-sm text-muted-foreground">Zľava</p>
-                      <p className="text-lg font-medium text-green-600">-€{pricingInfo.discount}</p>
-                      <p className="text-xs text-muted-foreground">{pricingInfo.discountReason}</p>
-                    </div>
-                  )}
-                  
-                  <div className="space-y-2">
-                    <p className="text-sm text-muted-foreground">Celková cena</p>
-                    <p className="text-xl font-bold text-primary">€{pricingInfo.finalTotal}</p>
-                    <p className="text-xs text-muted-foreground">€{Math.round(pricingInfo.baseTotal / pricingInfo.nights)}/noc priemerne</p>
-                  </div>
-                </div>
-
-                {/* Daily breakdown */}
-                <div className="space-y-2">
-                  <p className="text-sm font-medium">Rozloženie cien:</p>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
-                    {pricingInfo.dailyPrices.map(({ date, price }) => (
-                      <div key={date} className="flex justify-between p-2 bg-muted rounded">
-                        <span>{format(new Date(date), 'dd.MM')}</span>
-                        <span>€{price}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
 
             {/* Legend */}
             <div className="flex flex-wrap items-center gap-4 text-sm pt-4 border-t">
@@ -949,7 +899,8 @@ function calculatePricingInfo(
   from: Date,
   to: Date,
   availability: AvailabilityData,
-  guests: number
+  guests: number,
+  childrenCount: number = 0
 ) {
   const days = eachDayOfInterval({ start: from, end: to });
   const nights = days.length - 1; // Exclude checkout day
@@ -996,13 +947,25 @@ function calculatePricingInfo(
   // CHOOSE HIGHEST DISCOUNT (not combine)
   const totalDiscount = Math.max(stayDiscount, seasonalDiscount);
   
-  // Apply Beds24 guest pricing: €20 per extra person above 2
+  // Apply Beds24 guest pricing: €20 per extra adult above 2, €10 per child
   let adjustedBaseTotal = baseTotal;
+  let guestAdjustment = 0;
+  
+  // Calculate additional charges for extra adults (above base 2)
   if (guests > 2) {
-    const extraGuests = guests - 2;
-    const extraGuestCharge = 20; // €20 per extra person from Beds24 API
-    const totalExtraCharge = extraGuests * extraGuestCharge * nights;
-    adjustedBaseTotal = baseTotal + totalExtraCharge;
+    const extraAdults = guests - 2;
+    const extraAdultCharge = 20; // €20 per extra adult per night
+    const totalExtraAdultCharge = extraAdults * extraAdultCharge * nights;
+    guestAdjustment += totalExtraAdultCharge;
+    adjustedBaseTotal = baseTotal + totalExtraAdultCharge;
+  }
+  
+  // Calculate additional charges for children (all children are extra)
+  if (childrenCount > 0) {
+    const childCharge = 10; // €10 per child per night
+    const totalChildCharge = childrenCount * childCharge * nights;
+    guestAdjustment += totalChildCharge;
+    adjustedBaseTotal = baseTotal + guestAdjustment;
   }
   
   const discount = Math.round(adjustedBaseTotal * totalDiscount);
@@ -1019,12 +982,12 @@ function calculatePricingInfo(
   
   return {
     nights,
-    baseTotal: Math.round(adjustedBaseTotal),
+    baseTotal: Math.round(baseTotal), // Original base total without guest adjustments
     discount,
     discountReason,
-    finalTotal,
+    finalTotal: Math.round(adjustedBaseTotal - discount), // Final total with guest adjustments and discounts
     dailyPrices,
-    guestAdjustment: guests > 2 ? Math.round(adjustedBaseTotal - baseTotal) : 0
+    guestAdjustment: Math.round(guestAdjustment) // Total guest adjustment (adults + children)
   };
 }
 

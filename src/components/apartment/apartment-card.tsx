@@ -1,11 +1,13 @@
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Users, Wifi, ChefHat, Car } from 'lucide-react'
+import { Users, Wifi, ChefHat, Car, Percent } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Apartment } from '@/types'
 import { Decimal } from '@prisma/client/runtime/library'
+import { calculateStayDiscount } from '@/lib/discounts'
+import { differenceInDays } from 'date-fns'
 
 interface ApartmentCardProps {
   apartment: Apartment
@@ -64,7 +66,30 @@ export function ApartmentCard({ apartment, startDate, endDate, guests, childrenC
         <div className="flex items-center justify-between">
           <div>
             <div className="text-sm text-muted-foreground">Od:</div>
-            <span className="text-2xl font-bold">{toNumber(apartment.basePrice)} eur</span>
+            {startDate && endDate && (() => {
+              const nights = differenceInDays(endDate, startDate);
+              const basePrice = toNumber(apartment.basePrice);
+              const stayDiscount = calculateStayDiscount(nights, basePrice * nights);
+              
+              if (stayDiscount) {
+                const discountedPrice = basePrice - (stayDiscount.discountAmount / nights);
+                return (
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg line-through text-muted-foreground">{basePrice} eur</span>
+                      <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-800">
+                        <Percent className="h-3 w-3 mr-1" />
+                        -{stayDiscount.discountPercent}%
+                      </Badge>
+                    </div>
+                    <span className="text-2xl font-bold text-blue-600">{Math.round(discountedPrice)} eur</span>
+                    <div className="text-xs text-blue-600">po zľave za {stayDiscount.label}</div>
+                  </div>
+                );
+              }
+              
+              return <span className="text-2xl font-bold">{basePrice} eur</span>;
+            })() || <span className="text-2xl font-bold">{toNumber(apartment.basePrice)} eur</span>}
           </div>
           
           <Button asChild>

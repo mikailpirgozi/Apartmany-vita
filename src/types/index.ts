@@ -148,6 +148,50 @@ export interface AvailabilityData {
   prices: Record<string, number>
 }
 
+// Beds24 Availability Response with pricing info
+export interface Beds24AvailabilityResponse {
+  success: boolean
+  apartment: string
+  checkIn: string
+  checkOut: string
+  isAvailable: boolean
+  totalPrice: number
+  pricePerNight: number
+  nights: number
+  available: string[]
+  booked: string[]
+  prices: Record<string, number>
+  minStay: number
+  maxStay: number
+  bookedDates: string[]
+  dailyPrices: Record<string, number>
+  pricingInfo: {
+    guestCount: number
+    childrenCount: number
+    source: string
+    totalDays: number
+    averagePricePerNight: number
+    basePrice: number
+    additionalGuestFee: number
+    additionalGuestFeePerNight: number
+    additionalAdults: number
+    additionalChildren: number
+  }
+  performance: {
+    responseTime: number
+    cacheHit: boolean
+    source: string
+    cacheKey: string
+    cacheStats: {
+      hits: number
+      misses: number
+      activeRequests: number
+      hitRate: number
+    }
+    timestamp: string
+  }
+}
+
 // Google Reviews types
 export interface GoogleReview {
   author_name: string

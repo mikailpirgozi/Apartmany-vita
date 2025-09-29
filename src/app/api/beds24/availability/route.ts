@@ -217,9 +217,20 @@ export async function GET(request: NextRequest) {
     const availableDates = requestedDates.filter(date => 
       availability!.available.includes(date)
     );
-    const totalPrice = availableDates.reduce((sum, date) => 
+    
+    // Základná cena z Beds24 (pre 2 ľudí)
+    const basePrice = availableDates.reduce((sum, date) => 
       sum + (availability!.prices[date] || 0), 0
     );
+    
+    // Dodatočné poplatky za hostí nad základ 2 ľudí (ZA KAŽDÚ NOC!)
+    const additionalAdults = Math.max(0, guestCount - 2);
+    const additionalChildren = Math.max(0, childrenCount);
+    const additionalGuestFeePerNight = (additionalAdults * 20) + (additionalChildren * 10);
+    const additionalGuestFee = additionalGuestFeePerNight * availableDates.length;
+    
+    // Celková cena = základná cena + poplatky za ďalších hostí
+    const totalPrice = basePrice + additionalGuestFee;
 
     const response = {
       success: true,
@@ -250,7 +261,12 @@ export async function GET(request: NextRequest) {
         childrenCount,
         source: 'beds24-api',
         totalDays: availableDates.length,
-        averagePricePerNight: Math.round(totalPrice / (availableDates.length || 1))
+        averagePricePerNight: Math.round(totalPrice / (availableDates.length || 1)),
+        basePrice,
+        additionalGuestFee,
+        additionalGuestFeePerNight,
+        additionalAdults,
+        additionalChildren
       },
       // 🚀 PHASE 3: Enhanced performance metrics with cache info
       performance: {

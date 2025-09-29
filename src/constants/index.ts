@@ -71,9 +71,16 @@ export const PRICING_CONSTANTS = {
   WEEKEND_MULTIPLIER: 1.2,
   HOLIDAY_MULTIPLIER: 1.5,
   LAST_MINUTE_DISCOUNT: 0.15, // 15% for bookings within 7 days
-  LONG_STAY_DISCOUNT: 0.10,   // 10% for stays 7+ nights
+  LONG_STAY_DISCOUNT: 0.10,   // 10% for stays 7+ nights (deprecated - use STAY_DISCOUNTS)
   EARLY_BIRD_DISCOUNT: 0.05   // 5% for bookings 30+ days in advance
 }
+
+// Stay-based discount system (independent of user registration)
+export const STAY_DISCOUNTS = {
+  WEEK_STAY: { minNights: 7, discount: 0.10, label: "7+ dní" },      // 10% for 7+ nights
+  TWO_WEEK_STAY: { minNights: 14, discount: 0.15, label: "14+ dní" }, // 15% for 14+ nights  
+  MONTH_STAY: { minNights: 30, discount: 0.20, label: "30+ dní" }     // 20% for 30+ nights
+} as const
 
 // Supported languages
 export const SUPPORTED_LOCALES = [

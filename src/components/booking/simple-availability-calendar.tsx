@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { 
   format, 
@@ -103,8 +103,18 @@ export function SimpleAvailabilityCalendar({
     },
     staleTime: 2 * 60 * 1000, // 2 minutes
     refetchOnWindowFocus: true,
-    retry: 3
+    retry: 3,
+    enabled: typeof window !== 'undefined' // Only run on client side
   });
+
+  // Ensure consistent loading state between server and client
+  const [isHydrated, setIsHydrated] = useState(false);
+  
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
+  
+  const isActuallyLoading = !isHydrated || isLoading;
 
   // Generate calendar days for current month only
   const calendarDays = generateCalendarDays(
@@ -191,7 +201,7 @@ export function SimpleAvailabilityCalendar({
               variant="outline"
               size="sm"
               onClick={() => navigateMonth('prev')}
-              disabled={isLoading}
+              disabled={isActuallyLoading}
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
@@ -204,7 +214,7 @@ export function SimpleAvailabilityCalendar({
               variant="outline"
               size="sm"
               onClick={() => navigateMonth('next')}
-              disabled={isLoading}
+              disabled={isActuallyLoading}
             >
               <ChevronRight className="h-4 w-4" />
             </Button>
@@ -241,7 +251,7 @@ export function SimpleAvailabilityCalendar({
       </CardHeader>
 
       <CardContent>
-        {isLoading ? (
+        {isActuallyLoading ? (
           <CalendarSkeleton />
         ) : (
           <div className="space-y-6">
@@ -285,50 +295,6 @@ export function SimpleAvailabilityCalendar({
               </div>
             </div>
 
-            {/* Pricing summary for selected range */}
-            {pricingInfo && (
-              <div className="pt-4 border-t space-y-4">
-                <h4 className="font-medium flex items-center gap-2">
-                  <Euro className="h-4 w-4" />
-                  Cenový súhrn
-                </h4>
-                
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="space-y-2">
-                    <p className="text-sm text-muted-foreground">Základná cena</p>
-                    <p className="text-lg font-medium">€{pricingInfo.baseTotal}</p>
-                    <p className="text-xs text-muted-foreground">{pricingInfo.nights} noc{pricingInfo.nights > 1 ? 'í' : ''}</p>
-                  </div>
-                  
-                  {pricingInfo.discount > 0 && (
-                    <div className="space-y-2">
-                      <p className="text-sm text-muted-foreground">Zľava</p>
-                      <p className="text-lg font-medium text-green-600">-€{pricingInfo.discount}</p>
-                      <p className="text-xs text-muted-foreground">{pricingInfo.discountReason}</p>
-                    </div>
-                  )}
-                  
-                  <div className="space-y-2">
-                    <p className="text-sm text-muted-foreground">Celková cena</p>
-                    <p className="text-xl font-bold text-primary">€{pricingInfo.finalTotal}</p>
-                    <p className="text-xs text-muted-foreground">€{Math.round(pricingInfo.finalTotal / pricingInfo.nights)}/noc</p>
-                  </div>
-                </div>
-
-                {/* Daily breakdown */}
-                <div className="space-y-2">
-                  <p className="text-sm font-medium">Rozloženie cien:</p>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
-                    {pricingInfo.dailyPrices.map(({ date, price }) => (
-                      <div key={date} className="flex justify-between p-2 bg-muted rounded">
-                        <span>{format(new Date(date), 'dd.MM')}</span>
-                        <span>€{price}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
 
             {/* Legend */}
             <div className="flex flex-wrap items-center gap-4 text-sm pt-4 border-t">
@@ -434,11 +400,13 @@ function CalendarDayCell({
 
 function CalendarSkeleton() {
   return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-7 gap-1">
-        {Array.from({ length: 42 }).map((_, i) => (
-          <Skeleton key={i} className="aspect-square" />
-        ))}
+    <div className="space-y-6">
+      <div className="space-y-4">
+        <div className="grid grid-cols-7 gap-1">
+          {Array.from({ length: 42 }).map((_, i) => (
+            <Skeleton key={i} className="aspect-square" />
+          ))}
+        </div>
       </div>
     </div>
   );

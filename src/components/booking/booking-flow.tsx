@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSession } from "next-auth/react";
+import { useSessionHydrationSafe } from "@/hooks/use-session-hydration-safe";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { format } from "date-fns";
-import { Check, ChevronLeft, ChevronRight, User, CreditCard, Calendar, Star, Shield } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, User, CreditCard, Calendar, Star, Shield, Euro, Percent } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -22,7 +23,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PaymentForm, PaymentSuccessState } from "@/components/booking/payment-form";
-import { SimpleAvailabilityCalendar } from "@/components/booking/simple-availability-calendar";
+import { BookingPricing, LoyaltyTier } from "@/services/pricing";
+import { calculateLoyaltyTier, getLoyaltyTierInfo, formatLoyaltyDiscount } from "@/lib/loyalty";
 import type { Apartment } from "@/types";
 
 // Booking steps configuration
@@ -105,6 +107,18 @@ interface BookingFlowProps {
     totalPrice: number;
     pricePerNight: number;
     nights: number;
+    pricingInfo?: {
+      guestCount: number;
+      childrenCount: number;
+      source: string;
+      totalDays: number;
+      averagePricePerNight: number;
+      basePrice: number;
+      additionalGuestFee: number;
+      additionalGuestFeePerNight: number;
+      additionalAdults: number;
+      additionalChildren: number;
+    };
   };
   onComplete?: (bookingId: string) => void;
 }
@@ -163,7 +177,7 @@ const EXTRA_SERVICES: ExtraService[] = [
 ];
 
 export function BookingFlow({ apartment, bookingData, availability, onComplete }: BookingFlowProps) {
-  const { data: session } = useSession();
+  const { data: session } = useSessionHydrationSafe();
   const [currentStep, setCurrentStep] = useState<BookingStep>('details');
   const [completedSteps, setCompletedSteps] = useState<Set<BookingStep>>(new Set());
   const [guestInfo, setGuestInfo] = useState<GuestInfoFormData | null>(null);
@@ -226,7 +240,15 @@ export function BookingFlow({ apartment, bookingData, availability, onComplete }
     }, 0);
   };
 
-  const totalPrice = (availability?.totalPrice || 0) + calculateExtrasTotal();
+  // Calculate total price with loyalty discounts if available
+  const calculateTotalPrice = () => {
+    const extrasTotal = calculateExtrasTotal();
+    // This will be calculated in BookingSummary with loyalty pricing
+    return (availability?.totalPrice || 0) + extrasTotal;
+  };
+  
+  const totalPrice = calculateTotalPrice();
+
 
   // Show loading state if availability is not yet loaded
   if (!availability) {
@@ -300,6 +322,7 @@ export function BookingFlow({ apartment, bookingData, availability, onComplete }
                 <BookingDetailsStep
                   apartment={apartment}
                   bookingData={bookingData}
+                  availability={availability}
                   onNext={goToNextStep}
                 />
               )}
@@ -365,6 +388,7 @@ export function BookingFlow({ apartment, bookingData, availability, onComplete }
 function BookingDetailsStep({
   apartment,
   bookingData,
+  availability,
   onNext
 }: {
   apartment: Apartment;
@@ -374,15 +398,53 @@ function BookingDetailsStep({
     guests: number;
     children: number;
   };
+  availability?: {
+    success: boolean;
+    isAvailable: boolean;
+    totalPrice: number;
+    pricePerNight: number;
+    nights: number;
+  };
   onNext: () => void;
 }) {
-  const [selectedRange, setSelectedRange] = useState<{
-    from: Date | null;
-    to: Date | null;
-  }>({
-    from: bookingData.checkIn,
-    to: bookingData.checkOut
+  const { data: session } = useSessionHydrationSafe();
+
+  // Calculate comprehensive pricing with loyalty and long stay discounts
+  const { data: loyaltyPricing, isLoading: isLoyaltyLoading } = useQuery({
+    queryKey: ['booking-pricing-details', apartment.slug, bookingData.checkIn, bookingData.checkOut, bookingData.guests, bookingData.children, session?.user?.email],
+    queryFn: async () => {
+      const response = await fetch('/api/pricing/calculate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          apartmentId: apartment.id,
+          checkIn: bookingData.checkIn.toISOString(),
+          checkOut: bookingData.checkOut.toISOString(),
+          guests: bookingData.guests,
+          children: bookingData.children,
+          userId: session?.user?.email || undefined
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to calculate pricing');
+      }
+
+      return response.json();
+    },
+    enabled: typeof window !== 'undefined',
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000 // 10 minutes
   });
+
+  const nights = availability?.nights || 0;
+  const finalPrice = loyaltyPricing?.total || availability?.totalPrice || 0;
+  const originalPrice = loyaltyPricing ? 
+    (loyaltyPricing.subtotal + loyaltyPricing.seasonalAdjustment + loyaltyPricing.cleaningFee + loyaltyPricing.cityTax) : 
+    (availability?.totalPrice || 0);
+  const hasDiscount = loyaltyPricing && (loyaltyPricing.loyaltyDiscount > 0 || loyaltyPricing.stayDiscount > 0 || loyaltyPricing.longStayDiscount > 0);
 
   return (
     <div className="space-y-6">
@@ -426,14 +488,43 @@ function BookingDetailsStep({
         </div>
       </div>
 
-      {/* Simple Availability Calendar */}
-      <SimpleAvailabilityCalendar
-        apartmentSlug={apartment.slug}
-        selectedRange={selectedRange}
-        onRangeSelect={setSelectedRange}
-        guests={bookingData.guests}
-        className="mt-6"
-      />
+      {/* Booking Summary - nahradenie kalendára */}
+      <div className="mt-6 p-4 bg-muted/50 rounded-lg">
+        <h3 className="font-semibold mb-3 flex items-center gap-2">
+          <Calendar className="h-4 w-4" />
+          Potvrdenie rezervácie
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+              <span className="font-medium text-green-700">Dostupné</span>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Apartmán je dostupný pre vybrané dátumy
+            </p>
+          </div>
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Euro className="h-4 w-4 text-primary" />
+              <span className="font-medium">€{finalPrice}</span>
+              {hasDiscount && (
+                <span className="text-sm text-muted-foreground line-through">
+                  €{originalPrice}
+                </span>
+              )}
+            </div>
+            <p className="text-sm text-muted-foreground">
+              {nights} nocí • €{Math.round(finalPrice / nights)}/noc
+              {hasDiscount && (
+                <span className="ml-2 text-green-600 font-medium">
+                  Ušetríte €{originalPrice - finalPrice}!
+                </span>
+              )}
+            </p>
+          </div>
+        </div>
+      </div>
 
       <div className="flex justify-end pt-4">
         <Button onClick={onNext} size="lg">
@@ -903,6 +994,18 @@ function PaymentStep({
     totalPrice: number;
     pricePerNight: number;
     nights: number;
+    pricingInfo?: {
+      guestCount: number;
+      childrenCount: number;
+      source: string;
+      totalDays: number;
+      averagePricePerNight: number;
+      basePrice: number;
+      additionalGuestFee: number;
+      additionalGuestFeePerNight: number;
+      additionalAdults: number;
+      additionalChildren: number;
+    };
   };
   selectedExtras: ExtrasFormData;
   totalPrice: number;
@@ -984,11 +1087,57 @@ function BookingSummary({
     totalPrice: number;
     pricePerNight: number;
     nights: number;
+    pricingInfo?: {
+      guestCount: number;
+      childrenCount: number;
+      source: string;
+      totalDays: number;
+      averagePricePerNight: number;
+      basePrice: number;
+      additionalGuestFee: number;
+      additionalGuestFeePerNight: number;
+      additionalAdults: number;
+      additionalChildren: number;
+    };
   };
   selectedExtras: ExtrasFormData;
   totalPrice: number;
 }) {
+  const { data: session } = useSessionHydrationSafe();
   const selectedExtrasList = EXTRA_SERVICES.filter(service => selectedExtras[service.id]);
+
+  // Calculate comprehensive pricing with loyalty and long stay discounts
+  const { data: loyaltyPricing, isLoading: isLoyaltyLoading } = useQuery({
+    queryKey: ['booking-pricing', apartment.slug, bookingData.checkIn, bookingData.checkOut, bookingData.guests, bookingData.children, session?.user?.email],
+    queryFn: async () => {
+      if (!availability?.success) return null;
+      
+      const response = await fetch('/api/pricing/calculate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          apartmentId: apartment.id,
+          checkIn: bookingData.checkIn.toISOString(),
+          checkOut: bookingData.checkOut.toISOString(),
+          guests: bookingData.guests,
+          children: bookingData.children,
+          userId: session?.user?.email || undefined
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to calculate pricing');
+      }
+
+      return response.json();
+    },
+    enabled: !!availability?.success && typeof window !== 'undefined' && !!session
+  });
+
+  const nights = availability?.nights || 0;
+
 
   return (
     <Card className="sticky top-8">
@@ -1002,32 +1151,182 @@ function BookingSummary({
             {format(bookingData.checkIn, 'd.M.yyyy')} - {format(bookingData.checkOut, 'd.M.yyyy')}
           </p>
           <p className="text-sm text-muted-foreground">
-            {bookingData.guests} hosť{bookingData.guests > 1 ? 'ia' : ''} • {availability?.nights || 0} noc{(availability?.nights || 0) > 1 ? 'í' : ''}
+            {bookingData.guests} hosť{bookingData.guests > 1 ? 'ia' : ''}{bookingData.children > 0 && `, ${bookingData.children} dieťa${bookingData.children > 1 ? 'ť' : ''}`} • {nights} noc{nights > 1 ? 'í' : ''}
           </p>
         </div>
 
         <Separator />
 
-        <div className="space-y-2 text-sm">
-          <div className="flex justify-between">
-            <span>Ubytovanie ({availability?.nights || 0} noc{(availability?.nights || 0) > 1 ? 'í' : ''})</span>
-            <span>€{availability?.totalPrice || 0}</span>
+        {isLoyaltyLoading ? (
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-3/4" />
+            <Skeleton className="h-4 w-1/2" />
           </div>
+        ) : loyaltyPricing ? (
+          <div className="space-y-4">
+            {/* Detailný cenový súhrn */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 mb-3">
+                <Euro className="h-4 w-4" />
+                <span className="font-semibold">Cenový súhrn</span>
+              </div>
+              
+              {/* Pôvodná cena (pred zľavami) */}
+              <div className="bg-gray-50 rounded-lg p-3 space-y-2">
+                <div className="flex justify-between items-center text-sm">
+                  <span className="font-medium text-gray-700">Základná cena ({nights} noc{nights > 1 ? 'í' : ''})</span>
+                  <span className="font-semibold">€{loyaltyPricing.baseSubtotal}</span>
+                </div>
+                
+                {/* Dodatočné poplatky za hostí */}
+                {loyaltyPricing.additionalGuestFee > 0 && (
+                  <div className="flex justify-between items-center text-blue-700 text-sm">
+                    <span>
+                      Úprava pre hostí
+                      {loyaltyPricing.additionalAdults > 0 && (
+                        <span className="text-gray-500 ml-1">
+                          ({loyaltyPricing.additionalAdults} dospelý × €20/noc
+                        </span>
+                      )}
+                      {loyaltyPricing.additionalAdults > 0 && loyaltyPricing.additionalChildren > 0 && <span className="text-gray-500"> + </span>}
+                      {loyaltyPricing.additionalChildren > 0 && (
+                        <span className="text-gray-500">
+                          {loyaltyPricing.additionalChildren} dieťa × €10/noc
+                        </span>
+                      )}
+                      <span className="text-gray-500">)</span>
+                    </span>
+                    <span className="font-semibold">+€{loyaltyPricing.additionalGuestFee}</span>
+                  </div>
+                )}
+                
+                {/* Sezónne úpravy */}
+                {loyaltyPricing.seasonalAdjustment !== 0 && (
+                  <div className="flex justify-between items-center text-orange-700 text-sm">
+                    <span>Sezónna úprava</span>
+                    <span className="font-semibold">{loyaltyPricing.seasonalAdjustment > 0 ? '+' : ''}€{loyaltyPricing.seasonalAdjustment}</span>
+                  </div>
+                )}
+                
+                {/* Cleaning fee */}
+                {loyaltyPricing.cleaningFee > 0 && (
+                  <div className="flex justify-between items-center text-gray-600 text-sm">
+                    <span>Úklid</span>
+                    <span className="font-semibold">€{loyaltyPricing.cleaningFee}</span>
+                  </div>
+                )}
+                
+                {/* City tax */}
+                {loyaltyPricing.cityTax > 0 && (
+                  <div className="flex justify-between items-center text-gray-600 text-sm">
+                    <span>Mestská daň</span>
+                    <span className="font-semibold">€{loyaltyPricing.cityTax}</span>
+                  </div>
+                )}
 
-          {selectedExtrasList.map((service, index) => (
-            <div key={index} className="flex justify-between">
-              <span>{service.name}</span>
-              <span>€{service.price}</span>
+                {/* Extra služby */}
+                {selectedExtrasList.map((service, index) => (
+                  <div key={index} className="flex justify-between items-center text-gray-600 text-sm">
+                    <span>{service.name}</span>
+                    <span className="font-semibold">€{service.price}</span>
+                  </div>
+                ))}
+                
+                <Separator />
+                
+                {/* Pôvodná celková cena */}
+                <div className="flex justify-between items-center">
+                  <span className="font-medium text-gray-700">Pôvodná cena</span>
+                  <span className="text-lg font-bold text-gray-900">€{loyaltyPricing.subtotal + loyaltyPricing.seasonalAdjustment + loyaltyPricing.cleaningFee + loyaltyPricing.cityTax + selectedExtrasList.reduce((sum, service) => sum + service.price, 0)}</span>
+                </div>
+              </div>
+              
+              {/* Zľavy */}
+              <div className="space-y-2">
+                {/* Loyalty zľava */}
+                {loyaltyPricing.loyaltyDiscount > 0 && (
+                  <div className="bg-green-50 rounded-lg p-3 border border-green-200">
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center gap-2">
+                        <Percent className="h-4 w-4 text-green-600" />
+                        <span className="text-sm font-medium text-green-800">
+                          Zľava - {loyaltyPricing.loyaltyTier && getLoyaltyTierInfo(loyaltyPricing.loyaltyTier).displayName}
+                        </span>
+                      </div>
+                      <span className="font-bold text-green-600">-€{loyaltyPricing.loyaltyDiscount}</span>
+                    </div>
+                    <p className="text-xs text-green-600 mt-1">
+                      {formatLoyaltyDiscount(loyaltyPricing.loyaltyTier!)} zľava pre {getLoyaltyTierInfo(loyaltyPricing.loyaltyTier!).displayName} členov
+                    </p>
+                  </div>
+                )}
+                
+                {/* Long stay zľava */}
+                {loyaltyPricing.longStayDiscount > 0 && (
+                  <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center gap-2">
+                        <Percent className="h-4 w-4 text-blue-600" />
+                        <span className="text-sm font-medium text-blue-800">
+                          Zľava za dlhší pobyt
+                        </span>
+                      </div>
+                      <span className="font-bold text-blue-600">-€{loyaltyPricing.longStayDiscount}</span>
+                    </div>
+                    <p className="text-xs text-blue-600 mt-1">
+                      10% zľava pre pobyty 7+ nocí
+                    </p>
+                  </div>
+                )}
+              </div>
+              
+              {/* Finálna cena */}
+              <div className="bg-primary/5 rounded-lg p-3 border-2 border-primary/20">
+                <div className="flex justify-between items-center">
+                  <span className="text-lg font-semibold text-primary">Celková cena</span>
+                  <span className="text-xl font-bold text-primary">
+                    €{loyaltyPricing.total + selectedExtrasList.reduce((sum, service) => sum + service.price, 0)}
+                  </span>
+                </div>
+                <p className="text-sm text-muted-foreground mt-1">
+                  €{Math.round((loyaltyPricing.total + selectedExtrasList.reduce((sum, service) => sum + service.price, 0)) / nights)}/noc priemerne
+                </p>
+              </div>
+              
+              {/* Loyalty badge */}
+              {session?.user && loyaltyPricing?.loyaltyTier && (
+                <div className="flex justify-center">
+                  <Badge variant="secondary" className="text-xs bg-green-100 text-green-800 border-green-200">
+                    {getLoyaltyTierInfo(loyaltyPricing.loyaltyTier).icon} {getLoyaltyTierInfo(loyaltyPricing.loyaltyTier).displayName} člen
+                  </Badge>
+                </div>
+              )}
             </div>
-          ))}
-        </div>
+          </div>
+        ) : (
+          // Fallback pre prípad, že loyaltyPricing nie je k dispozícii
+          <div className="space-y-2 text-sm">
+            <div className="flex justify-between">
+              <span>Ubytovanie ({nights} noc{nights > 1 ? 'í' : ''})</span>
+              <span>€{availability?.totalPrice || 0}</span>
+            </div>
 
-        <Separator />
+            {selectedExtrasList.map((service, index) => (
+              <div key={index} className="flex justify-between">
+                <span>{service.name}</span>
+                <span>€{service.price}</span>
+              </div>
+            ))}
 
-        <div className="flex justify-between font-semibold text-lg">
-          <span>Celkom</span>
-          <span>€{totalPrice}</span>
-        </div>
+            <Separator />
+
+            <div className="flex justify-between font-semibold text-lg">
+              <span>Celkom</span>
+              <span>€{totalPrice}</span>
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

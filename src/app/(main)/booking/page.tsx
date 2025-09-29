@@ -69,7 +69,7 @@ async function BookingContent({ searchParams }: BookingPageProps) {
   try {
     const checkInStr = format(checkInDate, 'yyyy-MM-dd');
     const checkOutStr = format(checkOutDate, 'yyyy-MM-dd');
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/beds24/availability?apartment=${apartmentSlug}&checkIn=${checkInStr}&checkOut=${checkOutStr}`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/beds24/availability?apartment=${apartmentSlug}&checkIn=${checkInStr}&checkOut=${checkOutStr}&guests=${guestCount}&children=${childrenCount}`, {
       cache: 'no-store' // Always get fresh data
     });
     
