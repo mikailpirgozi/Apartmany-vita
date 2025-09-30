@@ -5,14 +5,26 @@
 
 import Stripe from 'stripe';
 
+// Validate Stripe credentials
+const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+const stripePublishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
+
+if (!stripeSecretKey && process.env.NODE_ENV === 'production') {
+  console.error('STRIPE_SECRET_KEY is missing in production!');
+}
+
+if (!stripePublishableKey && process.env.NODE_ENV === 'production') {
+  console.error('NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY is missing in production!');
+}
+
 // Server-side Stripe instance
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_dummy_key_for_build', {
+export const stripe = new Stripe(stripeSecretKey || 'sk_test_dummy_key_for_build', {
   apiVersion: '2025-08-27.basil',
   typescript: true,
 });
 
 // Client-side publishable key
-export const STRIPE_PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || 'pk_test_dummy_key_for_build';
+export const STRIPE_PUBLISHABLE_KEY = stripePublishableKey || 'pk_test_dummy_key_for_build';
 
 export interface PaymentIntentData {
   amount: number; // in euros
