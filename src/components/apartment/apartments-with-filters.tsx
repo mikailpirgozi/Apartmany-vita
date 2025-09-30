@@ -14,10 +14,7 @@ export function ApartmentsWithFilters({
   initialApartments, 
   hasSearchParams 
 }: ApartmentsWithFiltersProps) {
-  const [filters, setFilters] = useState<SearchFilters | null>(null)
-  
   const handleFilterChange = (newFilters: SearchFilters) => {
-    setFilters(newFilters)
     console.log('Filters changed:', newFilters)
     // TODO: Implement actual filtering logic here
   }
