@@ -156,6 +156,8 @@ async function BookingContent({ searchParams }: BookingPageProps) {
     // Calculate pricing server-side (includes Beds24 API calls)
     pricingData = await calculateBookingPrice({
       apartmentId: apartment.id,
+      apartmentSlug: apartment.slug,
+      basePrice: apartment.basePrice,
       checkIn: checkInDate,
       checkOut: checkOutDate,
       guests: guestCount,

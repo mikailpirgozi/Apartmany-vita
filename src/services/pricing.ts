@@ -4,7 +4,8 @@
  */
 
 import { differenceInDays, eachDayOfInterval, format } from "date-fns";
-import { prisma } from "@/lib/db";
+// TEMPORARY: Prisma removed to avoid engine=none issue on Vercel
+// import { prisma } from "@/lib/db";
 import { getBeds24Service } from "./beds24";
 import { LoyaltyTier } from "@/lib/loyalty";
 import { PRICING_CONSTANTS } from "@/constants";
@@ -50,6 +51,8 @@ export interface PriceBreakdown {
 
 export interface BookingRequest {
   apartmentId: string;
+  apartmentSlug: string; // Added for Beds24 API
+  basePrice: number; // Added to avoid Prisma lookup
   checkIn: Date;
   checkOut: Date;
   guests: number;
@@ -66,24 +69,17 @@ class PricingService {
    * Calculate comprehensive booking pricing
    */
   async calculateBookingPrice(request: BookingRequest): Promise<BookingPricing> {
-    const { apartmentId, checkIn, checkOut, guests, children, userId } = request;
+    const { apartmentId, apartmentSlug, basePrice, checkIn, checkOut, guests, children, userId } = request;
     
-    // Get apartment base price
-    const apartment = await prisma.apartment.findUnique({
-      where: { id: apartmentId }
-    });
-    
-    if (!apartment) {
-      throw new Error('Apartment not found');
-    }
-    
+    // WORKAROUND: Use provided basePrice and slug instead of loading from database
+    // This avoids Prisma engine=none issue on Vercel
     const nights = differenceInDays(checkOut, checkIn);
     if (nights <= 0) {
       throw new Error('Invalid date range');
     }
     
     // Get dynamic pricing from Beds24 offers API with guest count
-    const dynamicPrices = await this.getDynamicPricing(apartment.slug, checkIn, checkOut, guests, children);
+    const dynamicPrices = await this.getDynamicPricing(apartmentSlug, checkIn, checkOut, guests, children);
     
     // Calculate daily breakdown
     const breakdown = this.calculateDailyBreakdown(
@@ -127,7 +123,7 @@ class PricingService {
       - stayDiscount; // New stay-based discount
     
     return {
-      basePrice: Number(apartment.basePrice),
+      basePrice: basePrice,
       nights,
       subtotal,
       loyaltyDiscount: loyaltyData?.discountAmount || 0,
@@ -259,16 +255,13 @@ class PricingService {
    * Calculate loyalty discount based on user's booking history
    */
   private async calculateLoyaltyDiscount(userId: string, subtotal: number) {
-    const bookingCount = await prisma.booking.count({
-      where: {
-        userId,
-        status: 'COMPLETED'
-      }
-    });
-    
-    const tier = this.calculateLoyaltyTier(bookingCount);
+    // WORKAROUND: Without Prisma, assume Bronze tier (5% discount)
+    // In production with working Prisma, this would query actual booking history
+    const tier = LoyaltyTier.BRONZE; // Default tier
     const discountPercent = this.getLoyaltyDiscountPercent(tier);
     const discountAmount = subtotal * discountPercent;
+    
+    console.log('⚠️ Using default loyalty tier (Bronze 5%) - Prisma unavailable');
     
     return {
       tier,
