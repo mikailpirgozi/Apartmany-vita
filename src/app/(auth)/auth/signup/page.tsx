@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect } from 'react'
+import { Suspense, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useSession, signIn } from 'next-auth/react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -11,10 +11,10 @@ import { SignupForm } from '@/components/forms/signup-form'
 import { TypographyH1, TypographyP } from '@/components/ui/typography'
 import { Badge } from '@/components/ui/badge'
 
-// Mark as dynamic to prevent static generation with useSearchParams
+// Mark as dynamic to prevent static generation
 export const dynamic = 'force-dynamic'
 
-export default function SignUpPage() {
+function SignUpContent() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -144,5 +144,21 @@ function GoogleSignUpButton() {
       </svg>
       Registrácia cez Google
     </Button>
+  )
+}
+
+export default function SignUpPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="container max-w-md mx-auto py-16">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+          </div>
+        </div>
+      }
+    >
+      <SignUpContent />
+    </Suspense>
   )
 }
