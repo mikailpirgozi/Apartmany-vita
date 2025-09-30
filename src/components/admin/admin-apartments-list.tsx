@@ -1,11 +1,21 @@
 'use client'
 
-import { ApartmentImageManager } from './apartment-image-manager'
+import { ApartmentEditor } from './apartment-editor'
 
 interface Apartment {
   id: string
   name: string
+  slug: string
+  description: string
+  floor: number
+  size: number
+  maxGuests: number
+  maxChildren: number
   images: string[]
+  amenities: string[]
+  basePrice: string
+  isActive: boolean
+  beds24Id: string | null
 }
 
 interface AdminApartmentsListProps {
@@ -16,14 +26,9 @@ export function AdminApartmentsList({ apartments }: AdminApartmentsListProps) {
   return (
     <div className="space-y-6">
       {apartments.map((apartment) => (
-        <ApartmentImageManager
+        <ApartmentEditor
           key={apartment.id}
-          apartmentId={apartment.id}
-          apartmentName={apartment.name}
-          currentImages={apartment.images}
-          onUpdate={(images) => {
-            console.log('Updated images for', apartment.name, ':', images)
-          }}
+          apartment={apartment}
         />
       ))}
     </div>

@@ -1,117 +1,108 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { revalidatePath } from 'next/cache'
+import { isAdmin } from '@/lib/admin'
 import { prisma } from '@/lib/db'
-import { requireAdmin } from '@/lib/admin'
 import { z } from 'zod'
+import { Decimal } from '@prisma/client/runtime/library'
 
 const updateApartmentSchema = z.object({
-  name: z.string().min(1).optional(),
-  description: z.string().min(1).optional(),
-  floor: z.number().int().min(0).optional(),
-  size: z.number().int().min(1).optional(),
-  maxGuests: z.number().int().min(1).optional(),
-  maxChildren: z.number().int().min(0).optional(),
-  images: z.array(z.string().url()).optional(),
-  amenities: z.array(z.string()).optional(),
-  basePrice: z.number().positive().optional(),
-  isActive: z.boolean().optional(),
+  name: z.string().min(1),
+  slug: z.string().min(1),
+  description: z.string().min(1),
+  floor: z.number().int().min(0),
+  size: z.number().int().min(1),
+  maxGuests: z.number().int().min(1),
+  maxChildren: z.number().int().min(0),
+  basePrice: z.string().refine((val) => {
+    const num = parseFloat(val)
+    return !isNaN(num) && num > 0
+  }, 'Base price must be a positive number'),
+  isActive: z.boolean(),
+  beds24Id: z.string().nullable().optional(),
+  amenities: z.array(z.string()),
+  images: z.array(z.string())
 })
 
-interface RouteParams {
-  params: Promise<{
-    id: string
-  }>
-}
-
-export async function GET(
+export async function PATCH(
   request: NextRequest,
-  { params }: RouteParams
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Check admin authorization
-    await requireAdmin()
-
-    const { id } = await params
-
-    const apartment = await prisma.apartment.findUnique({
-      where: { id }
-    })
-
-    if (!apartment) {
-      return NextResponse.json(
-        { error: 'Apartment not found' },
-        { status: 404 }
-      )
-    }
-
-    return NextResponse.json(apartment)
-
-  } catch (error) {
-    console.error('Fetch apartment error:', error)
+    // Check if user is admin
+    const userIsAdmin = await isAdmin()
     
-    if (error instanceof Error && error.message.includes('Unauthorized')) {
+    if (!userIsAdmin) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
       )
     }
 
-    return NextResponse.json(
-      { error: 'Failed to fetch apartment' },
-      { status: 500 }
-    )
-  }
-}
-
-export async function PATCH(
-  request: NextRequest,
-  { params }: RouteParams
-) {
-  try {
-    // Check admin authorization
-    await requireAdmin()
-
-    const { id } = await params
+    const { id } = await context.params
     const body = await request.json()
 
     // Validate input
     const validatedData = updateApartmentSchema.parse(body)
 
     // Check if apartment exists
-    const apartment = await prisma.apartment.findUnique({
+    const existingApartment = await prisma.apartment.findUnique({
       where: { id }
     })
 
-    if (!apartment) {
+    if (!existingApartment) {
       return NextResponse.json(
         { error: 'Apartment not found' },
         { status: 404 }
       )
     }
 
+    // Check if slug is unique (if changed)
+    if (validatedData.slug !== existingApartment.slug) {
+      const slugExists = await prisma.apartment.findUnique({
+        where: { slug: validatedData.slug }
+      })
+
+      if (slugExists) {
+        return NextResponse.json(
+          { error: 'Slug already exists' },
+          { status: 400 }
+        )
+      }
+    }
+
     // Update apartment
     const updatedApartment = await prisma.apartment.update({
       where: { id },
-      data: validatedData
+      data: {
+        name: validatedData.name,
+        slug: validatedData.slug,
+        description: validatedData.description,
+        floor: validatedData.floor,
+        size: validatedData.size,
+        maxGuests: validatedData.maxGuests,
+        maxChildren: validatedData.maxChildren,
+        basePrice: new Decimal(validatedData.basePrice),
+        isActive: validatedData.isActive,
+        beds24Id: validatedData.beds24Id || null,
+        amenities: validatedData.amenities,
+        images: validatedData.images,
+        updatedAt: new Date()
+      }
     })
 
-    // Revalidate all pages that display apartments
-    revalidatePath('/')
-    revalidatePath('/apartments')
-    revalidatePath(`/apartments/${apartment.slug}`)
-
-    return NextResponse.json(updatedApartment)
-
-  } catch (error) {
-    console.error('Update apartment error:', error)
-    
-    if (error instanceof Error && error.message.includes('Unauthorized')) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+    // Serialize response (convert Decimal to string)
+    const serializedApartment = {
+      ...updatedApartment,
+      basePrice: updatedApartment.basePrice.toString()
     }
 
+    return NextResponse.json({
+      success: true,
+      apartment: serializedApartment
+    })
+
+  } catch (error) {
+    console.error('Error updating apartment:', error)
+    
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Invalid input data', details: error.errors },
@@ -120,9 +111,8 @@ export async function PATCH(
     }
 
     return NextResponse.json(
-      { error: 'Failed to update apartment' },
+      { error: 'Internal server error' },
       { status: 500 }
     )
   }
 }
-

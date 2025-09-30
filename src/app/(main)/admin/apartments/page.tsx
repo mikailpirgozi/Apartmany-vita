@@ -28,7 +28,17 @@ export default async function AdminApartmentsPage() {
   const serializedApartments = apartments.map(apt => ({
     id: apt.id,
     name: apt.name,
-    images: apt.images
+    slug: apt.slug,
+    description: apt.description,
+    floor: apt.floor,
+    size: apt.size,
+    maxGuests: apt.maxGuests,
+    maxChildren: apt.maxChildren,
+    images: apt.images,
+    amenities: apt.amenities,
+    basePrice: apt.basePrice.toString(),
+    isActive: apt.isActive,
+    beds24Id: apt.beds24Id
   }))
 
   return (
@@ -37,7 +47,7 @@ export default async function AdminApartmentsPage() {
         <div>
           <h1 className="text-3xl font-bold mb-2">Správa apartmánov</h1>
           <p className="text-muted-foreground">
-            Spravuj fotky apartmánov. Zmeny sa uložia po kliknutí na tlačidlo Uložiť.
+            Spravuj všetky údaje a fotky apartmánov. Zmeny sa uložia po kliknutí na tlačidlo Uložiť.
           </p>
         </div>
         <ResetImagesButton />
