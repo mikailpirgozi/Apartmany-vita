@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { ImageIcon, ChevronLeft, ChevronRight, X } from 'lucide-react'
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
+import { useImagePreloader } from '@/hooks/useImagePreloader'
 
 interface ApartmentGalleryProps {
   images: string[]
@@ -20,6 +21,25 @@ export function ApartmentGallery({ images, apartmentName }: ApartmentGalleryProp
 
   // Minimum swipe distance (in px)
   const minSwipeDistance = 50
+
+  // Intelligent image preloading - starts when lightbox opens
+  useImagePreloader({
+    images,
+    currentIndex: lightboxIndex,
+    preloadCount: 5,
+    isActive: showLightbox
+  })
+
+  // Prevent context menu (long-press menu on mobile, right-click on desktop)
+  const handleContextMenu = useCallback((e: React.MouseEvent | React.TouchEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+  }, [])
+
+  // Prevent drag start
+  const handleDragStart = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+  }, [])
 
   const nextImage = useCallback(() => {
     setLightboxIndex((prev) => (prev + 1) % images.length)
@@ -166,13 +186,19 @@ export function ApartmentGallery({ images, apartmentName }: ApartmentGalleryProp
       {/* Custom Fullscreen Lightbox */}
       {showLightbox && (
         <div 
-          className="fixed inset-0 z-[9999] bg-black flex items-center justify-center"
+          className="fixed inset-0 z-[9999] bg-black flex items-center justify-center select-none"
           onTouchStart={onTouchStart}
           onTouchMove={onTouchMove}
           onTouchEnd={onTouchEnd}
+          onContextMenu={handleContextMenu}
           role="dialog"
           aria-modal="true"
           aria-label={`${apartmentName} - Galéria fotografií`}
+          style={{
+            WebkitUserSelect: 'none',
+            WebkitTouchCallout: 'none',
+            userSelect: 'none'
+          }}
         >
           {/* Screen reader only content */}
           <div className="sr-only">
@@ -195,15 +221,23 @@ export function ApartmentGallery({ images, apartmentName }: ApartmentGalleryProp
           </div>
 
           {/* Main image container */}
-          <div className="relative w-full h-full flex items-center justify-center p-4">
-            <div className="relative w-full h-full">
+          <div 
+            className="relative w-full h-full flex items-center justify-center p-4"
+            onContextMenu={handleContextMenu}
+          >
+            <div 
+              className="relative w-full h-full"
+              onDragStart={handleDragStart}
+            >
               <Image
                 src={images[lightboxIndex]}
                 alt={`${apartmentName} - fotka ${lightboxIndex + 1}`}
                 fill
                 sizes="100vw"
-                className="object-contain"
+                className="object-contain pointer-events-none"
                 priority
+                draggable={false}
+                onContextMenu={handleContextMenu}
               />
             </div>
 
@@ -241,6 +275,7 @@ export function ApartmentGallery({ images, apartmentName }: ApartmentGalleryProp
                   <button
                     key={index}
                     onClick={() => setLightboxIndex(index)}
+                    onContextMenu={handleContextMenu}
                     className={cn(
                       "relative flex-shrink-0 w-16 h-16 rounded overflow-hidden border-2 transition-all",
                       lightboxIndex === index 
@@ -253,7 +288,9 @@ export function ApartmentGallery({ images, apartmentName }: ApartmentGalleryProp
                       alt={`Thumbnail ${index + 1}`}
                       fill
                       sizes="64px"
-                      className="object-cover"
+                      className="object-cover pointer-events-none"
+                      draggable={false}
+                      onContextMenu={handleContextMenu}
                     />
                   </button>
                 ))}
