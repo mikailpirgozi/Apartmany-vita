@@ -202,6 +202,8 @@ export function BookingFlow2Step({ apartment, bookingData, availability, initial
 
   // Use availability data if available, otherwise fallback to initial pricing
   const currentSubtotal = availabilityWithLoyalty?.subtotal || availabilityWithLoyalty?.totalPrice || initialPricing.subtotal;
+  const currentStayDiscount = availabilityWithLoyalty?.stayDiscount || 0;
+  const currentStayDiscountInfo = availabilityWithLoyalty?.stayDiscountInfo || null;
   const currentLoyaltyDiscount = availabilityWithLoyalty?.loyaltyDiscount || 0;
   const currentLoyaltyTier = availabilityWithLoyalty?.loyaltyTier || null;
 
@@ -210,8 +212,8 @@ export function BookingFlow2Step({ apartment, bookingData, availability, initial
     return total + (selectedExtras[service.id] ? service.price : 0);
   }, 0);
 
-  // Total price = subtotal - loyalty discount + extras (NO cleaning fee, NO city tax)
-  const totalPrice = currentSubtotal - currentLoyaltyDiscount + extrasTotal;
+  // Total price = subtotal - stay discount - loyalty discount + extras
+  const totalPrice = currentSubtotal - currentStayDiscount - currentLoyaltyDiscount + extrasTotal;
 
   const handleNextStep = () => {
     console.log('🚀 handleNextStep called, current step:', currentStep);
@@ -354,6 +356,16 @@ export function BookingFlow2Step({ apartment, bookingData, availability, initial
                           <span>{currentSubtotal.toFixed(2)}€</span>
                         </div>
                         
+                        {currentStayDiscount > 0 && currentStayDiscountInfo && (
+                          <div className="flex justify-between text-blue-600">
+                            <span className="flex items-center gap-1">
+                              <Percent className="w-3 h-3" />
+                              Zľava za dlhší pobyt ({currentStayDiscountInfo.label}) - {currentStayDiscountInfo.discountPercent}%
+                            </span>
+                            <span>-{currentStayDiscount.toFixed(2)}€</span>
+                          </div>
+                        )}
+                        
                         {currentLoyaltyDiscount > 0 && (
                           <div className="flex justify-between text-green-600">
                             <span className="flex items-center gap-1">
@@ -364,13 +376,13 @@ export function BookingFlow2Step({ apartment, bookingData, availability, initial
                           </div>
                         )}
                         
-                        {!session?.user && (
+                        {!session?.user && !currentLoyaltyDiscount && (
                           <div className="bg-amber-50 p-3 rounded-md border border-amber-200">
                             <p className="text-xs font-medium text-amber-800 mb-1">
-                              💡 Registrujte sa a získajte 5% zľavu!
+                              💡 Registrujte sa a získajte ďalších 5% zľavu!
                             </p>
                             <p className="text-xs text-amber-600">
-                              Ušetrili by ste €{(currentSubtotal * 0.05).toFixed(2)}
+                              Ušetrili by ste ešte €{(currentSubtotal * 0.05).toFixed(2)}
                             </p>
                           </div>
                         )}
@@ -389,10 +401,15 @@ export function BookingFlow2Step({ apartment, bookingData, availability, initial
                           <span>{totalPrice.toFixed(2)}€</span>
                         </div>
                         
-                        {currentLoyaltyDiscount > 0 && (
-                          <p className="text-xs text-green-600 mt-1">
-                            ✓ Zahŕňa loyalty zľavu €{currentLoyaltyDiscount.toFixed(2)}
-                          </p>
+                        {(currentStayDiscount > 0 || currentLoyaltyDiscount > 0) && (
+                          <div className="text-xs text-green-600 mt-1 space-y-0.5">
+                            {currentStayDiscount > 0 && (
+                              <p>✓ Zahŕňa zľavu za pobyt €{currentStayDiscount.toFixed(2)}</p>
+                            )}
+                            {currentLoyaltyDiscount > 0 && (
+                              <p>✓ Zahŕňa loyalty zľavu €{currentLoyaltyDiscount.toFixed(2)}</p>
+                            )}
+                          </div>
                         )}
                         
                         <Separator className="my-3" />
@@ -694,6 +711,13 @@ export function BookingFlow2Step({ apartment, bookingData, availability, initial
                         <span>{currentSubtotal.toFixed(2)}€</span>
                       </div>
                       
+                      {currentStayDiscount > 0 && (
+                        <div className="flex justify-between text-blue-600">
+                          <span>Zľava za pobyt</span>
+                          <span>-{currentStayDiscount.toFixed(2)}€</span>
+                        </div>
+                      )}
+                      
                       {currentLoyaltyDiscount > 0 && (
                         <div className="flex justify-between text-green-600">
                           <span>Loyalty zľava</span>
@@ -715,10 +739,15 @@ export function BookingFlow2Step({ apartment, bookingData, availability, initial
                         <span>{totalPrice.toFixed(2)}€</span>
                       </div>
                       
-                      {currentLoyaltyDiscount > 0 && (
-                        <p className="text-xs text-green-600">
-                          ✓ Zahŕňa loyalty zľavu €{currentLoyaltyDiscount.toFixed(2)}
-                        </p>
+                      {(currentStayDiscount > 0 || currentLoyaltyDiscount > 0) && (
+                        <div className="text-xs text-green-600 space-y-0.5">
+                          {currentStayDiscount > 0 && (
+                            <p>✓ Zahŕňa zľavu za pobyt €{currentStayDiscount.toFixed(2)}</p>
+                          )}
+                          {currentLoyaltyDiscount > 0 && (
+                            <p>✓ Zahŕňa loyalty zľavu €{currentLoyaltyDiscount.toFixed(2)}</p>
+                          )}
+                        </div>
                       )}
                     </div>
 

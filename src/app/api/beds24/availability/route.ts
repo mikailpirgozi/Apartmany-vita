@@ -268,8 +268,24 @@ export async function GET(request: NextRequest) {
     
     // Celková cena = Beds24 ceny + poplatky za ďalších hostí
     const totalPrice = basePrice + additionalGuestFee;
+    const subtotalBeforeDiscounts = totalPrice;
     
-    // Calculate loyalty discount if user is logged in
+    // Calculate stay discount (7+, 14+, 30+ days) - INDEPENDENT of user registration
+    const { calculateStayDiscount } = await import('@/lib/discounts');
+    const stayDiscountInfo = calculateStayDiscount(availableDates.length, totalPrice);
+    const stayDiscount = stayDiscountInfo?.discountAmount || 0;
+    const stayDiscountPercent = stayDiscountInfo?.discountPercent || 0;
+    
+    if (stayDiscount > 0) {
+      console.log(`💰 Stay discount applied:`, {
+        nights: availableDates.length,
+        tier: stayDiscountInfo?.label,
+        discountPercent: `${stayDiscountPercent}%`,
+        discountAmount: `€${Math.round(stayDiscount)}`
+      });
+    }
+    
+    // Calculate loyalty discount if user is logged in (applied AFTER stay discount)
     let loyaltyDiscount = 0;
     let loyaltyDiscountPercent = 0;
     let loyaltyTier = null;
@@ -287,6 +303,8 @@ export async function GET(request: NextRequest) {
         // Calculate loyalty tier (all registered users start with Bronze = 5%)
         loyaltyTier = calculateLoyaltyTier(completedBookingsCount);
         loyaltyDiscountPercent = getLoyaltyDiscount(loyaltyTier);
+        
+        // Apply loyalty discount on original price (NOT on price after stay discount)
         loyaltyDiscount = totalPrice * loyaltyDiscountPercent;
         
         console.log(`🎁 Loyalty discount applied:`, {
@@ -303,8 +321,8 @@ export async function GET(request: NextRequest) {
       }
     }
     
-    // Apply loyalty discount
-    const finalPrice = totalPrice - loyaltyDiscount;
+    // Apply both discounts (they combine!)
+    const finalPrice = totalPrice - stayDiscount - loyaltyDiscount;
     
     console.log(`💰 Pricing calculation for ${apartment}:`, {
       beds24Prices: availability!.prices,
@@ -323,8 +341,15 @@ export async function GET(request: NextRequest) {
       checkIn,
       checkOut,
       isAvailable,
-      totalPrice: finalPrice, // Price after loyalty discount
-      subtotal: totalPrice, // Price before loyalty discount
+      totalPrice: finalPrice, // Price after ALL discounts
+      subtotal: subtotalBeforeDiscounts, // Price before ANY discounts
+      stayDiscount,
+      stayDiscountPercent: Math.round(stayDiscountPercent * 100), // As percentage (10, 15, 20)
+      stayDiscountInfo: stayDiscountInfo ? {
+        label: stayDiscountInfo.label,
+        discountPercent: stayDiscountInfo.discountPercent,
+        discountAmount: stayDiscountInfo.discountAmount
+      } : null,
       loyaltyDiscount,
       loyaltyDiscountPercent: Math.round(loyaltyDiscountPercent * 100), // As percentage (5, 7, 10)
       loyaltyTier,
