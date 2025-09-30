@@ -210,7 +210,7 @@ export function BookingFlow2Step({ apartment, bookingData, availability, initial
         <p className="text-gray-600 mb-6">
           Potvrdenie sme poslali na email {contactForm.getValues('email')}
         </p>
-        <Button onClick={() => router.push(`/account/bookings/${paymentState.bookingId}`)}>
+        <Button type="button" onClick={() => router.push(`/account/bookings/${paymentState.bookingId}`)} suppressHydrationWarning>
           Zobraziť rezerváciu
         </Button>
       </div>
@@ -412,6 +412,7 @@ export function BookingFlow2Step({ apartment, bookingData, availability, initial
                 className="w-full" 
                 size="lg"
                 type="button"
+                suppressHydrationWarning
               >
                 Pokračovať na platbu
                 <ChevronRight className="ml-2 w-4 h-4" />
@@ -690,9 +691,11 @@ export function BookingFlow2Step({ apartment, bookingData, availability, initial
 
                 {/* Back Button */}
                 <Button 
+                  type="button"
                   variant="outline" 
                   onClick={handlePrevStep} 
                   className="w-full mt-4"
+                  suppressHydrationWarning
                 >
                   <ChevronLeft className="mr-2 w-4 h-4" />
                   Späť na detaily

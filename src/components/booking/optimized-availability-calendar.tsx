@@ -405,7 +405,7 @@ export function OptimizedAvailabilityCalendar({
           <CalendarIcon className="h-12 w-12 mx-auto mb-4 opacity-50" />
           <p className="font-medium mb-2">Nepodarilo sa načítať dostupnosť</p>
           <p className="text-sm mb-4">Skúste to znovu neskôr</p>
-          <Button onClick={() => refetch()} variant="outline" size="sm">
+          <Button type="button" onClick={() => refetch()} variant="outline" size="sm" suppressHydrationWarning>
             Skúsiť znovu
           </Button>
         </div>
@@ -425,10 +425,12 @@ export function OptimizedAvailabilityCalendar({
           
           <div className="flex items-center gap-2">
             <Button
+              type="button"
               variant="outline"
               size="sm"
               onClick={() => navigateMonthOptimistic('prev')}
               disabled={isLoading}
+              suppressHydrationWarning
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
@@ -438,10 +440,12 @@ export function OptimizedAvailabilityCalendar({
             </div>
             
             <Button
+              type="button"
               variant="outline"
               size="sm"
               onClick={() => navigateMonthOptimistic('next')}
               disabled={isLoading}
+              suppressHydrationWarning
             >
               <ChevronRight className="h-4 w-4" />
             </Button>

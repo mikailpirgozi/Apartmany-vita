@@ -11,6 +11,9 @@ import { SignupForm } from '@/components/forms/signup-form'
 import { TypographyH1, TypographyP } from '@/components/ui/typography'
 import { Badge } from '@/components/ui/badge'
 
+// Mark as dynamic to prevent static generation with useSearchParams
+export const dynamic = 'force-dynamic'
+
 export default function SignUpPage() {
   const { data: session, status } = useSession()
   const router = useRouter()

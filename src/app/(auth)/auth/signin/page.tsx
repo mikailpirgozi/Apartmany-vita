@@ -10,6 +10,9 @@ import { Separator } from '@/components/ui/separator'
 import { SigninForm } from '@/components/forms/signin-form'
 import { TypographyH1, TypographyP } from '@/components/ui/typography'
 
+// Mark as dynamic to prevent static generation with useSearchParams
+export const dynamic = 'force-dynamic'
+
 export default function SignInPage() {
   const { data: session, status } = useSession()
   const router = useRouter()

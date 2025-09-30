@@ -370,7 +370,7 @@ function PaymentElementForm({
 
         {/* Action Buttons */}
         <div className="flex justify-between pt-4">
-          <Button type="button" variant="outline" onClick={onBack} disabled={isProcessing}>
+          <Button type="button" variant="outline" onClick={onBack} disabled={isProcessing} suppressHydrationWarning>
             Späť
           </Button>
           
@@ -379,6 +379,7 @@ function PaymentElementForm({
             disabled={!canProceed}
             className="min-w-[200px]"
             size="lg"
+            suppressHydrationWarning
           >
             {isProcessing ? (
               <>

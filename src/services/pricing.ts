@@ -69,7 +69,7 @@ class PricingService {
    * Calculate comprehensive booking pricing
    */
   async calculateBookingPrice(request: BookingRequest): Promise<BookingPricing> {
-    const { apartmentId, apartmentSlug, basePrice, checkIn, checkOut, guests, children, userId } = request;
+    const { apartmentSlug, basePrice, checkIn, checkOut, guests, children, userId } = request;
     
     // WORKAROUND: Use provided basePrice and slug instead of loading from database
     // This avoids Prisma engine=none issue on Vercel

@@ -199,12 +199,14 @@ export function BookingWidget({
             <div>
               <Label className="text-sm font-medium">Príchod</Label>
               <Button
+                type="button"
                 variant="outline"
                 className={cn(
                   "w-full justify-start text-left font-normal",
                   !checkIn && "text-muted-foreground"
                 )}
                 onClick={() => setShowCalendar(showCalendar === 'enhanced' ? null : 'enhanced')}
+                suppressHydrationWarning
               >
                 <Calendar className="mr-2 h-4 w-4" />
                 {checkIn ? format(checkIn, "dd.MM.yyyy") : "Vyberte dátum"}
@@ -214,12 +216,14 @@ export function BookingWidget({
             <div>
               <Label className="text-sm font-medium">Odchod</Label>
               <Button
+                type="button"
                 variant="outline"
                 className={cn(
                   "w-full justify-start text-left font-normal",
                   !checkOut && "text-muted-foreground"
                 )}
                 onClick={() => setShowCalendar(showCalendar === 'enhanced' ? null : 'enhanced')}
+                suppressHydrationWarning
               >
                 <Calendar className="mr-2 h-4 w-4" />
                 {checkOut ? format(checkOut, "dd.MM.yyyy") : "Vyberte dátum"}
@@ -425,10 +429,12 @@ export function BookingWidget({
 
         {/* Book Now Button */}
         <Button 
+          type="button"
           onClick={handleBookNow}
           disabled={!isValidBooking || isAvailabilityLoading}
           className="w-full"
           size="lg"
+          suppressHydrationWarning
         >
           {isAvailabilityLoading ? (
             "Kontrolujem dostupnosť..."
@@ -467,7 +473,7 @@ function GuestSelector({
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="outline" className="w-full justify-between">
+        <Button type="button" variant="outline" className="w-full justify-between" suppressHydrationWarning>
           <div className="flex items-center">
             <Users className="mr-2 h-4 w-4" />
             <span>
@@ -486,19 +492,23 @@ function GuestSelector({
             </div>
             <div className="flex items-center space-x-2">
               <Button
+                type="button"
                 variant="outline"
                 size="sm"
                 onClick={() => onAdultsChange(Math.max(1, adults - 1))}
                 disabled={adults <= 1}
+                suppressHydrationWarning
               >
                 <Minus className="h-4 w-4" />
               </Button>
               <span className="w-8 text-center">{adults}</span>
               <Button
+                type="button"
                 variant="outline"
                 size="sm"
                 onClick={() => onAdultsChange(adults + 1)}
                 disabled={adults + Number(childrenCount) >= maxGuests}
+                suppressHydrationWarning
               >
                 <Plus className="h-4 w-4" />
               </Button>
@@ -512,19 +522,23 @@ function GuestSelector({
             </div>
             <div className="flex items-center space-x-2">
               <Button
+                type="button"
                 variant="outline"
                 size="sm"
                 onClick={() => onChildrenChange(Math.max(0, Number(childrenCount) - 1))}
                 disabled={Number(childrenCount) <= 0}
+                suppressHydrationWarning
               >
                 <Minus className="h-4 w-4" />
               </Button>
               <span className="w-8 text-center">{childrenCount}</span>
               <Button
+                type="button"
                 variant="outline"
                 size="sm"
                 onClick={() => onChildrenChange(Number(childrenCount) + 1)}
                 disabled={Number(childrenCount) >= maxChildren || adults + Number(childrenCount) >= maxGuests}
+                suppressHydrationWarning
               >
                 <Plus className="h-4 w-4" />
               </Button>
