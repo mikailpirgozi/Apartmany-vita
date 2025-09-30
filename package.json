@@ -2,6 +2,9 @@
   "name": "apartmany-vita",
   "version": "0.1.0",
   "private": true,
+  "pnpm": {
+    "onlyBuiltDependencies": ["@prisma/client", "@prisma/engines"]
+  },
   "scripts": {
     "dev": "next dev --port 3000",
     "dev:turbo": "next dev --turbopack --port 3000",
