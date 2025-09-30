@@ -57,8 +57,32 @@ async function BookingContent({ searchParams }: BookingPageProps) {
   const guestCount = parseInt(guests) || 2
   const childrenCount = parseInt(children || '0') || 0
 
-  // Get apartment data
-  const apartment = await getApartmentBySlug(apartmentSlug)
+  // Get apartment data - WORKAROUND: Use static data to avoid Prisma engine issue on Vercel
+  let apartment;
+  try {
+    apartment = await getApartmentBySlug(apartmentSlug);
+  } catch (error) {
+    console.error('❌ Failed to get apartment from database, using static data:', error);
+    // Fallback to static apartment data
+    const staticApartments = [
+      { id: '4', slug: 'deluxe-apartman', name: 'Deluxe Apartmán', size: 70, maxGuests: 6, maxChildren: 4, floor: 2, basePrice: 100, 
+        description: 'Najluxusnejší apartmán s krásnym výhľadom a kompletným vybavením pre až 6 hostí.',
+        amenities: ['wifi', 'kitchen', 'tv', 'heating', 'washer', 'dishwasher', 'balcony', 'elevator', 'parking'],
+        images: ['https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop&crop=center'],
+        isActive: true, createdAt: new Date(), updatedAt: new Date() },
+      { id: '3', slug: 'lite-apartman', name: 'Lite Apartmán', size: 55, maxGuests: 2, maxChildren: 1, floor: 2, basePrice: 75,
+        description: 'Priestranný apartmán na druhom poschodí s balkónom.',
+        amenities: ['wifi', 'kitchen', 'tv', 'heating', 'washer', 'dishwasher', 'balcony', 'elevator'],
+        images: ['https://images.unsplash.com/photo-1560448204-603b3fc33ddc?w=800&h=600&fit=crop&crop=center'],
+        isActive: true, createdAt: new Date(), updatedAt: new Date() },
+      { id: '2', slug: 'design-apartman', name: 'Design Apartmán', size: 45, maxGuests: 6, maxChildren: 4, floor: 1, basePrice: 105,
+        description: 'Štýlovo zariadený apartmán s moderným dizajnom.',
+        amenities: ['wifi', 'kitchen', 'tv', 'heating', 'washer', 'elevator'],
+        images: ['https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop&crop=center'],
+        isActive: true, createdAt: new Date(), updatedAt: new Date() }
+    ];
+    apartment = staticApartments.find(apt => apt.slug === apartmentSlug) || null;
+  }
   
   if (!apartment) {
     notFound()
