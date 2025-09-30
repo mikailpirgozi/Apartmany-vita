@@ -74,9 +74,13 @@ export function ApartmentImageManager({
   }
 
   const handleRemoveImage = (index: number) => {
+    const imageToRemove = images[index]
     const newImages = images.filter((_, i) => i !== index)
     setImages(newImages)
-    toast.success('Fotka odstránená')
+    
+    // Show which image was removed
+    const imageNumber = index + 1
+    toast.success(`Fotka #${imageNumber} odstránená${index === 0 ? ' (bola hlavná)' : ''}`)
   }
 
   const handleSave = async () => {
@@ -112,6 +116,16 @@ export function ApartmentImageManager({
     const [movedImage] = newImages.splice(fromIndex, 1)
     newImages.splice(toIndex, 0, movedImage)
     setImages(newImages)
+    
+    // Show feedback
+    const direction = toIndex < fromIndex ? 'vľavo' : 'vpravo'
+    if (toIndex === 0) {
+      toast.success('Fotka nastavená ako hlavná')
+    } else if (fromIndex === 0) {
+      toast.info('Hlavná fotka zmenená')
+    } else {
+      toast.success(`Fotka posunutá ${direction}`)
+    }
   }
 
   const hasChanges = JSON.stringify(images) !== JSON.stringify(currentImages)
@@ -164,11 +178,22 @@ export function ApartmentImageManager({
         {/* Images Grid */}
         {images.length > 0 && (
           <div className="space-y-4">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm text-muted-foreground">
+                {images.length} {images.length === 1 ? 'fotka' : images.length < 5 ? 'fotky' : 'fotiek'} nahraných
+              </p>
+              {hasChanges && (
+                <p className="text-sm text-orange-600 font-medium">
+                  ⚠️ Neuložené zmeny
+                </p>
+              )}
+            </div>
+            
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {images.map((url, index) => (
                 <div
                   key={`${url}-${index}`}
-                  className="relative aspect-video rounded-lg overflow-hidden border bg-muted group"
+                  className="relative aspect-video rounded-lg overflow-hidden border-2 bg-muted group hover:border-primary transition-colors"
                 >
                   <Image
                     src={url}
@@ -178,18 +203,23 @@ export function ApartmentImageManager({
                     sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
                   />
                   
+                  {/* Image number badge */}
+                  <div className="absolute top-2 left-2 bg-black/70 text-white text-xs font-bold px-2 py-1 rounded">
+                    #{index + 1}
+                  </div>
+                  
                   {/* Badge for main image */}
                   {index === 0 && (
-                    <div className="absolute top-2 left-2 bg-primary text-primary-foreground text-xs font-medium px-2 py-1 rounded">
-                      Hlavná fotka
+                    <div className="absolute top-2 left-12 bg-primary text-primary-foreground text-xs font-medium px-2 py-1 rounded shadow-lg">
+                      ⭐ Hlavná
                     </div>
                   )}
 
                   {/* Remove button */}
                   <button
                     onClick={() => handleRemoveImage(index)}
-                    className="absolute top-2 right-2 bg-destructive text-destructive-foreground p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                    title="Odstrániť"
+                    className="absolute top-2 right-2 bg-destructive text-destructive-foreground p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:scale-110 shadow-lg"
+                    title="Odstrániť fotku"
                   >
                     <X className="h-4 w-4" />
                   </button>
@@ -201,9 +231,10 @@ export function ApartmentImageManager({
                         size="sm"
                         variant="secondary"
                         onClick={() => handleReorder(index, index - 1)}
-                        className="flex-1 h-7 text-xs"
+                        className="flex-1 h-8 text-sm font-bold shadow-lg"
+                        title="Posunúť doľava (k hlavnej)"
                       >
-                        ←
+                        ← {index === 1 ? 'Urobiť hlavnou' : ''}
                       </Button>
                     )}
                     {index < images.length - 1 && (
@@ -211,7 +242,8 @@ export function ApartmentImageManager({
                         size="sm"
                         variant="secondary"
                         onClick={() => handleReorder(index, index + 1)}
-                        className="flex-1 h-7 text-xs"
+                        className="flex-1 h-8 text-sm font-bold shadow-lg"
+                        title="Posunúť doprava"
                       >
                         →
                       </Button>

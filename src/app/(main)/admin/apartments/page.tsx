@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { isAdmin } from '@/lib/admin'
 import { prisma } from '@/lib/db'
 import { AdminApartmentsList } from '@/components/admin/admin-apartments-list'
+import { ResetImagesButton } from '@/components/admin/reset-images-button'
 
 export const metadata = {
   title: 'Správa apartmánov - Admin | Apartmány Vita',
@@ -32,11 +33,14 @@ export default async function AdminApartmentsPage() {
 
   return (
     <div className="container mx-auto py-8 px-4 max-w-7xl">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Správa apartmánov</h1>
-        <p className="text-muted-foreground">
-          Spravuj fotky apartmánov. Zmeny sa uložia po kliknutí na tlačidlo Uložiť.
-        </p>
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold mb-2">Správa apartmánov</h1>
+          <p className="text-muted-foreground">
+            Spravuj fotky apartmánov. Zmeny sa uložia po kliknutí na tlačidlo Uložiť.
+          </p>
+        </div>
+        <ResetImagesButton />
       </div>
 
       <AdminApartmentsList apartments={serializedApartments} />
