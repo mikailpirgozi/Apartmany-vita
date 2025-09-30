@@ -157,7 +157,7 @@ async function BookingContent({ searchParams }: BookingPageProps) {
     pricingData = await calculateBookingPrice({
       apartmentId: apartment.id,
       apartmentSlug: apartment.slug,
-      basePrice: apartment.basePrice,
+      basePrice: Number(apartment.basePrice),
       checkIn: checkInDate,
       checkOut: checkOutDate,
       guests: guestCount,
