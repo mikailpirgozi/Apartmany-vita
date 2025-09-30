@@ -415,15 +415,15 @@ export function OptimizedAvailabilityCalendar({
 
   return (
     <>
-      <Card className={cn("w-full", className)}>
-        <CardHeader className="pb-4">
-        <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
-            <CalendarIcon className="h-5 w-5" />
+      <Card className={cn("w-full overflow-hidden", className)}>
+        <CardHeader className="pb-3 px-3 sm:px-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+            <CalendarIcon className="h-4 w-4 sm:h-5 sm:w-5" />
             Dostupnosť a ceny
           </CardTitle>
           
-          <div className="flex items-center gap-2">
+          <div className="flex items-center justify-center gap-2">
             <Button
               type="button"
               variant="outline"
@@ -431,11 +431,12 @@ export function OptimizedAvailabilityCalendar({
               onClick={() => navigateMonthOptimistic('prev')}
               disabled={isLoading}
               suppressHydrationWarning
+              className="h-8 w-8 p-0"
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
             
-            <div className="min-w-[160px] text-center font-medium">
+            <div className="min-w-[130px] sm:min-w-[160px] text-center font-medium text-sm sm:text-base">
               {format(currentMonth, 'MMMM yyyy', { locale: sk })}
             </div>
             
@@ -446,6 +447,7 @@ export function OptimizedAvailabilityCalendar({
               onClick={() => navigateMonthOptimistic('next')}
               disabled={isLoading}
               suppressHydrationWarning
+              className="h-8 w-8 p-0"
             >
               <ChevronRight className="h-4 w-4" />
             </Button>
@@ -453,9 +455,9 @@ export function OptimizedAvailabilityCalendar({
         </div>
 
 
-        {/* Quick info - kompaktné */}
+        {/* Quick info - kompaktné a responzívne */}
         {availability && (
-          <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-[10px] sm:text-xs text-muted-foreground mt-2">
             <div className="flex items-center gap-1">
               <CheckCircle className="h-3 w-3 text-green-500" />
               <span>{(availability as AvailabilityData).available?.length || 0} dostupných</span>
@@ -471,14 +473,14 @@ export function OptimizedAvailabilityCalendar({
           </div>
         )}
 
-        {/* Selection help - vylepšené pre cross-month */}
+        {/* Selection help - vylepšené pre cross-month a responzívne */}
         {selectingRange && (
-          <Alert className="py-2 bg-blue-50 border-blue-200">
-            <Info className="h-3 w-3 text-blue-600" />
-            <AlertDescription className="text-xs text-blue-800">
+          <Alert className="py-2 px-3 bg-blue-50 border-blue-200 mt-3">
+            <Info className="h-3 w-3 text-blue-600 shrink-0" />
+            <AlertDescription className="text-[11px] sm:text-xs text-blue-800">
               <div className="flex flex-col gap-1">
-                <span>Vyberte dátum odchodu. Môžete prepínať mesiace pomocou šípok.</span>
-                <span className="text-blue-600 font-medium">
+                <span className="leading-tight">Vyberte dátum odchodu. Môžete prepínať mesiace pomocou šípok.</span>
+                <span className="text-blue-600 font-medium text-xs sm:text-sm">
                   Príchod: {format(selectingRange, 'dd.MM.yyyy')} 
                   {selectingRange.getMonth() !== currentMonth.getMonth() && (
                     <span className="text-blue-500 text-[10px] ml-1">
@@ -492,26 +494,26 @@ export function OptimizedAvailabilityCalendar({
         )}
       </CardHeader>
 
-      <CardContent className="p-4">
+      <CardContent className="p-2 sm:p-4">
         {isLoading ? (
           <CalendarSkeleton />
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {/* Calendar Grid */}
-            <div className="space-y-2">
-              {/* Day headers - kompaktné */}
-              <div className="grid grid-cols-7 gap-0.5 mb-1">
+            <div className="space-y-1 sm:space-y-2">
+              {/* Day headers - kompaktné a responzívne */}
+              <div className="grid grid-cols-7 gap-0.5 sm:gap-1 mb-1">
                 {['Po', 'Ut', 'St', 'Št', 'Pi', 'So', 'Ne'].map((day) => (
-                  <div key={day} className="p-1 text-center text-xs font-medium text-muted-foreground">
+                  <div key={day} className="p-0.5 sm:p-1 text-center text-[10px] sm:text-xs font-medium text-muted-foreground">
                     {day}
                   </div>
                 ))}
               </div>
               
-              {/* Calendar days - organized by weeks - kompaktné */}
-              <div className="space-y-0.5">
+              {/* Calendar days - organized by weeks - responzívne */}
+              <div className="space-y-0.5 sm:space-y-1">
                 {organizeCalendarByWeeks(calendarDays).map((week, weekIndex) => (
-                  <div key={weekIndex} className="grid grid-cols-7 gap-0.5">
+                  <div key={weekIndex} className="grid grid-cols-7 gap-0.5 sm:gap-1">
                     {week.map((day, dayIndex) => 
                       day ? (
                         <CalendarDayCell
@@ -532,21 +534,21 @@ export function OptimizedAvailabilityCalendar({
             </div>
 
 
-            {/* Legend */}
-            <div className="flex flex-wrap items-center gap-4 text-sm pt-4 border-t">
-              <div className="flex items-center gap-2">
+            {/* Legend - responzívna */}
+            <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm pt-3 sm:pt-4 border-t">
+              <div className="flex items-center gap-1.5">
                 <div className="w-3 h-3 bg-green-100 border border-green-300 rounded"></div>
                 <span>Dostupné</span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5">
                 <div className="w-3 h-3 bg-red-100 border border-red-300 rounded"></div>
                 <span>Rezervované</span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5">
                 <div className="w-3 h-3 bg-primary rounded"></div>
                 <span>Vybrané</span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5">
                 <div className="w-3 h-3 bg-gray-100 border border-gray-300 rounded"></div>
                 <span>Minulé</span>
               </div>
@@ -579,8 +581,8 @@ function CalendarDayCell({
       onMouseLeave={onLeave}
       disabled={!day.isAvailable || !day.isCurrentMonth || day.isPast}
       className={cn(
-        "w-full h-12 p-1 text-sm rounded transition-all relative group flex flex-col items-center justify-center",
-        "hover:scale-102 focus:outline-none focus:ring-1 focus:ring-primary",
+        "w-full aspect-square min-h-[44px] sm:min-h-[48px] p-0.5 sm:p-1 text-xs sm:text-sm rounded transition-all relative group flex flex-col items-center justify-center",
+        "hover:scale-102 focus:outline-none focus:ring-1 focus:ring-primary touch-manipulation",
         {
           // Base styles
           "text-muted-foreground bg-gray-50": !day.isCurrentMonth,
@@ -619,14 +621,14 @@ function CalendarDayCell({
         }
       )}
     >
-      {/* Day number - väčší a výraznejší */}
-      <span className="text-sm font-bold leading-none mb-0.5">
+      {/* Day number - responzívny */}
+      <span className="text-xs sm:text-sm font-bold leading-none mb-0.5">
         {format(day.date, 'd')}
       </span>
       
-      {/* Price - výraznejšie a lepšie umiestnené */}
+      {/* Price - responzívny a kompaktný */}
       {day.price && day.isAvailable && day.isCurrentMonth && !day.isPast && (
-        <span className={cn("text-[11px] font-bold leading-none", {
+        <span className={cn("text-[9px] sm:text-[10px] font-bold leading-none whitespace-nowrap", {
           "text-green-700": !day.isSelected && !day.isInRange,
           "text-white": day.isSelected,
           "text-blue-700": day.isInRange && !day.isSelected
@@ -640,10 +642,10 @@ function CalendarDayCell({
 
 function CalendarSkeleton() {
   return (
-    <div className="space-y-2">
-      <div className="grid grid-cols-7 gap-0.5">
+    <div className="space-y-1 sm:space-y-2">
+      <div className="grid grid-cols-7 gap-0.5 sm:gap-1">
         {Array.from({ length: 42 }).map((_, i) => (
-          <Skeleton key={i} className="h-12" />
+          <Skeleton key={i} className="aspect-square min-h-[44px] sm:min-h-[48px]" />
         ))}
       </div>
     </div>
