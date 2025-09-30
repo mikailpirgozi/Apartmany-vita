@@ -125,6 +125,8 @@ export async function GET() {
       
       const pricing = await calculateBookingPrice({
         apartmentId: apartment.id,
+        apartmentSlug: apartment.slug,
+        basePrice: Number(apartment.basePrice),
         checkIn: new Date('2025-10-13'),
         checkOut: new Date('2025-10-29'),
         guests: 2,

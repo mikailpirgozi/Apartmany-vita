@@ -4,6 +4,8 @@ import { z } from 'zod';
 
 const CalculatePricingSchema = z.object({
   apartmentId: z.string(),
+  apartmentSlug: z.string(),
+  basePrice: z.number(),
   checkIn: z.string().transform(str => new Date(str)),
   checkOut: z.string().transform(str => new Date(str)),
   guests: z.number().min(1).max(10),
