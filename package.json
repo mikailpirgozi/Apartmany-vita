@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "pnpm": {
-    "onlyBuiltDependencies": ["@prisma/client", "@prisma/engines"]
+    "onlyBuiltDependencies": ["@prisma/client", "@prisma/engines", "prisma"]
   },
   "scripts": {
     "dev": "next dev --port 3000",
