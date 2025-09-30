@@ -17,35 +17,10 @@ export default async function DashboardPage() {
     redirect('/auth/signin')
   }
 
-  // Get user with bookings (or create if doesn't exist - OAuth without adapter)
-  let user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    include: {
-      bookings: {
-        include: { 
-          apartment: {
-            select: {
-              name: true,
-              images: true
-            }
-          }
-        },
-        orderBy: { createdAt: 'desc' },
-        take: 5
-      }
-    }
-  })
-
-  // If user doesn't exist in DB (OAuth without adapter), create them
-  if (!user && session.user.email) {
-    user = await prisma.user.create({
-      data: {
-        id: session.user.id,
-        email: session.user.email,
-        name: session.user.name,
-        image: session.user.image,
-        emailVerified: new Date(), // OAuth users are verified
-      },
+  try {
+    // Get user with bookings (or create if doesn't exist - OAuth without adapter)
+    let user = await prisma.user.findUnique({
+      where: { id: session.user.id },
       include: {
         bookings: {
           include: { 
@@ -61,11 +36,44 @@ export default async function DashboardPage() {
         }
       }
     })
-  }
 
-  if (!user) {
-    redirect('/auth/signin')
-  }
+    // If user doesn't exist in DB (OAuth without adapter), create them
+    if (!user && session.user.email) {
+      console.log('[Dashboard] Creating new OAuth user:', { 
+        id: session.user.id, 
+        email: session.user.email 
+      })
+      
+      user = await prisma.user.create({
+        data: {
+          id: session.user.id,
+          email: session.user.email,
+          name: session.user.name,
+          image: session.user.image,
+          emailVerified: new Date(), // OAuth users are verified
+        },
+        include: {
+          bookings: {
+            include: { 
+              apartment: {
+                select: {
+                  name: true,
+                  images: true
+                }
+              }
+            },
+            orderBy: { createdAt: 'desc' },
+            take: 5
+          }
+        }
+      })
+      
+      console.log('[Dashboard] User created successfully:', user.id)
+    }
+
+    if (!user) {
+      redirect('/auth/signin')
+    }
 
   // Calculate user stats
   const completedBookings = await prisma.booking.findMany({
@@ -233,4 +241,33 @@ export default async function DashboardPage() {
       </Card>
     </div>
   )
+} catch (error) {
+    console.error('[Dashboard] Error:', error)
+    // Show error page with details
+    return (
+      <div className="container py-8">
+        <Card>
+          <CardHeader>
+            <CardTitle>Chyba pri načítaní účtu</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-destructive mb-4">
+              Nastala chyba pri načítaní vášho účtu. Skúste sa odhlásiť a prihlásiť znova.
+            </p>
+            <pre className="text-xs bg-muted p-4 rounded overflow-auto">
+              {error instanceof Error ? error.message : String(error)}
+            </pre>
+            <div className="flex gap-2 mt-4">
+              <Button asChild>
+                <Link href="/api/auth/signout">Odhlásiť sa</Link>
+              </Button>
+              <Button variant="outline" asChild>
+                <Link href="/">Domov</Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
 }
