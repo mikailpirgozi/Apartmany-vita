@@ -74,7 +74,6 @@ export function ApartmentImageManager({
   }
 
   const handleRemoveImage = (index: number) => {
-    const imageToRemove = images[index]
     const newImages = images.filter((_, i) => i !== index)
     setImages(newImages)
     

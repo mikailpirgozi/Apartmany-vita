@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react'
 import { ApartmentFilters } from '@/components/search/apartment-filters'
 import { ApartmentSearchResults } from '@/components/apartment/apartment-search-results'
 import type { Apartment, SearchFilters } from '@/types'
