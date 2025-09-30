@@ -31,7 +31,8 @@ function SignInContent() {
     }
   }, [session, router, searchParams])
 
-  if (status === 'loading') {
+  // Show loading state during session check
+  if (status === 'loading' || session) {
     return (
       <div className="container max-w-md mx-auto py-16">
         <div className="text-center">
@@ -39,10 +40,6 @@ function SignInContent() {
         </div>
       </div>
     )
-  }
-
-  if (session) {
-    return null // Will redirect
   }
 
   return (
