@@ -15,7 +15,8 @@ const loginSchema = z.object({
 })
 
 export const authOptions = {
-  adapter: PrismaAdapter(prisma),
+  // Temporarily disable adapter to test OAuth without database
+  // adapter: PrismaAdapter(prisma),
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
