@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useSession, signIn } from 'next-auth/react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -96,11 +96,27 @@ export default function SignUpPage() {
 }
 
 function GoogleSignUpButton() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const callbackUrl = searchParams.get('callbackUrl') || '/'
+  
+  const handleGoogleSignUp = async () => {
+    try {
+      await signIn('google', { 
+        callbackUrl,
+        redirect: true 
+      })
+    } catch (error) {
+      console.error('Google sign up error:', error)
+      router.push('/auth/error')
+    }
+  }
+  
   return (
     <Button
       variant="outline"
       className="w-full"
-      onClick={() => signIn('google')}
+      onClick={handleGoogleSignUp}
     >
       <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
         <path
