@@ -72,11 +72,29 @@ class Beds24Service {
   } = {};
 
   constructor() {
-    // PRIORITY 1: Try Long Life Token (official method)
+    // PRIORITY 1: Try legacy refresh token system (PROVEN TO WORK)
+    const accessToken = process.env.BEDS24_ACCESS_TOKEN;
+    const refreshToken = process.env.BEDS24_REFRESH_TOKEN;
+    
+    if (accessToken && refreshToken) {
+      console.log('✅ Using legacy refresh token authentication (proven working method)');
+      
+      this.config = {
+        accessToken,
+        refreshToken,
+        baseUrl: process.env.BEDS24_BASE_URL || 'https://api.beds24.com/v2',
+        propId: process.env.BEDS24_PROP_ID || '357931',
+        // FIXED: Set token as expired initially to force refresh on first use
+        tokenExpiresAt: Date.now() - 1000 // Already expired, will trigger refresh
+      };
+      return;
+    }
+    
+    // FALLBACK: Try Long Life Token (if refresh tokens not available)
     const longLifeToken = process.env.BEDS24_LONG_LIFE_TOKEN;
     
     if (longLifeToken) {
-      console.log('Using Long Life Token authentication (official method)');
+      console.log('⚠️ Using Long Life Token authentication (fallback - may not work)');
       this.config = {
         accessToken: longLifeToken,
         refreshToken: '', // Not needed for Long Life Token
@@ -87,34 +105,8 @@ class Beds24Service {
       return;
     }
 
-    // FALLBACK: Use legacy refresh token system
-    const accessToken = process.env.BEDS24_ACCESS_TOKEN;
-    const refreshToken = process.env.BEDS24_REFRESH_TOKEN;
-    
-    if (!accessToken || !refreshToken) {
-      throw new Error('Either BEDS24_LONG_LIFE_TOKEN or both BEDS24_ACCESS_TOKEN and BEDS24_REFRESH_TOKEN environment variables are required');
-    }
-    
-    console.log('Using legacy refresh token authentication (fallback method)');
-    
-    this.config = {
-      accessToken,
-      refreshToken,
-      baseUrl: process.env.BEDS24_BASE_URL || 'https://api.beds24.com/v2',
-      propId: process.env.BEDS24_PROP_ID || '357931',
-      // FIXED: Set token as expired initially to force refresh on first use
-      tokenExpiresAt: Date.now() - 1000 // Already expired, will trigger refresh
-    };
-
-    // Debug logging
-    console.log('Beds24Service initialized:', {
-      baseUrl: this.config.baseUrl,
-      propId: this.config.propId,
-      hasAccessToken: !!this.config.accessToken,
-      hasRefreshToken: !!this.config.refreshToken,
-      tokenExpiresAt: this.config.tokenExpiresAt ? new Date(this.config.tokenExpiresAt).toISOString() : 'not set',
-      willRefreshOnFirstUse: this.config.tokenExpiresAt ? this.config.tokenExpiresAt < Date.now() : false
-    });
+    // No valid credentials found
+    throw new Error('Either BEDS24_ACCESS_TOKEN + BEDS24_REFRESH_TOKEN or BEDS24_LONG_LIFE_TOKEN environment variables are required');
   }
 
   /**
