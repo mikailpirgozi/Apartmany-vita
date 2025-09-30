@@ -4,7 +4,6 @@ import type { Session, User } from 'next-auth'
 import type { JWT } from 'next-auth/jwt'
 import GoogleProvider from 'next-auth/providers/google'
 import CredentialsProvider from 'next-auth/providers/credentials'
-import { PrismaAdapter } from '@auth/prisma-adapter'
 import { prisma } from './db'
 import bcrypt from 'bcryptjs'
 import { z } from 'zod'
@@ -13,6 +12,22 @@ const loginSchema = z.object({
   email: z.string().email(),
   password: z.string().min(6)
 })
+
+interface AuthCallbackParams {
+  token: JWT
+  user?: User
+  account?: Record<string, string> | null
+}
+
+interface SessionCallbackParams {
+  session: Session
+  token: JWT
+}
+
+interface RedirectCallbackParams {
+  url: string
+  baseUrl: string
+}
 
 export const authOptions = {
   // Temporarily disable adapter to test OAuth without database
@@ -66,7 +81,7 @@ export const authOptions = {
   ],
   
   callbacks: {
-    jwt: async ({ token, user, account }: { token: JWT; user?: User; account?: any }) => {
+    jwt: async ({ token, user, account }: AuthCallbackParams) => {
       if (user) {
         // For OAuth without adapter, generate stable ID from email
         const emailSafe = user.email?.replace(/[^a-zA-Z0-9]/g, '_') || 'user'
@@ -76,15 +91,14 @@ export const authOptions = {
       return token
     },
     
-    session: async ({ session, token }: { session: Session; token: JWT }) => {
+    session: async ({ session, token }: SessionCallbackParams) => {
       if (token && session.user) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (session.user as any).id = token.id as string
+        session.user.id = token.id as string
       }
       return session
     },
     
-    redirect: async ({ url, baseUrl }: { url: string; baseUrl: string }) => {
+    redirect: async ({ url, baseUrl }: RedirectCallbackParams) => {
       // Allows relative callback URLs
       if (url.startsWith('/')) return `${baseUrl}${url}`
       // Allows callback URLs on the same origin
@@ -106,9 +120,11 @@ export const authOptions = {
 }
 
 export const auth = async (): Promise<Session | null> => {
+  // Type assertion needed due to NextAuth v4 compatibility with Next.js 15
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return await getServerSession(authOptions as any)
 }
+
+// Type assertion needed due to NextAuth v4 compatibility with Next.js 15
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const NextAuthHandler = NextAuth as any
-export default NextAuthHandler(authOptions)
+export default (NextAuth as any)(authOptions)

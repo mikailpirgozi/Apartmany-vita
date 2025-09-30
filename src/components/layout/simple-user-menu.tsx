@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { User, Settings, Calendar, LogOut, Star } from 'lucide-react'
 import { signOut } from 'next-auth/react'
 
@@ -68,9 +69,11 @@ export function SimpleUserMenu({ isLoggedIn, userName, userEmail, userImage }: S
         className="relative h-10 w-10 rounded-full focus:outline-none focus:ring-2 focus:ring-brand-accent focus:ring-offset-2"
       >
         {userImage ? (
-          <img
+          <Image
             src={userImage}
             alt={userName || userEmail || ''}
+            width={40}
+            height={40}
             className="h-10 w-10 rounded-full object-cover"
           />
         ) : (
