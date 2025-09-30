@@ -1,22 +1,9 @@
 {
-  "buildCommand": "pnpm run build",
-  "installCommand": "pnpm install --frozen-lockfile && pnpm rebuild @prisma/client @prisma/engines",
   "framework": "nextjs",
   "functions": {
     "src/app/api/**/*.ts": {
       "maxDuration": 30
     }
-  },
-  "build": {
-    "env": {
-      "PRISMA_GENERATE_DATAPROXY": "false",
-      "PRISMA_CLIENT_ENGINE_TYPE": "binary",
-      "PRISMA_CLI_QUERY_ENGINE_TYPE": "binary",
-      "PRISMA_DISABLE_WARNINGS": "true"
-    }
-  },
-  "env": {
-    "NODE_ENV": "production"
   },
   "headers": [
     {
