@@ -51,6 +51,7 @@ model User {
   phone         String?
   dateOfBirth   DateTime?
   preferences   Json?
+  isAdmin       Boolean   @default(false)
   
   // Company information
   companyName    String?
