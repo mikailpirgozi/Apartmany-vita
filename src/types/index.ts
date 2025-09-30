@@ -156,6 +156,10 @@ export interface Beds24AvailabilityResponse {
   checkOut: string
   isAvailable: boolean
   totalPrice: number
+  subtotal?: number // Price before loyalty discount
+  loyaltyDiscount?: number // Loyalty discount amount
+  loyaltyDiscountPercent?: number // Loyalty discount percentage (5, 7, 10)
+  loyaltyTier?: string // Loyalty tier (BRONZE, SILVER, GOLD)
   pricePerNight: number
   nights: number
   available: string[]

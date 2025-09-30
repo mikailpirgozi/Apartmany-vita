@@ -63,7 +63,7 @@ export function BookingWidget({
 
   // Check availability when dates are selected - OPTIMIZED CACHE
   const { data: availability, isLoading: isAvailabilityLoading, error: availabilityError } = useQuery<Beds24AvailabilityResponse | null>({
-    queryKey: ['booking-availability', apartment.slug, checkIn, checkOut, guests, children],
+    queryKey: ['booking-availability', apartment.slug, checkIn, checkOut, guests, children, session?.user?.id],
     queryFn: async () => {
       if (!checkIn || !checkOut) return null;
       
@@ -77,7 +77,10 @@ export function BookingWidget({
       
       const checkInStr = formatDate(checkIn);
       const checkOutStr = formatDate(checkOut);
-      const url = `/api/beds24/availability?apartment=${apartment.slug}&checkIn=${checkInStr}&checkOut=${checkOutStr}&guests=${guests}&children=${children}`;
+      
+      // Include userId in query for loyalty discount calculation
+      const userIdParam = session?.user?.id ? `&userId=${session.user.id}` : '';
+      const url = `/api/beds24/availability?apartment=${apartment.slug}&checkIn=${checkInStr}&checkOut=${checkOutStr}&guests=${guests}&children=${children}${userIdParam}`;
       console.log('🔍 Fetching booking availability from:', url);
       
       const response = await fetch(url, {
@@ -300,7 +303,7 @@ export function BookingWidget({
                 <div className="bg-gray-50 rounded-lg p-4 space-y-3">
                   <div className="flex justify-between items-center">
                     <span className="text-sm font-medium text-gray-700">Základná cena ({nights} noc{nights > 1 ? 'í' : ''})</span>
-                    <span className="font-semibold">€{availability.pricingInfo?.basePrice || availability.totalPrice}</span>
+                    <span className="font-semibold">€{availability.pricingInfo?.basePrice || availability.subtotal || availability.totalPrice}</span>
                   </div>
                   
                   {/* Dodatočné poplatky za hostí */}
@@ -331,9 +334,27 @@ export function BookingWidget({
                   {/* Pôvodná celková cena */}
                   <div className="flex justify-between items-center">
                     <span className="text-sm font-medium text-gray-700">Pôvodná cena</span>
-                    <span className="text-lg font-bold text-gray-900">€{availability.totalPrice}</span>
+                    <span className="text-lg font-bold text-gray-900">€{availability.subtotal || availability.totalPrice}</span>
                   </div>
                 </div>
+                
+                {/* Loyalty discount (for logged in users) */}
+                {availability.loyaltyDiscount && availability.loyaltyDiscount > 0 && (
+                  <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center gap-2">
+                        <Percent className="h-4 w-4 text-green-600" />
+                        <span className="text-sm font-medium text-green-800">
+                          Loyalty zľava ({availability.loyaltyTier}) - {availability.loyaltyDiscountPercent}%
+                        </span>
+                      </div>
+                      <span className="text-lg font-bold text-green-600">-€{Math.round(availability.loyaltyDiscount)}</span>
+                    </div>
+                    <p className="text-xs text-green-600 mt-1">
+                      Automatická zľava pre registrovaných používateľov
+                    </p>
+                  </div>
+                )}
                 
                 {/* Stay-based discount (simple system) */}
                 {stayDiscountInfo && (
@@ -372,17 +393,61 @@ export function BookingWidget({
                   ) : null;
                 })()}
 
+                {/* Info for non-logged users about registration discount */}
+                {!session?.user && !availability.loyaltyDiscount && (
+                  <div className="bg-amber-50 rounded-lg p-4 border border-amber-200">
+                    <div className="flex items-start gap-3">
+                      <Info className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-amber-800">
+                          Registrujte sa a získajte 5% zľavu!
+                        </p>
+                        <p className="text-xs text-amber-600 mt-1">
+                          Všetci registrovaní používatelia automaticky dostávajú 5% zľavu na všetky rezervácie.
+                        </p>
+                        <div className="flex gap-2 mt-3">
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            className="text-xs bg-white hover:bg-amber-100 border-amber-300"
+                            onClick={() => window.location.href = '/auth/signin'}
+                          >
+                            Prihlásiť sa
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            className="text-xs bg-amber-600 hover:bg-amber-700"
+                            onClick={() => window.location.href = '/auth/signin?tab=register'}
+                          >
+                            Registrovať sa
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Finálna cena */}
                 <div className="bg-primary/5 rounded-lg p-4 border-2 border-primary/20">
                   <div className="flex justify-between items-center">
                     <span className="text-lg font-semibold text-primary">Celková cena</span>
                     <span className="text-2xl font-bold text-primary">
-                      €{stayDiscountInfo ? (availability.totalPrice - stayDiscountInfo.discountAmount) : availability.totalPrice}
+                      €{availability.totalPrice}
                     </span>
                   </div>
                   <p className="text-sm text-muted-foreground mt-1">
-                    €{Math.round((stayDiscountInfo ? (availability.totalPrice - stayDiscountInfo.discountAmount) : availability.totalPrice) / nights)}/noc priemerne
+                    €{Math.round(availability.totalPrice / nights)}/noc priemerne
                   </p>
+                  {availability.loyaltyDiscount && (
+                    <p className="text-xs text-green-600 mt-1">
+                      ✓ Zahŕňa loyalty zľavu €{Math.round(availability.loyaltyDiscount)}
+                    </p>
+                  )}
+                  {stayDiscountInfo && (
+                    <p className="text-xs text-blue-600 mt-1">
+                      ✓ Zahŕňa zľavu za dlhší pobyt €{stayDiscountInfo.discountAmount}
+                    </p>
+                  )}
                 </div>
                 
               </div>

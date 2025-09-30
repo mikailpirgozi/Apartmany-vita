@@ -2,10 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getBeds24Service } from '@/services/beds24';
 import { availabilityCache, CACHE_TTL } from '@/lib/cache';
 import { analytics } from '@/lib/analytics';
+import { prisma } from '@/lib/db';
+import { calculateLoyaltyTier, getLoyaltyDiscount } from '@/lib/loyalty';
 
 /**
  * API endpoint pre získanie dostupnosti apartmánov
  * Používa sa v booking widget
+ * Podporuje loyalty discount pre prihlásených používateľov
  */
 export async function GET(request: NextRequest) {
   const startTime = Date.now();
@@ -19,8 +22,9 @@ export async function GET(request: NextRequest) {
     const checkOut = searchParams.get('checkOut');
     const guests = searchParams.get('guests') || '2';
     const children = searchParams.get('children') || '0';
+    const userId = searchParams.get('userId'); // Optional - for loyalty discount
     
-    console.log('🔥 API PARAMS:', { apartment, checkIn, checkOut, guests, children });
+    console.log('🔥 API PARAMS:', { apartment, checkIn, checkOut, guests, children, userId });
 
     if (!apartment || !checkIn || !checkOut) {
       return NextResponse.json({
@@ -265,12 +269,51 @@ export async function GET(request: NextRequest) {
     // Celková cena = Beds24 ceny + poplatky za ďalších hostí
     const totalPrice = basePrice + additionalGuestFee;
     
+    // Calculate loyalty discount if user is logged in
+    let loyaltyDiscount = 0;
+    let loyaltyDiscountPercent = 0;
+    let loyaltyTier = null;
+    
+    if (userId) {
+      try {
+        // Get user's completed bookings count
+        const completedBookingsCount = await prisma.booking.count({
+          where: { 
+            userId: userId,
+            status: 'COMPLETED'
+          }
+        });
+        
+        // Calculate loyalty tier (all registered users start with Bronze = 5%)
+        loyaltyTier = calculateLoyaltyTier(completedBookingsCount);
+        loyaltyDiscountPercent = getLoyaltyDiscount(loyaltyTier);
+        loyaltyDiscount = totalPrice * loyaltyDiscountPercent;
+        
+        console.log(`🎁 Loyalty discount applied:`, {
+          userId,
+          completedBookings: completedBookingsCount,
+          tier: loyaltyTier,
+          discountPercent: `${Math.round(loyaltyDiscountPercent * 100)}%`,
+          discountAmount: `€${Math.round(loyaltyDiscount)}`
+        });
+        
+      } catch (error) {
+        console.error('Failed to calculate loyalty discount:', error);
+        // Continue without discount on error
+      }
+    }
+    
+    // Apply loyalty discount
+    const finalPrice = totalPrice - loyaltyDiscount;
+    
     console.log(`💰 Pricing calculation for ${apartment}:`, {
       beds24Prices: availability!.prices,
       dailyPricesUsed: dailyPricesFromBeds24,
       basePrice,
       additionalGuestFee,
-      totalPrice,
+      subtotal: totalPrice,
+      loyaltyDiscount,
+      finalPrice,
       usingBeds24Prices: Object.keys(availability!.prices || {}).length > 0
     });
 
@@ -280,8 +323,12 @@ export async function GET(request: NextRequest) {
       checkIn,
       checkOut,
       isAvailable,
-      totalPrice,
-      pricePerNight: availableDates.length > 0 ? totalPrice / availableDates.length : 0,
+      totalPrice: finalPrice, // Price after loyalty discount
+      subtotal: totalPrice, // Price before loyalty discount
+      loyaltyDiscount,
+      loyaltyDiscountPercent: Math.round(loyaltyDiscountPercent * 100), // As percentage (5, 7, 10)
+      loyaltyTier,
+      pricePerNight: availableDates.length > 0 ? finalPrice / availableDates.length : 0,
       nights: availableDates.length,
       // Calendar format - required by OptimizedAvailabilityCalendar
       available: availability!.available || [],
