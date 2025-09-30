@@ -3,20 +3,20 @@ import { Skeleton } from '@/components/ui/skeleton'
 
 export function ApartmentCardSkeleton() {
   return (
-    <Card className="overflow-hidden">
-      <Skeleton className="aspect-[16/10] w-full" />
-      <CardContent className="p-4">
-        <Skeleton className="h-6 w-3/4 mb-2" />
-        <div className="flex items-center gap-4 mb-3">
-          <Skeleton className="h-4 w-20" />
-          <Skeleton className="h-4 w-16" />
+    <Card className="overflow-hidden rounded-xl py-0 gap-0">
+      <Skeleton className="aspect-[16/9] w-full" />
+      <CardContent className="p-4 space-y-3">
+        <Skeleton className="h-6 w-3/4" />
+        <div className="flex items-center gap-3">
+          <Skeleton className="h-4 w-32" />
+          <Skeleton className="h-4 w-24" />
         </div>
-        <div className="flex items-center gap-2 mb-3">
+        <div className="flex items-center gap-2">
           <Skeleton className="h-4 w-4" />
           <Skeleton className="h-4 w-4" />
           <Skeleton className="h-4 w-4" />
         </div>
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between pt-1">
           <Skeleton className="h-8 w-20" />
           <Skeleton className="h-9 w-24" />
         </div>

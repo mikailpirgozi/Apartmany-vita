@@ -26,38 +26,37 @@ const toNumber = (value: number | Decimal): number => {
 
 export function ApartmentCard({ apartment, startDate, endDate, guests, childrenCount, variant = 'default', priority = false }: ApartmentCardProps) {
   return (
-    <Card className={`overflow-hidden transition-all hover:shadow-lg ${variant === 'compact' ? 'compact' : ''}`} data-testid="apartment-card">
-      <div className="relative">
+    <Card className={`overflow-hidden transition-all hover:shadow-xl rounded-xl py-0 gap-0 ${variant === 'compact' ? 'compact' : ''}`} data-testid="apartment-card">
+      <div className="relative w-full">
         {apartment.images.length > 0 ? (
           <Image
             src={apartment.images[0]}
             alt={apartment.name}
             width={400}
-            height={250}
-            className="aspect-[16/10] object-cover"
+            height={225}
+            className="aspect-[16/9] object-cover w-full"
             priority={priority}
           />
         ) : (
-          <div className="aspect-[16/10] bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
+          <div className="aspect-[16/9] bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
             <span className="text-muted-foreground">Foto nie je dostupné</span>
           </div>
         )}
-        <Badge variant="secondary" className="absolute top-2 right-2" data-testid="apartment-size">
-          {apartment.size}m²
-        </Badge>
       </div>
       
-      <CardContent className="p-4">
-        <h3 className="font-semibold text-lg mb-2">{apartment.name}</h3>
-        <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
-          <div className="flex items-center gap-1">
+      <CardContent className="p-4 space-y-3">
+        <h3 className="font-semibold text-lg leading-tight">{apartment.name}</h3>
+        <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+          <div className="flex items-center gap-1.5">
             <Users className="h-4 w-4" />
             <span>Max {apartment.maxGuests} osôb</span>
+            <span className="mx-1">•</span>
+            <span data-testid="apartment-size">{apartment.size}m²</span>
           </div>
           <div>{apartment.floor}. poschodie</div>
         </div>
         
-        <div className="flex items-center gap-2 mb-3">
+        <div className="flex items-center gap-2.5">
           <Wifi className="h-4 w-4 text-muted-foreground" />
           <ChefHat className="h-4 w-4 text-muted-foreground" />
           <Car className="h-4 w-4 text-muted-foreground" />
