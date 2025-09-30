@@ -1,7 +1,5 @@
-// import { ApartmentGrid } from '@/components/apartment/apartment-grid'
 import { ApartmentSearch } from '@/components/search/apartment-search'
-import { ApartmentSearchResults } from '@/components/apartment/apartment-search-results'
-import { ApartmentFilters } from '@/components/search/apartment-filters'
+import { ApartmentsWithFilters } from '@/components/apartment/apartments-with-filters'
 import { getApartments } from '@/services/apartments'
 import { Metadata } from 'next'
 
@@ -60,25 +58,10 @@ export default async function ApartmentsPage({ searchParams }: ApartmentsPagePro
       </div>
 
       {/* Filters and Results */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        {/* Filters Sidebar */}
-        <div className="lg:col-span-1">
-          <ApartmentFilters 
-            onFilterChange={(filters) => {
-              // Handle filter changes - this would be implemented with state management
-              console.log('Filters changed:', filters)
-            }}
-          />
-        </div>
-        
-        {/* Search Results */}
-        <div className="lg:col-span-3">
-          <ApartmentSearchResults 
-            initialApartments={apartments}
-            hasSearchParams={hasSearchParams}
-          />
-        </div>
-      </div>
+      <ApartmentsWithFilters 
+        initialApartments={apartments}
+        hasSearchParams={hasSearchParams}
+      />
     </div>
   )
 }
