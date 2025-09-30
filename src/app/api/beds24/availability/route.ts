@@ -207,8 +207,9 @@ export async function GET(request: NextRequest) {
     const endDate = new Date(checkOut);
     const requestedDates: string[] = [];
     
-    // ALWAYS include end date for calendar month view - Beds24 provides prices for all days
-    for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+    // FIXED: Don't include checkout day in pricing calculation (checkout day is not charged)
+    // For 1 night stay (13.10 -> 14.10), only charge 13.10, not 14.10
+    for (let d = new Date(startDate); d < endDate; d.setDate(d.getDate() + 1)) {
       requestedDates.push(d.toISOString().split('T')[0]);
     }
 
