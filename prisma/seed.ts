@@ -9,7 +9,7 @@ async function main() {
   await prisma.apartment.deleteMany({})
   console.log('🗑️  Cleared existing apartments')
 
-  // Create apartments
+  // Create apartments with empty images (will be uploaded via admin panel)
   const apartments = [
     {
       name: 'Design Apartmán',
@@ -19,12 +19,7 @@ async function main() {
       size: 45,
       maxGuests: 6,
       maxChildren: 4,
-      images: [
-        'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop',
-        'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&h=600&fit=crop',
-        'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop',
-        'https://images.unsplash.com/photo-1560448204-603b3fc33ddc?w=800&h=600&fit=crop'
-      ],
+      images: [],
       amenities: ['wifi', 'kitchen', 'tv', 'heating', 'washer', 'elevator', 'parking'],
       basePrice: 105,
       isActive: true,
@@ -38,12 +33,7 @@ async function main() {
       size: 55,
       maxGuests: 2,
       maxChildren: 1,
-      images: [
-        'https://images.unsplash.com/photo-1560448204-603b3fc33ddc?w=800&h=600&fit=crop',
-        'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop',
-        'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&h=600&fit=crop',
-        'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop'
-      ],
+      images: [],
       amenities: ['wifi', 'kitchen', 'tv', 'heating', 'washer', 'dishwasher', 'balcony', 'elevator', 'parking'],
       basePrice: 75,
       isActive: true,
@@ -57,12 +47,7 @@ async function main() {
       size: 70,
       maxGuests: 6,
       maxChildren: 4,
-      images: [
-        'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop',
-        'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop',
-        'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&h=600&fit=crop',
-        'https://images.unsplash.com/photo-1560448204-603b3fc33ddc?w=800&h=600&fit=crop'
-      ],
+      images: [],
       amenities: ['wifi', 'kitchen', 'tv', 'heating', 'washer', 'dishwasher', 'balcony', 'elevator', 'parking', 'aircon'],
       basePrice: 100,
       isActive: true,

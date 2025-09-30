@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { isAdmin } from '@/lib/admin'
 import { prisma } from '@/lib/db'
-import { ApartmentImageManager } from '@/components/admin/apartment-image-manager'
+import { AdminApartmentsList } from '@/components/admin/admin-apartments-list'
 
 export const metadata = {
   title: 'Správa apartmánov - Admin | Apartmány Vita',
@@ -23,6 +23,13 @@ export default async function AdminApartmentsPage() {
     }
   })
 
+  // Serialize apartments for client component (convert Decimal to string)
+  const serializedApartments = apartments.map(apt => ({
+    id: apt.id,
+    name: apt.name,
+    images: apt.images
+  }))
+
   return (
     <div className="container mx-auto py-8 px-4 max-w-7xl">
       <div className="mb-8">
@@ -32,19 +39,7 @@ export default async function AdminApartmentsPage() {
         </p>
       </div>
 
-      <div className="space-y-6">
-        {apartments.map((apartment) => (
-          <ApartmentImageManager
-            key={apartment.id}
-            apartmentId={apartment.id}
-            apartmentName={apartment.name}
-            currentImages={apartment.images}
-            onUpdate={(images) => {
-              console.log('Updated images:', images)
-            }}
-          />
-        ))}
-      </div>
+      <AdminApartmentsList apartments={serializedApartments} />
     </div>
   )
 }

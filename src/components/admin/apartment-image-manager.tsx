@@ -46,14 +46,24 @@ export function ApartmentImageManager({
         }
 
         const data = await response.json()
-        return data.url
+        return data
       })
 
-      const uploadedUrls = await Promise.all(uploadPromises)
+      const results = await Promise.all(uploadPromises)
+      const uploadedUrls = results.map(r => r.url)
       const newImages = [...images, ...uploadedUrls]
       setImages(newImages)
       
-      toast.success(`Úspešne nahraných ${uploadedUrls.length} fotiek`)
+      // Show compression stats
+      const totalSavings = results.reduce((acc, r) => {
+        if (r.stats?.savings) {
+          return acc + parseFloat(r.stats.savings)
+        }
+        return acc
+      }, 0)
+      const avgSavings = (totalSavings / results.length).toFixed(0)
+      
+      toast.success(`Úspešne nahraných ${uploadedUrls.length} fotiek (komprimované o ${avgSavings}%)`)
     } catch (error) {
       console.error('Upload error:', error)
       toast.error(error instanceof Error ? error.message : 'Chyba pri nahrávaní fotiek')
@@ -134,14 +144,17 @@ export function ApartmentImageManager({
             {uploading ? (
               <>
                 <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" />
-                <p className="text-sm text-muted-foreground">Nahrávam...</p>
+                <p className="text-sm text-muted-foreground">Nahrávam a komrimujem...</p>
               </>
             ) : (
               <>
                 <Upload className="h-10 w-10 text-muted-foreground" />
                 <p className="text-sm font-medium">Klikni pre nahratie fotiek</p>
                 <p className="text-xs text-muted-foreground">
-                  JPEG, PNG, WebP (max 5MB)
+                  JPEG, PNG, WebP (max 20MB)
+                </p>
+                <p className="text-xs text-muted-foreground text-green-600">
+                  ✨ Automatická kompresia a optimalizácia
                 </p>
               </>
             )}
