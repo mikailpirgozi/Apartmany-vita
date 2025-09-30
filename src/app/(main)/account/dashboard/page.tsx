@@ -17,8 +17,8 @@ export default async function DashboardPage() {
     redirect('/auth/signin')
   }
 
-  // Get user with bookings
-  const user = await prisma.user.findUnique({
+  // Get user with bookings (or create if doesn't exist - OAuth without adapter)
+  let user = await prisma.user.findUnique({
     where: { id: session.user.id },
     include: {
       bookings: {
@@ -35,6 +35,33 @@ export default async function DashboardPage() {
       }
     }
   })
+
+  // If user doesn't exist in DB (OAuth without adapter), create them
+  if (!user && session.user.email) {
+    user = await prisma.user.create({
+      data: {
+        id: session.user.id,
+        email: session.user.email,
+        name: session.user.name,
+        image: session.user.image,
+        emailVerified: new Date(), // OAuth users are verified
+      },
+      include: {
+        bookings: {
+          include: { 
+            apartment: {
+              select: {
+                name: true,
+                images: true
+              }
+            }
+          },
+          orderBy: { createdAt: 'desc' },
+          take: 5
+        }
+      }
+    })
+  }
 
   if (!user) {
     redirect('/auth/signin')

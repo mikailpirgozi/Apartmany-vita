@@ -32,9 +32,26 @@ export default async function ProfilePage() {
     redirect('/auth/signin')
   }
 
-  const user = await prisma.user.findUnique({
+  let user = await prisma.user.findUnique({
     where: { id: session.user.id }
   }) as UserWithCompanyData | null
+
+  // If user doesn't exist in DB (OAuth without adapter), create them
+  if (!user && session.user.email) {
+    const newUser = await prisma.user.create({
+      data: {
+        id: session.user.id,
+        email: session.user.email,
+        name: session.user.name,
+        image: session.user.image,
+        emailVerified: new Date(),
+      }
+    })
+    user = {
+      ...newUser,
+      _count: { bookings: 0 }
+    } as unknown as UserWithCompanyData
+  }
 
   if (!user) {
     redirect('/auth/signin')
