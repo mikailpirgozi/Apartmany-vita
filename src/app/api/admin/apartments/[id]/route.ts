@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/db'
 import { requireAdmin } from '@/lib/admin'
 import { z } from 'zod'
@@ -93,6 +94,11 @@ export async function PATCH(
       where: { id },
       data: validatedData
     })
+
+    // Revalidate all pages that display apartments
+    revalidatePath('/')
+    revalidatePath('/apartments')
+    revalidatePath(`/apartments/${apartment.slug}`)
 
     return NextResponse.json(updatedApartment)
 

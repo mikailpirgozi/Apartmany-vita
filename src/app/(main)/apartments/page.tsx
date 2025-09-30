@@ -3,6 +3,9 @@ import { ApartmentsWithFilters } from '@/components/apartment/apartments-with-fi
 import { getApartments } from '@/services/apartments'
 import { Metadata } from 'next'
 
+// Revalidate every 60 seconds (ISR)
+export const revalidate = 60
+
 export const metadata: Metadata = {
   title: 'Všetky apartmány - Apartmány Vita Trenčín',
   description: 'Prezrite si všetky naše luxusné apartmány v centre Trenčína. Vyberte si z 4 krásne zariadených apartmánov na Štúrovom námestí.',

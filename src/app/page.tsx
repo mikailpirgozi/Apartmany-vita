@@ -6,6 +6,9 @@ import { FeaturesSection } from '@/components/sections/features-section'
 import { getApartments } from '@/services/apartments'
 import Link from 'next/link'
 
+// Revalidate every 60 seconds (ISR)
+export const revalidate = 60
+
 export default async function HomePage() {
   const apartments = await getApartments()
   
