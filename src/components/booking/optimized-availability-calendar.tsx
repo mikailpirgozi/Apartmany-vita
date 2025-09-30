@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { 
   format, 
@@ -30,6 +30,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { adjustPriceForGuests } from "@/lib/pricing-utils";
 
 interface OptimizedAvailabilityCalendarProps {
   apartmentSlug: string;
@@ -74,20 +75,19 @@ const CACHE_CONFIG = {
   retryDelay: (attemptIndex: number) => Math.min(1000 * 2 ** attemptIndex, 30000)
 };
 
-// 🔑 HIERARCHICAL CACHE KEYS
+// 🔑 HIERARCHICAL CACHE KEYS - OPTIMIZED (no guests in key!)
 const QUERY_KEYS = {
-  availability: (apartmentSlug: string, month: Date, guests: number) => [
-    'availability',
+  availability: (apartmentSlug: string, month: Date) => [
+    'calendar-availability',
     apartmentSlug,
-    format(month, 'yyyy-MM'),
-    guests
+    format(month, 'yyyy-MM')
+    // ↑ NO guests! We adjust prices locally for instant updates
   ],
-  prefetch: (apartmentSlug: string, month: Date, guests: number) => [
-    'availability',
+  prefetch: (apartmentSlug: string, month: Date) => [
+    'calendar-availability',
     'prefetch',
     apartmentSlug,
-    format(month, 'yyyy-MM'),
-    guests
+    format(month, 'yyyy-MM')
   ]
 };
 
@@ -121,8 +121,8 @@ class CalendarAnalytics {
   }
 }
 
-// 🔄 BACKGROUND PREFETCHING HOOK
-const useAvailabilityPrefetch = (apartmentSlug: string, currentMonth: Date, guests: number) => {
+// 🔄 BACKGROUND PREFETCHING HOOK - OPTIMIZED (no guests dependency!)
+const useAvailabilityPrefetch = (apartmentSlug: string, currentMonth: Date) => {
   const queryClient = useQueryClient();
   
   useEffect(() => {
@@ -132,16 +132,16 @@ const useAvailabilityPrefetch = (apartmentSlug: string, currentMonth: Date, gues
       const nextMonth = addMonths(currentMonth, 1);
       
       try {
-        // Prefetch in background
+        // Prefetch in background (base 2 guests)
         await Promise.all([
           queryClient.prefetchQuery({
-            queryKey: QUERY_KEYS.availability(apartmentSlug, prevMonth, guests),
-            queryFn: () => fetchAvailability(apartmentSlug, prevMonth, guests),
+            queryKey: QUERY_KEYS.availability(apartmentSlug, prevMonth),
+            queryFn: () => fetchAvailability(apartmentSlug, prevMonth),
             staleTime: CACHE_CONFIG.staleTime
           }),
           queryClient.prefetchQuery({
-            queryKey: QUERY_KEYS.availability(apartmentSlug, nextMonth, guests),
-            queryFn: () => fetchAvailability(apartmentSlug, nextMonth, guests),
+            queryKey: QUERY_KEYS.availability(apartmentSlug, nextMonth),
+            queryFn: () => fetchAvailability(apartmentSlug, nextMonth),
             staleTime: CACHE_CONFIG.staleTime
           })
         ]);
@@ -160,11 +160,11 @@ const useAvailabilityPrefetch = (apartmentSlug: string, currentMonth: Date, gues
     // Prefetch after 2 seconds (don't block UI)
     const timer = setTimeout(prefetchAdjacentMonths, 2000);
     return () => clearTimeout(timer);
-  }, [apartmentSlug, currentMonth, guests, queryClient]);
+  }, [apartmentSlug, currentMonth, queryClient]); // ← NO guests dependency!
 };
 
-// 📡 OPTIMIZED FETCH FUNCTION - SINGLE MONTH
-async function fetchAvailability(apartmentSlug: string, month: Date, guests: number): Promise<AvailabilityData> {
+// 📡 OPTIMIZED FETCH FUNCTION - SINGLE MONTH (base 2 guests, adjust locally!)
+async function fetchAvailability(apartmentSlug: string, month: Date): Promise<AvailabilityData> {
   try {
     const monthStart = startOfMonth(month);
     const monthEnd = endOfMonth(month);
@@ -172,10 +172,11 @@ async function fetchAvailability(apartmentSlug: string, month: Date, guests: num
     const startDate = format(monthStart, 'yyyy-MM-dd');
     const endDate = format(monthEnd, 'yyyy-MM-dd');
     
-    console.log('📅 Fetching availability (single month):', { apartmentSlug, startDate, endDate, guests });
+    console.log('📅 Fetching base availability (2 guests):', { apartmentSlug, startDate, endDate });
     
     const response = await fetch(
-      `/api/beds24/availability?apartment=${apartmentSlug}&checkIn=${startDate}&checkOut=${endDate}&guests=${guests}&children=0`,
+      `/api/beds24/availability?apartment=${apartmentSlug}&checkIn=${startDate}&checkOut=${endDate}&guests=2&children=0`,
+      // ↑ Always 2 guests - we'll adjust prices locally for instant updates!
       {
         // Add cache headers for better performance
         headers: {
@@ -207,6 +208,7 @@ export function OptimizedAvailabilityCalendar({
   selectedRange,
   onRangeSelect,
   guests = 2,
+  childrenCount = 0,
   className
 }: OptimizedAvailabilityCalendarProps) {
   const [currentMonth, setCurrentMonth] = useState(() => new Date());
@@ -216,13 +218,13 @@ export function OptimizedAvailabilityCalendar({
   
   const queryClient = useQueryClient();
 
-
-  // 🚀 OPTIMIZED AVAILABILITY QUERY
-  const { data: availability, isLoading, error, refetch } = useQuery({
-    queryKey: QUERY_KEYS.availability(apartmentSlug, currentMonth, guests),
+  // 🚀 OPTIMIZED AVAILABILITY QUERY (no guests in queryKey!)
+  const { data: baseAvailability, isLoading, error, refetch } = useQuery({
+    queryKey: QUERY_KEYS.availability(apartmentSlug, currentMonth),
+    // ↑ NO guests! Prices will be adjusted locally
     queryFn: async () => {
       const startTime = performance.now();
-      const data = await fetchAvailability(apartmentSlug, currentMonth, guests);
+      const data = await fetchAvailability(apartmentSlug, currentMonth);
       const endTime = performance.now();
       const loadTime = Math.round(endTime - startTime);
       
@@ -232,11 +234,30 @@ export function OptimizedAvailabilityCalendar({
       
       return data;
     },
+    placeholderData: (previousData) => previousData, // 🎯 Smooth transition
     ...CACHE_CONFIG
   });
 
-  // 🔄 BACKGROUND PREFETCHING
-  useAvailabilityPrefetch(apartmentSlug, currentMonth, guests);
+  // 🎯 HYBRID: Adjust prices locally for current guest count (instant!)
+  const availability = useMemo(() => {
+    if (!baseAvailability) return undefined;
+    
+    // Adjust all prices for current guest count
+    const adjustedPrices: Record<string, number> = {};
+    Object.entries(baseAvailability.prices).forEach(([date, basePrice]) => {
+      adjustedPrices[date] = adjustPriceForGuests(basePrice, guests, childrenCount);
+    });
+    
+    console.log('📅 Adjusted calendar prices for guests:', { guests, childrenCount, sampleAdjustment: Object.entries(adjustedPrices).slice(0, 2) });
+    
+    return {
+      ...baseAvailability,
+      prices: adjustedPrices
+    };
+  }, [baseAvailability, guests, childrenCount]);
+
+  // 🔄 BACKGROUND PREFETCHING (no guests dependency!)
+  useAvailabilityPrefetch(apartmentSlug, currentMonth);
 
   // Generate calendar days for current month only
   const calendarDays = generateCalendarDays(
@@ -333,13 +354,13 @@ export function OptimizedAvailabilityCalendar({
     
     // Check if data is already cached
     const cachedData = queryClient.getQueryData(
-      QUERY_KEYS.availability(apartmentSlug, newMonth, guests)
+      QUERY_KEYS.availability(apartmentSlug, newMonth)
     );
     
     if (!cachedData) {
       // If not cached, invalidate to trigger fetch
       queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.availability(apartmentSlug, newMonth, guests)
+        queryKey: QUERY_KEYS.availability(apartmentSlug, newMonth)
       });
     }
   };
@@ -371,7 +392,7 @@ export function OptimizedAvailabilityCalendar({
     
     // Try to get data from other month (if prefetched)
     if (fromMonth.getTime() !== currentMonthStart.getTime()) {
-      const prevMonthData = queryClient.getQueryData(QUERY_KEYS.availability(apartmentSlug, fromMonth, guests)) as AvailabilityData | undefined;
+      const prevMonthData = queryClient.getQueryData(QUERY_KEYS.availability(apartmentSlug, fromMonth)) as AvailabilityData | undefined;
       if (prevMonthData) {
         combinedData.available.push(...(prevMonthData.available || []));
         combinedData.booked.push(...(prevMonthData.booked || []));
@@ -380,7 +401,7 @@ export function OptimizedAvailabilityCalendar({
     }
     
     if (toMonth.getTime() !== currentMonthStart.getTime() && toMonth.getTime() !== fromMonth.getTime()) {
-      const nextMonthData = queryClient.getQueryData(QUERY_KEYS.availability(apartmentSlug, toMonth, guests)) as AvailabilityData | undefined;
+      const nextMonthData = queryClient.getQueryData(QUERY_KEYS.availability(apartmentSlug, toMonth)) as AvailabilityData | undefined;
       if (nextMonthData) {
         combinedData.available.push(...(nextMonthData.available || []));
         combinedData.booked.push(...(nextMonthData.booked || []));

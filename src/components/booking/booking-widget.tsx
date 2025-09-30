@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import type { Session } from "next-auth";
@@ -16,6 +16,8 @@ import { OptimizedAvailabilityCalendar } from "@/components/booking/optimized-av
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { getNextDiscountTier } from "@/lib/discounts";
+import { calculateClientPricing } from "@/lib/pricing-utils";
+import { LoyaltyTier } from "@/lib/loyalty";
 import type { Apartment, Beds24AvailabilityResponse } from "@/types";
 
 interface BookingWidgetProps {
@@ -61,9 +63,10 @@ export function BookingWidget({
   const [children, setChildren] = useState(initialChildren);
   const [showCalendar, setShowCalendar] = useState<'checkin' | 'checkout' | 'enhanced' | null>(null);
 
-  // Check availability when dates are selected - OPTIMIZED CACHE
-  const { data: availability, isLoading: isAvailabilityLoading, error: availabilityError } = useQuery<Beds24AvailabilityResponse | null>({
-    queryKey: ['booking-availability', apartment.slug, checkIn, checkOut, guests, children, session?.user?.id],
+  // 🚀 HYBRID APPROACH: Fetch base Beds24 prices (only when dates change, NOT guests!)
+  const { data: basePricing, isLoading: isAvailabilityLoading, error: availabilityError } = useQuery<Beds24AvailabilityResponse | null>({
+    queryKey: ['booking-base-pricing', apartment.slug, checkIn, checkOut, session?.user?.id],
+    // ↑ NO guests/children in queryKey = no API call when guests change!
     queryFn: async () => {
       if (!checkIn || !checkOut) return null;
       
@@ -78,10 +81,10 @@ export function BookingWidget({
       const checkInStr = formatDate(checkIn);
       const checkOutStr = formatDate(checkOut);
       
-      // Include userId in query for loyalty discount calculation
+      // Fetch with base 2 guests (default) - we'll adjust locally
       const userIdParam = session?.user?.id ? `&userId=${session.user.id}` : '';
-      const url = `/api/beds24/availability?apartment=${apartment.slug}&checkIn=${checkInStr}&checkOut=${checkOutStr}&guests=${guests}&children=${children}${userIdParam}`;
-      console.log('🔍 Fetching booking availability from:', url);
+      const url = `/api/beds24/availability?apartment=${apartment.slug}&checkIn=${checkInStr}&checkOut=${checkOutStr}&guests=2&children=0${userIdParam}`;
+      console.log('🔍 Fetching base pricing from:', url);
       
       const response = await fetch(url, {
         headers: {
@@ -94,44 +97,55 @@ export function BookingWidget({
       }
       
       const data = await response.json();
-      console.log('✅ Booking availability data received:', data);
+      console.log('✅ Base pricing data received:', data);
       return data;
     },
     enabled: !!(checkIn && checkOut && checkIn < checkOut),
-    staleTime: 10 * 60 * 1000,        // 10 minutes (optimized from 2 minutes)
+    placeholderData: (previousData) => previousData, // 🎯 Smooth transition - keep old data while loading
+    staleTime: 10 * 60 * 1000,        // 10 minutes
     gcTime: 30 * 60 * 1000,           // 30 minutes garbage collection
     refetchOnWindowFocus: false,      // No automatic refresh
-    retry: 2,                         // Less retries
+    retry: 2,
     retryDelay: (attemptIndex: number) => Math.min(1000 * 2 ** attemptIndex, 30000)
   });
-
-  // ✅ Stay discount comes from API (Single Source of Truth)
-  // API already calculates stay discount based on nights (7+, 14+, 30+ days)
-  const stayDiscount = availability?.stayDiscount || 0;
-  const stayDiscountInfo = availability?.stayDiscountInfo || null;
-  
-  // Debug logging
-  console.log('Booking widget state:', {
-    apartment: apartment.slug,
-    checkIn,
-    checkOut,
-    availability,
-    stayDiscountFromAPI: stayDiscountInfo,
-    loyaltyDiscountFromAPI: availability?.loyaltyDiscount,
-    isAvailabilityLoading,
-    availabilityError,
-    enabled: !!(checkIn && checkOut && checkIn < checkOut)
-  });
-
-  // REMOVED: Old pricing logic - now handled by Beds24 API in availability response
 
   const nights = checkIn && checkOut ? differenceInDays(checkOut, checkIn) : 0;
   const totalGuests = guests + children;
   
-  // Check if selected dates are available based on API response
-  const isDateRangeAvailable = availability ? availability.isAvailable : true;
+  // 🎯 HYBRID PRICING: Calculate locally for instant updates when guests change
+  const pricing = useMemo(() => {
+    if (!basePricing?.pricingInfo?.basePrice || nights === 0) return null;
+    
+    // Get user's loyalty tier (default Bronze for all registered users)
+    const userLoyaltyTier = session?.user ? LoyaltyTier.BRONZE : null;
+    
+    // Calculate complete pricing locally (instant!)
+    return calculateClientPricing({
+      basePrice: basePricing.pricingInfo.basePrice,
+      nights,
+      guests,
+      children,
+      loyaltyTier: userLoyaltyTier
+    });
+  }, [basePricing?.pricingInfo?.basePrice, nights, guests, children, session?.user]);
   
-  const isValidBooking = checkIn && checkOut && nights > 0 && totalGuests <= apartment.maxGuests && isDateRangeAvailable && availability?.totalPrice;
+  // Check if selected dates are available based on API response
+  const isDateRangeAvailable = basePricing ? basePricing.isAvailable : true;
+  
+  const isValidBooking = checkIn && checkOut && nights > 0 && totalGuests <= apartment.maxGuests && isDateRangeAvailable && pricing?.finalPrice;
+  
+  // Debug logging
+  console.log('Booking widget state (HYBRID):', {
+    apartment: apartment.slug,
+    checkIn,
+    checkOut,
+    basePricingFromAPI: basePricing?.pricingInfo?.basePrice,
+    localCalculatedPricing: pricing,
+    guests,
+    children,
+    isAvailabilityLoading,
+    availabilityError
+  });
 
 
   const handleRangeSelect = (range: { from: Date | null; to: Date | null }) => {
@@ -280,9 +294,9 @@ export function BookingWidget({
                   Nepodarilo sa načítať cenu. Skúste to znovu.
                 </AlertDescription>
               </Alert>
-            ) : availability?.totalPrice ? (
+            ) : pricing?.finalPrice ? (
               <div className="space-y-4">
-                {/* Cenový súhrn - zjednotená štruktúra */}
+                {/* Cenový súhrn - HYBRID calculation (instant updates!) */}
                 <div className="bg-gray-50 rounded-lg p-4 space-y-3">
                   <h4 className="font-medium flex items-center gap-2 mb-3">
                     <Euro className="h-4 w-4" />
@@ -291,20 +305,20 @@ export function BookingWidget({
                   
                   {/* Základná cena */}
                   <div className="flex justify-between text-sm">
-                    <span>{nights} nocí × €{availability.pricingInfo?.basePrice ? (availability.pricingInfo.basePrice / nights).toFixed(2) : '0'}</span>
-                    <span>€{availability.pricingInfo?.basePrice?.toFixed(2) || '0'}</span>
+                    <span>{nights} nocí × €{(pricing.basePrice / nights).toFixed(2)}</span>
+                    <span>€{pricing.basePrice.toFixed(2)}</span>
                   </div>
                   
-                  {/* Extra hostia */}
-                  {availability.pricingInfo?.additionalGuestFee && availability.pricingInfo.additionalGuestFee > 0 && (
+                  {/* Extra hostia - calculated locally, updates instantly! */}
+                  {pricing.additionalGuestFee > 0 && (
                     <div className="flex justify-between text-sm text-gray-600">
                       <span className="text-xs">
                         ↳ Extra hostia 
-                        {availability.pricingInfo.additionalAdults > 0 && ` (${availability.pricingInfo.additionalAdults} × €20/noc)`}
-                        {availability.pricingInfo.additionalAdults > 0 && availability.pricingInfo.additionalChildren > 0 && ` +`}
-                        {availability.pricingInfo.additionalChildren > 0 && ` (${availability.pricingInfo.additionalChildren} dieťa × €10/noc)`}
+                        {pricing.additionalAdults > 0 && ` (${pricing.additionalAdults} × €20/noc)`}
+                        {pricing.additionalAdults > 0 && pricing.additionalChildren > 0 && ` +`}
+                        {pricing.additionalChildren > 0 && ` (${pricing.additionalChildren} dieťa × €10/noc)`}
                       </span>
-                      <span className="text-xs">€{availability.pricingInfo.additionalGuestFee.toFixed(2)}</span>
+                      <span className="text-xs">€{pricing.additionalGuestFee.toFixed(2)}</span>
                     </div>
                   )}
                   
@@ -313,28 +327,28 @@ export function BookingWidget({
                   {/* Medzisúčet */}
                   <div className="flex justify-between font-medium">
                     <span>Pôvodná cena</span>
-                    <span>€{(availability.subtotal || availability.totalPrice).toFixed(2)}</span>
+                    <span>€{pricing.subtotal.toFixed(2)}</span>
                   </div>
                   
-                  {/* Stay discount */}
-                  {stayDiscountInfo && stayDiscount > 0 && (
+                  {/* Stay discount - calculated locally, updates instantly! */}
+                  {pricing.stayDiscount > 0 && pricing.stayDiscountInfo && (
                     <div className="flex justify-between text-blue-600">
                       <span className="flex items-center gap-1 text-sm">
                         <Percent className="w-3 h-3" />
-                        Zľava za pobyt ({stayDiscountInfo.label}) - {stayDiscountInfo.discountPercent}%
+                        Zľava za pobyt ({pricing.stayDiscountInfo.label}) - {Math.round(pricing.stayDiscountPercent * 100)}%
                       </span>
-                      <span className="font-semibold">-€{stayDiscount.toFixed(2)}</span>
+                      <span className="font-semibold">-€{pricing.stayDiscount.toFixed(2)}</span>
                     </div>
                   )}
                   
-                  {/* Loyalty discount */}
-                  {availability.loyaltyDiscount && availability.loyaltyDiscount > 0 && (
+                  {/* Loyalty discount - calculated locally, updates instantly! */}
+                  {pricing.loyaltyDiscount > 0 && (
                     <div className="flex justify-between text-green-600">
                       <span className="flex items-center gap-1 text-sm">
                         <Percent className="w-3 h-3" />
-                        Loyalty zľava ({availability.loyaltyTier}) - {availability.loyaltyDiscountPercent}%
+                        Loyalty zľava ({pricing.loyaltyTier}) - {Math.round(pricing.loyaltyDiscountPercent * 100)}%
                       </span>
-                      <span className="font-semibold">-€{availability.loyaltyDiscount.toFixed(2)}</span>
+                      <span className="font-semibold">-€{pricing.loyaltyDiscount.toFixed(2)}</span>
                     </div>
                   )}
                   
@@ -343,29 +357,29 @@ export function BookingWidget({
                   {/* Celková cena */}
                   <div className="flex justify-between text-lg font-bold text-primary">
                     <span>Celková cena</span>
-                    <span>€{availability.totalPrice.toFixed(2)}</span>
+                    <span>€{pricing.finalPrice.toFixed(2)}</span>
                   </div>
                   
                   <div className="text-xs text-muted-foreground">
-                    €{(availability.totalPrice / nights).toFixed(2)}/noc priemerne
+                    €{pricing.pricePerNight.toFixed(2)}/noc priemerne
                   </div>
                   
                   {/* Úspory */}
-                  {(stayDiscount > 0 || (availability.loyaltyDiscount && availability.loyaltyDiscount > 0)) && (
+                  {pricing.totalDiscount > 0 && (
                     <div className="text-xs text-green-600 space-y-0.5 pt-2">
-                      {stayDiscount > 0 && (
-                        <p>✓ Zahŕňa zľavu za pobyt €{stayDiscount.toFixed(2)}</p>
+                      {pricing.stayDiscount > 0 && (
+                        <p>✓ Zahŕňa zľavu za pobyt €{pricing.stayDiscount.toFixed(2)}</p>
                       )}
-                      {availability.loyaltyDiscount && availability.loyaltyDiscount > 0 && (
-                        <p>✓ Zahŕňa loyalty zľavu €{availability.loyaltyDiscount.toFixed(2)}</p>
+                      {pricing.loyaltyDiscount > 0 && (
+                        <p>✓ Zahŕňa loyalty zľavu €{pricing.loyaltyDiscount.toFixed(2)}</p>
                       )}
+                      <p className="font-medium pt-1">💰 Celková úspora: €{pricing.totalDiscount.toFixed(2)} ({Math.round((pricing.totalDiscount / pricing.subtotal) * 100)}%)</p>
                     </div>
                   )}
                 </div>
                 
                 {/* Discount opportunity info */}
-                {!stayDiscountInfo && checkIn && checkOut && (() => {
-                  const nights = differenceInDays(checkOut, checkIn);
+                {pricing.stayDiscount === 0 && (() => {
                   const nextTier = getNextDiscountTier(nights);
                   return nextTier.nextTier ? (
                     <div className="bg-amber-50 rounded-lg p-4 border border-amber-200">
@@ -376,14 +390,14 @@ export function BookingWidget({
                         </span>
                       </div>
                       <p className="text-xs text-amber-600 mt-1">
-                        Ušetríte až €{Math.round((availability?.totalPrice || 0) * nextTier.nextTier.discount * 100) / 100}
+                        Ušetríte až €{Math.round(pricing.subtotal * nextTier.nextTier.discount * 100) / 100}
                       </p>
                     </div>
                   ) : null;
                 })()}
 
                 {/* Info for non-logged users about registration discount */}
-                {!session?.user && !availability.loyaltyDiscount && (
+                {!session?.user && pricing.loyaltyDiscount === 0 && (
                   <div className="bg-amber-50 rounded-lg p-4 border border-amber-200">
                     <div className="flex items-start gap-3">
                       <Info className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
@@ -392,7 +406,7 @@ export function BookingWidget({
                           Registrujte sa a získajte 5% zľavu!
                         </p>
                         <p className="text-xs text-amber-600 mt-1">
-                          Všetci registrovaní používatelia automaticky dostávajú 5% zľavu na všetky rezervácie.
+                          Všetci registrovaní používatelia automaticky dostávajú 5% zľavu na všetky rezervácie. Ušetrili by ste €{(pricing.subtotal * 0.05).toFixed(2)}
                         </p>
                         <div className="flex gap-2 mt-3">
                           <Button 
@@ -415,29 +429,6 @@ export function BookingWidget({
                     </div>
                   </div>
                 )}
-
-                {/* Finálna cena */}
-                <div className="bg-primary/5 rounded-lg p-4 border-2 border-primary/20">
-                  <div className="flex justify-between items-center">
-                    <span className="text-lg font-semibold text-primary">Celková cena</span>
-                    <span className="text-2xl font-bold text-primary">
-                      €{availability.totalPrice}
-                    </span>
-                  </div>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    €{Math.round(availability.totalPrice / nights)}/noc priemerne
-                  </p>
-                  {availability.loyaltyDiscount && (
-                    <p className="text-xs text-green-600 mt-1">
-                      ✓ Zahŕňa loyalty zľavu €{Math.round(availability.loyaltyDiscount)}
-                    </p>
-                  )}
-                  {stayDiscountInfo && (
-                    <p className="text-xs text-blue-600 mt-1">
-                      ✓ Zahŕňa zľavu za dlhší pobyt €{stayDiscountInfo.discountAmount}
-                    </p>
-                  )}
-                </div>
                 
               </div>
             ) : null}
@@ -494,9 +485,9 @@ export function BookingWidget({
             "Kontrolujem dostupnosť..."
           ) : !isDateRangeAvailable ? (
             "Vybrané dátumy nie sú dostupné"
-          ) : availability?.totalPrice ? (
+          ) : pricing?.finalPrice ? (
             <>
-              Rezervovať za €{stayDiscountInfo ? (availability.totalPrice - stayDiscountInfo.discountAmount) : availability.totalPrice}
+              Rezervovať za €{pricing.finalPrice.toFixed(0)}
               <ArrowRight className="ml-2 h-4 w-4" />
             </>
           ) : (
