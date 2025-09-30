@@ -1,9 +1,72 @@
 import { notFound, redirect } from 'next/navigation'
 import { Suspense } from 'react'
 import { BookingFlow2Step } from '@/components/booking/booking-flow-2step'
-import { getApartmentBySlug } from '@/services/apartments'
+// TEMPORARY: Commented out to avoid Prisma engine issue on Vercel
+// import { getApartmentBySlug } from '@/services/apartments'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Card, CardContent } from '@/components/ui/card'
+import type { Apartment } from '@/types'
+
+// WORKAROUND: Static apartment data to bypass Prisma on Vercel
+const STATIC_APARTMENTS: Apartment[] = [
+  {
+    id: '4',
+    slug: 'deluxe-apartman',
+    name: 'Deluxe Apartmán',
+    description: 'Najluxusnejší apartmán s krásnym výhľadom a kompletným vybavením pre až 6 hostí.',
+    size: 70,
+    maxGuests: 6,
+    maxChildren: 4,
+    floor: 2,
+    basePrice: 100,
+    amenities: ['wifi', 'kitchen', 'tv', 'heating', 'washer', 'dishwasher', 'balcony', 'elevator', 'parking'],
+    images: [
+      'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop&crop=center',
+      'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop&crop=center',
+      'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&h=600&fit=crop&crop=center',
+      'https://images.unsplash.com/photo-1560448204-603b3fc33ddc?w=800&h=600&fit=crop&crop=center'
+    ],
+    isActive: true,
+    createdAt: new Date(),
+    updatedAt: new Date()
+  },
+  {
+    id: '3',
+    slug: 'lite-apartman',
+    name: 'Lite Apartmán',
+    description: 'Priestranný apartmán na druhom poschodí s balkónom a krásnym výhľadom na mesto.',
+    size: 55,
+    maxGuests: 2,
+    maxChildren: 1,
+    floor: 2,
+    basePrice: 75,
+    amenities: ['wifi', 'kitchen', 'tv', 'heating', 'washer', 'dishwasher', 'balcony', 'elevator'],
+    images: [
+      'https://images.unsplash.com/photo-1560448204-603b3fc33ddc?w=800&h=600&fit=crop&crop=center'
+    ],
+    isActive: true,
+    createdAt: new Date(),
+    updatedAt: new Date()
+  },
+  {
+    id: '2',
+    slug: 'design-apartman',
+    name: 'Design Apartmán',
+    description: 'Štýlovo zariadený apartmán s moderným dizajnom. Perfektný pre páry.',
+    size: 45,
+    maxGuests: 6,
+    maxChildren: 4,
+    floor: 1,
+    basePrice: 105,
+    amenities: ['wifi', 'kitchen', 'tv', 'heating', 'washer', 'elevator'],
+    images: [
+      'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop&crop=center'
+    ],
+    isActive: true,
+    createdAt: new Date(),
+    updatedAt: new Date()
+  }
+];
 
 interface BookingPageProps {
   searchParams: Promise<{
@@ -57,36 +120,16 @@ async function BookingContent({ searchParams }: BookingPageProps) {
   const guestCount = parseInt(guests) || 2
   const childrenCount = parseInt(children || '0') || 0
 
-  // Get apartment data - WORKAROUND: Use static data to avoid Prisma engine issue on Vercel
-  let apartment;
-  try {
-    apartment = await getApartmentBySlug(apartmentSlug);
-  } catch (error) {
-    console.error('❌ Failed to get apartment from database, using static data:', error);
-    // Fallback to static apartment data
-    const staticApartments = [
-      { id: '4', slug: 'deluxe-apartman', name: 'Deluxe Apartmán', size: 70, maxGuests: 6, maxChildren: 4, floor: 2, basePrice: 100, 
-        description: 'Najluxusnejší apartmán s krásnym výhľadom a kompletným vybavením pre až 6 hostí.',
-        amenities: ['wifi', 'kitchen', 'tv', 'heating', 'washer', 'dishwasher', 'balcony', 'elevator', 'parking'],
-        images: ['https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop&crop=center'],
-        isActive: true, createdAt: new Date(), updatedAt: new Date() },
-      { id: '3', slug: 'lite-apartman', name: 'Lite Apartmán', size: 55, maxGuests: 2, maxChildren: 1, floor: 2, basePrice: 75,
-        description: 'Priestranný apartmán na druhom poschodí s balkónom.',
-        amenities: ['wifi', 'kitchen', 'tv', 'heating', 'washer', 'dishwasher', 'balcony', 'elevator'],
-        images: ['https://images.unsplash.com/photo-1560448204-603b3fc33ddc?w=800&h=600&fit=crop&crop=center'],
-        isActive: true, createdAt: new Date(), updatedAt: new Date() },
-      { id: '2', slug: 'design-apartman', name: 'Design Apartmán', size: 45, maxGuests: 6, maxChildren: 4, floor: 1, basePrice: 105,
-        description: 'Štýlovo zariadený apartmán s moderným dizajnom.',
-        amenities: ['wifi', 'kitchen', 'tv', 'heating', 'washer', 'elevator'],
-        images: ['https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop&crop=center'],
-        isActive: true, createdAt: new Date(), updatedAt: new Date() }
-    ];
-    apartment = staticApartments.find(apt => apt.slug === apartmentSlug) || null;
-  }
+  // WORKAROUND: Use static data directly - bypass Prisma completely on Vercel
+  console.log('🔍 Getting apartment data for slug:', apartmentSlug);
+  const apartment = STATIC_APARTMENTS.find(apt => apt.slug === apartmentSlug);
   
   if (!apartment) {
+    console.error('❌ Apartment not found:', apartmentSlug);
     notFound()
   }
+  
+  console.log('✅ Using static apartment data:', apartment.name);
 
   // Validate guest capacity
   if (guestCount + childrenCount > apartment.maxGuests) {
