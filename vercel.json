@@ -10,7 +10,7 @@
   "build": {
     "env": {
       "PRISMA_GENERATE_DATAPROXY": "false",
-      "PRISMA_CLI_BINARY_TARGETS": "linux-musl-openssl-3.0.x"
+      "PRISMA_DISABLE_WARNINGS": "true"
     }
   },
   "env": {
