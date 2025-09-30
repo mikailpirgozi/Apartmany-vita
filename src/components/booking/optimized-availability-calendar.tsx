@@ -417,39 +417,40 @@ export function OptimizedAvailabilityCalendar({
     <>
       <Card className={cn("w-full overflow-hidden", className)}>
         <CardHeader className="pb-3 px-3 sm:px-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div className="flex flex-col gap-3">
           <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
             <CalendarIcon className="h-4 w-4 sm:h-5 sm:w-5" />
             Dostupnosť a ceny
           </CardTitle>
           
-          <div className="flex items-center justify-center gap-2">
+          {/* Month navigation - výraznejšie a väčšie */}
+          <div className="flex items-center justify-between gap-3 bg-muted/30 rounded-lg p-2 sm:p-3">
             <Button
               type="button"
               variant="outline"
-              size="sm"
+              size="lg"
               onClick={() => navigateMonthOptimistic('prev')}
               disabled={isLoading}
               suppressHydrationWarning
-              className="h-8 w-8 p-0"
+              className="h-10 w-10 sm:h-11 sm:w-11 p-0 shrink-0 bg-background hover:bg-accent"
             >
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6" />
             </Button>
             
-            <div className="min-w-[130px] sm:min-w-[160px] text-center font-medium text-sm sm:text-base">
+            <div className="flex-1 text-center font-bold text-base sm:text-lg capitalize px-2">
               {format(currentMonth, 'MMMM yyyy', { locale: sk })}
             </div>
             
             <Button
               type="button"
               variant="outline"
-              size="sm"
+              size="lg"
               onClick={() => navigateMonthOptimistic('next')}
               disabled={isLoading}
               suppressHydrationWarning
-              className="h-8 w-8 p-0"
+              className="h-10 w-10 sm:h-11 sm:w-11 p-0 shrink-0 bg-background hover:bg-accent"
             >
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6" />
             </Button>
           </div>
         </div>
