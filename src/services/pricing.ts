@@ -85,7 +85,7 @@ class PricingService {
     const breakdown = this.calculateDailyBreakdown(
       checkIn, 
       checkOut, 
-      Number(apartment.basePrice),
+      basePrice,
       dynamicPrices
     );
     
