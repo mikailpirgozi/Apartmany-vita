@@ -10,9 +10,11 @@ interface AuthProviderProps {
 export function AuthProvider({ children }: AuthProviderProps) {
   return (
     <SessionProvider
-      // Disable automatic session refetching to prevent hydration issues
-      refetchInterval={0}
-      refetchOnWindowFocus={false}
+      // Re-enable session refetch to ensure OAuth callback works properly
+      // Refetch session every 5 minutes
+      refetchInterval={5 * 60}
+      // Refetch when user returns to tab
+      refetchOnWindowFocus={true}
       // Ensure consistent behavior between server and client
       basePath="/api/auth"
     >

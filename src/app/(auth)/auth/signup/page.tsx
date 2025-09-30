@@ -14,12 +14,23 @@ import { Badge } from '@/components/ui/badge'
 export default function SignUpPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
+  const searchParams = useSearchParams()
   
   useEffect(() => {
-    if (session) {
-      router.push('/')
+    // Check if we just returned from OAuth callback
+    const error = searchParams.get('error')
+    if (error) {
+      router.push(`/auth/error?error=${error}`)
+      return
     }
-  }, [session, router])
+    
+    // Redirect if already authenticated
+    if (session) {
+      const callbackUrl = searchParams.get('callbackUrl') || '/'
+      router.push(callbackUrl)
+      router.refresh()
+    }
+  }, [session, router, searchParams])
 
   if (status === 'loading') {
     return (
