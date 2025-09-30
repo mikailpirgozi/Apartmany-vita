@@ -6,11 +6,13 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { format } from "date-fns";
+import { useSession } from "next-auth/react";
+import type { Session } from "next-auth";
+import { useQuery } from "@tanstack/react-query";
 import { Check, ChevronLeft, ChevronRight, User, CreditCard, Calendar, Euro, Percent, Building, MessageSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -21,7 +23,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 // import { Skeleton } from "@/components/ui/skeleton"; // Currently unused
 import { PaymentForm } from "@/components/booking/payment-form";
 import { BookingPricing } from "@/services/pricing";
-import type { Apartment } from "@/types";
+import type { Apartment, Beds24AvailabilityResponse } from "@/types";
 
 // Booking steps - 2-step flow
 const BOOKING_STEPS = [
@@ -135,6 +137,7 @@ const EXTRA_SERVICES: ExtraService[] = [
 
 export function BookingFlow2Step({ apartment, bookingData, availability, initialPricing }: BookingFlowProps) {
   const router = useRouter();
+  const { data: session } = useSession() as { data: Session | null };
   const [currentStep, setCurrentStep] = useState<BookingStep>('details');
   const [selectedExtras, setSelectedExtras] = useState<ExtrasFormData>({
     extraBed: false,
@@ -145,7 +148,6 @@ export function BookingFlow2Step({ apartment, bookingData, availability, initial
     tourBooking: false
   });
   const [paymentState, setPaymentState] = useState<PaymentState | null>(null);
-  const [pricing] = useState<BookingPricing>(initialPricing);
 
   // Contact form - use consistent default values to prevent hydration mismatch
   const contactForm = useForm<ContactFormData>({
@@ -161,19 +163,55 @@ export function BookingFlow2Step({ apartment, bookingData, availability, initial
     }
   });
 
-  // Note: Session handling removed to prevent SSR errors
-  // Pricing is pre-calculated on server and passed as initialPricing
-  // User can manually fill contact form (or we can add session prefill later with proper client-side handling)
+  // Fetch pricing with loyalty discount if user is logged in
+  const { data: availabilityWithLoyalty } = useQuery<Beds24AvailabilityResponse | null>({
+    queryKey: ['booking-pricing', apartment.slug, bookingData.checkIn, bookingData.checkOut, bookingData.guests, bookingData.children, session?.user?.id],
+    queryFn: async () => {
+      const formatDate = (date: Date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      };
+      
+      const checkInStr = formatDate(bookingData.checkIn);
+      const checkOutStr = formatDate(bookingData.checkOut);
+      
+      // Include userId in query for loyalty discount calculation
+      const userIdParam = session?.user?.id ? `&userId=${session.user.id}` : '';
+      const url = `/api/beds24/availability?apartment=${apartment.slug}&checkIn=${checkInStr}&checkOut=${checkOutStr}&guests=${bookingData.guests}&children=${bookingData.children}${userIdParam}`;
+      console.log('🔍 Fetching booking pricing from:', url);
+      
+      const response = await fetch(url, {
+        headers: {
+          'Cache-Control': 'public, max-age=300',
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch pricing');
+      }
+      
+      const data = await response.json();
+      console.log('✅ Booking pricing data received:', data);
+      return data;
+    },
+    enabled: true,
+    staleTime: 10 * 60 * 1000,
+  });
+
+  // Use availability data if available, otherwise fallback to initial pricing
+  const currentSubtotal = availabilityWithLoyalty?.subtotal || availabilityWithLoyalty?.totalPrice || initialPricing.subtotal;
+  const currentLoyaltyDiscount = availabilityWithLoyalty?.loyaltyDiscount || 0;
+  const currentLoyaltyTier = availabilityWithLoyalty?.loyaltyTier || null;
 
   // Calculate extras total
   const extrasTotal = EXTRA_SERVICES.reduce((total, service) => {
     return total + (selectedExtras[service.id] ? service.price : 0);
   }, 0);
 
-  // Total price = subtotal - discounts + extras (NO cleaning fee, NO city tax)
-  const totalPrice = pricing 
-    ? (pricing.subtotal - pricing.stayDiscount - pricing.loyaltyDiscount + extrasTotal)
-    : 0;
+  // Total price = subtotal - loyalty discount + extras (NO cleaning fee, NO city tax)
+  const totalPrice = currentSubtotal - currentLoyaltyDiscount + extrasTotal;
 
   const handleNextStep = () => {
     console.log('🚀 handleNextStep called, current step:', currentStep);
@@ -288,51 +326,52 @@ export function BookingFlow2Step({ apartment, bookingData, availability, initial
                       Prehľad ceny
                     </h4>
                     
-                    {pricing && (
+                    {initialPricing && (
                       <div className="space-y-2 text-sm">
                         <div className="flex justify-between">
-                          <span>{pricing.nights} nocí × {(pricing.baseSubtotal / pricing.nights).toFixed(2)}€</span>
-                          <span>{pricing.baseSubtotal.toFixed(2)}€</span>
+                          <span>{initialPricing.nights} nocí × {(initialPricing.baseSubtotal / initialPricing.nights).toFixed(2)}€</span>
+                          <span>{initialPricing.baseSubtotal.toFixed(2)}€</span>
                         </div>
                         
                         {(bookingData.guests > 2) && (
                           <div className="flex justify-between text-gray-600">
                             <span className="text-xs">↳ Extra hostia ({bookingData.guests - 2} × 20€/noc)</span>
-                            <span className="text-xs">{((bookingData.guests - 2) * 20 * pricing.nights).toFixed(2)}€</span>
+                            <span className="text-xs">{((bookingData.guests - 2) * 20 * initialPricing.nights).toFixed(2)}€</span>
                           </div>
                         )}
                         
                         {bookingData.children > 0 && (
                           <div className="flex justify-between text-gray-600">
                             <span className="text-xs">↳ Deti ({bookingData.children} × 10€/noc)</span>
-                            <span className="text-xs">{(bookingData.children * 10 * pricing.nights).toFixed(2)}€</span>
+                            <span className="text-xs">{(bookingData.children * 10 * initialPricing.nights).toFixed(2)}€</span>
                           </div>
                         )}
                         
                         <Separator />
                         
                         <div className="flex justify-between">
-                          <span>Medzisúčet</span>
-                          <span>{pricing.subtotal.toFixed(2)}€</span>
+                          <span>Pôvodná cena</span>
+                          <span>{currentSubtotal.toFixed(2)}€</span>
                         </div>
                         
-                        {pricing.stayDiscount > 0 && (
+                        {currentLoyaltyDiscount > 0 && (
                           <div className="flex justify-between text-green-600">
                             <span className="flex items-center gap-1">
                               <Percent className="w-3 h-3" />
-                              Zľava za pobyt ({pricing.stayDiscountPercent}%)
+                              Loyalty zľava {currentLoyaltyTier ? `(${currentLoyaltyTier})` : ''} - {availabilityWithLoyalty?.loyaltyDiscountPercent || 5}%
                             </span>
-                            <span>-{pricing.stayDiscount.toFixed(2)}€</span>
+                            <span>-{currentLoyaltyDiscount.toFixed(2)}€</span>
                           </div>
                         )}
                         
-                        {pricing.loyaltyDiscount > 0 && (
-                          <div className="flex justify-between text-blue-600">
-                            <span className="flex items-center gap-1">
-                              <Badge variant="secondary" className="text-xs">LOYALTY</Badge>
-                              Zľava ({pricing.loyaltyDiscountPercent}%)
-                            </span>
-                            <span>-{pricing.loyaltyDiscount.toFixed(2)}€</span>
+                        {!session?.user && (
+                          <div className="bg-amber-50 p-3 rounded-md border border-amber-200">
+                            <p className="text-xs font-medium text-amber-800 mb-1">
+                              💡 Registrujte sa a získajte 5% zľavu!
+                            </p>
+                            <p className="text-xs text-amber-600">
+                              Ušetrili by ste €{(currentSubtotal * 0.05).toFixed(2)}
+                            </p>
                           </div>
                         )}
                         
@@ -350,14 +389,20 @@ export function BookingFlow2Step({ apartment, bookingData, availability, initial
                           <span>{totalPrice.toFixed(2)}€</span>
                         </div>
                         
+                        {currentLoyaltyDiscount > 0 && (
+                          <p className="text-xs text-green-600 mt-1">
+                            ✓ Zahŕňa loyalty zľavu €{currentLoyaltyDiscount.toFixed(2)}
+                          </p>
+                        )}
+                        
                         <Separator className="my-3" />
                         
                         {/* Informačná sekcia - platba na mieste */}
                         <div className="bg-blue-50 p-3 rounded-md">
                           <p className="text-xs font-medium text-blue-900 mb-2">💡 Platba v hotovosti na mieste:</p>
                           <div className="flex justify-between text-xs text-blue-800">
-                            <span>Mestská daň ({bookingData.guests + bookingData.children} osôb × 2€ × {pricing.nights} nocí)</span>
-                            <span className="font-medium">{pricing.cityTax.toFixed(2)}€</span>
+                            <span>Mestská daň ({bookingData.guests + bookingData.children} osôb × 2€ × {initialPricing.nights} nocí)</span>
+                            <span className="font-medium">{initialPricing.cityTax.toFixed(2)}€</span>
                           </div>
                         </div>
                       </div>
@@ -635,7 +680,7 @@ export function BookingFlow2Step({ apartment, bookingData, availability, initial
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between font-medium">
                         <span>{apartment.name}</span>
-                        <span>{pricing?.nights} nocí</span>
+                        <span>{initialPricing.nights} nocí</span>
                       </div>
                       <div className="flex justify-between text-gray-600">
                         <span>{format(bookingData.checkIn, 'dd.MM')} - {format(bookingData.checkOut, 'dd.MM.yyyy')}</span>
@@ -645,9 +690,16 @@ export function BookingFlow2Step({ apartment, bookingData, availability, initial
                       <Separator className="my-3" />
                       
                       <div className="flex justify-between">
-                        <span>Apartmán + poplatky</span>
-                        <span>{pricing?.total.toFixed(2)}€</span>
+                        <span>Pôvodná cena</span>
+                        <span>{currentSubtotal.toFixed(2)}€</span>
                       </div>
+                      
+                      {currentLoyaltyDiscount > 0 && (
+                        <div className="flex justify-between text-green-600">
+                          <span>Loyalty zľava</span>
+                          <span>-{currentLoyaltyDiscount.toFixed(2)}€</span>
+                        </div>
+                      )}
                       
                       {extrasTotal > 0 && (
                         <div className="flex justify-between text-blue-600">
@@ -662,6 +714,12 @@ export function BookingFlow2Step({ apartment, bookingData, availability, initial
                         <span>CELKOM</span>
                         <span>{totalPrice.toFixed(2)}€</span>
                       </div>
+                      
+                      {currentLoyaltyDiscount > 0 && (
+                        <p className="text-xs text-green-600">
+                          ✓ Zahŕňa loyalty zľavu €{currentLoyaltyDiscount.toFixed(2)}
+                        </p>
+                      )}
                     </div>
 
                     <Alert>
@@ -678,9 +736,9 @@ export function BookingFlow2Step({ apartment, bookingData, availability, initial
                       availability={{
                         success: true,
                         isAvailable: availability,
-                        totalPrice: pricing?.total || 0,
-                        pricePerNight: pricing?.basePrice || 0,
-                        nights: pricing?.nights || 0
+                        totalPrice: totalPrice,
+                        pricePerNight: currentSubtotal / initialPricing.nights,
+                        nights: initialPricing.nights
                       }}
                       extrasTotal={extrasTotal}
                       totalPrice={totalPrice}
