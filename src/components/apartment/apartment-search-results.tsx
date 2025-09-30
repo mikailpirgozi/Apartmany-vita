@@ -112,7 +112,7 @@ export function ApartmentSearchResults({
       {/* Search Results Info */}
       {hasSearchParams && (
         <div className="p-4 bg-muted/50 rounded-lg">
-          <h3 className="font-medium mb-2 flex items-center gap-2">
+          <h3 className="font-medium mb-2 flex items-center gap-2" data-testid="search-results-header">
             {isLoading ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -122,14 +122,14 @@ export function ApartmentSearchResults({
               `Dostupné apartmány (${apartments.length} nájdených)`
             )}
           </h3>
-          <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+          <div className="flex flex-wrap gap-4 text-sm text-muted-foreground" data-testid="search-results-dates">
             {checkIn && <span>Príchod: {new Date(checkIn).toLocaleDateString('sk-SK')}</span>}
             {checkOut && <span>Odchod: {new Date(checkOut).toLocaleDateString('sk-SK')}</span>}
             {guests && <span>Hostia: {guests}</span>}
           </div>
           {!isLoading && hasSearchParams && apartments.length === 0 && (
-            <p className="mt-2 text-sm text-amber-600">
-              Žiadne apartmány nie sú dostupné pre zadaný termín. Skúste zmeniť dátumy.
+            <p className="mt-2 text-sm text-amber-600" data-testid="no-results">
+              Žiadne apartmány nevyhovujú vašim kritériám
             </p>
           )}
         </div>
@@ -163,13 +163,14 @@ export function ApartmentSearchResults({
       {/* No Results */}
       {!isLoading && apartments.length === 0 && hasSearchParams && (
         <div className="text-center py-12">
-          <h3 className="text-lg font-medium mb-2">Žiadne apartmány neboli nájdené</h3>
+          <h3 className="text-lg font-medium mb-2" data-testid="no-results">Žiadne apartmány nevyhovujú vašim kritériám</h3>
           <p className="text-muted-foreground mb-4">
             Pre zadané dátumy nie sú dostupné žiadne apartmány.
           </p>
           <Button 
             variant="outline" 
             onClick={() => router.push('/apartments')}
+            data-testid="clear-filters"
           >
             Zobraziť všetky apartmány
           </Button>

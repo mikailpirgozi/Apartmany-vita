@@ -45,7 +45,7 @@ export function ApartmentAmenities({ amenities }: ApartmentAmenitiesProps) {
   }
 
   return (
-    <Card>
+    <Card data-testid="apartment-amenities">
       <CardHeader>
         <CardTitle>Vybavenie apartmánu</CardTitle>
       </CardHeader>

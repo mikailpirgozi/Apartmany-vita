@@ -36,7 +36,7 @@ export function ApartmentGallery({ images, apartmentName }: ApartmentGalleryProp
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" data-testid="apartment-gallery">
       {/* Main Image */}
       <div className="relative aspect-[16/10] overflow-hidden rounded-lg">
         <Image

@@ -1,0 +1,189 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e4]:
+      - link "Apartmány Vita" [ref=e5] [cursor=pointer]:
+        - /url: /
+        - generic [ref=e6] [cursor=pointer]:
+          - img [ref=e8] [cursor=pointer]
+          - generic [ref=e11] [cursor=pointer]: Apartmány Vita
+      - navigation [ref=e12]:
+        - link "Domov" [ref=e13] [cursor=pointer]:
+          - /url: /
+          - text: Domov
+        - link "Apartmány" [ref=e14] [cursor=pointer]:
+          - /url: /apartments
+          - text: Apartmány
+        - link "Rezervácia" [ref=e15] [cursor=pointer]:
+          - /url: /booking
+          - text: Rezervácia
+        - link "Kontakt" [ref=e16] [cursor=pointer]:
+          - /url: /contact
+          - text: Kontakt
+      - generic [ref=e17]:
+        - generic [ref=e18]:
+          - img [ref=e19]
+          - generic [ref=e21]: +421 900 123 456
+        - link "Rezervovať" [ref=e22] [cursor=pointer]:
+          - /url: /apartments
+        - generic [ref=e23]:
+          - link "Prihlásenie" [ref=e24] [cursor=pointer]:
+            - /url: /auth/signin
+          - link "Registrácia" [ref=e25] [cursor=pointer]:
+            - /url: /auth/signup
+      - generic [ref=e26]:
+        - button "Open menu" [ref=e27]:
+          - img [ref=e28]
+        - generic [ref=e33]:
+          - generic [ref=e34]:
+            - generic [ref=e35]:
+              - img [ref=e37]
+              - generic [ref=e40]: Apartmány Vita
+            - button "Close menu" [ref=e41]:
+              - img [ref=e42]
+          - navigation [ref=e46]:
+            - link "Domov" [ref=e47] [cursor=pointer]:
+              - /url: /
+            - link "Apartmány" [ref=e48] [cursor=pointer]:
+              - /url: /apartments
+            - link "Rezervácia" [ref=e49] [cursor=pointer]:
+              - /url: /booking
+            - link "Kontakt" [ref=e50] [cursor=pointer]:
+              - /url: /contact
+            - generic [ref=e52]:
+              - link "Prihlásenie" [ref=e53] [cursor=pointer]:
+                - /url: /auth/signin
+                - img [ref=e54] [cursor=pointer]
+                - generic [ref=e58] [cursor=pointer]: Prihlásenie
+              - link "Registrácia" [ref=e59] [cursor=pointer]:
+                - /url: /auth/signup
+                - img [ref=e60] [cursor=pointer]
+                - generic [ref=e65] [cursor=pointer]: Registrácia
+          - generic [ref=e67]:
+            - generic [ref=e68]:
+              - generic [ref=e69]:
+                - img [ref=e70]
+                - generic [ref=e72]: +421 900 123 456
+              - generic [ref=e73]:
+                - img [ref=e74]
+                - generic [ref=e77]: info@apartmanyvita.sk
+            - link "Rezervovať" [ref=e78] [cursor=pointer]:
+              - /url: /booking
+  - main [ref=e79]:
+    - generic [ref=e80]:
+      - generic [ref=e83]:
+        - heading "Apartmány Vita" [level=1] [ref=e84]
+        - paragraph [ref=e85]: Vyberte si z našich 4 krásne zariadených apartmánov na Štúrovom námestí. Dokonalé ubytovanie pre váš pobyt v historickom centre mesta.
+        - generic [ref=e86]:
+          - link "Zobraziť apartmány" [ref=e87] [cursor=pointer]:
+            - /url: /apartments
+          - link "Rezervovať teraz" [ref=e88] [cursor=pointer]:
+            - /url: /booking
+      - generic [ref=e93]:
+        - generic [ref=e94]:
+          - generic [ref=e95]: Príchod
+          - generic [ref=e96]:
+            - textbox "Príchod" [ref=e97]
+            - img [ref=e98]
+        - generic [ref=e103]:
+          - generic [ref=e104]: Odchod
+          - generic [ref=e105]:
+            - textbox "Odchod" [ref=e106]
+            - img [ref=e107]
+        - generic [ref=e112]:
+          - generic [ref=e113]: Hostia
+          - button "2 hostia" [ref=e114]:
+            - img [ref=e115]
+            - text: 2 hostia
+        - button "Vyhľadať" [disabled] [ref=e121]:
+          - img [ref=e122]
+          - text: Vyhľadať
+      - generic [ref=e126]:
+        - generic [ref=e127]:
+          - heading "Prečo si vybrať Apartmány Vita?" [level=2] [ref=e128]
+          - paragraph [ref=e129]: Ponúkame vám komfort a pohodlie v srdci Trenčína s výnimočnými službami
+        - generic [ref=e130]:
+          - generic [ref=e132]:
+            - img [ref=e134]
+            - heading "Výborná poloha" [level=3] [ref=e137]
+            - paragraph [ref=e138]: Priamo na Štúrovom námestí v historickom centre Trenčína
+          - generic [ref=e140]:
+            - img [ref=e142]
+            - heading "Luxusné vybavenie" [level=3] [ref=e144]
+            - paragraph [ref=e145]: Moderne zariadené apartmány s kompletným vybavením
+          - generic [ref=e147]:
+            - img [ref=e149]
+            - heading "Osobný prístup" [level=3] [ref=e154]
+            - paragraph [ref=e155]: 24/7 podpora a individuálny prístup ku každému hosťovi
+      - generic [ref=e157]:
+        - generic [ref=e158]:
+          - heading "Naše apartmány" [level=2] [ref=e159]
+          - paragraph [ref=e160]: Vyberte si z našich krásne zariadených apartmánov v centre Trenčína
+        - paragraph [ref=e162]: Žiadne apartmány neboli nájdené.
+        - link "Zobraziť všetky apartmány" [ref=e164] [cursor=pointer]:
+          - /url: /apartments
+      - generic [ref=e167]:
+        - heading "Pripravení na nezabudnuteľný pobyt?" [level=2] [ref=e168]
+        - paragraph [ref=e169]: Rezervujte si svoj apartmán už dnes a užite si komfort v srdci Trenčína. Registrovaní zákazníci získajú 5% zľavu na všetky rezervácie.
+        - link "Rezervovať apartmán" [ref=e170] [cursor=pointer]:
+          - /url: /booking
+  - contentinfo [ref=e171]:
+    - generic [ref=e172]:
+      - generic [ref=e173]:
+        - generic [ref=e174]:
+          - heading "Apartmány Vita" [level=3] [ref=e175]
+          - paragraph [ref=e176]: Luxusné apartmány v centre Trenčína. Dokonalé ubytovanie pre váš pobyt.
+          - generic [ref=e177]:
+            - link "Facebook" [ref=e178] [cursor=pointer]:
+              - /url: https://facebook.com/apartmanyvita
+              - img [ref=e179] [cursor=pointer]
+              - generic [ref=e181] [cursor=pointer]: Facebook
+            - link "Instagram" [ref=e182] [cursor=pointer]:
+              - /url: https://instagram.com/apartmanyvita
+              - img [ref=e183] [cursor=pointer]
+              - generic [ref=e187] [cursor=pointer]: Instagram
+        - generic [ref=e188]:
+          - heading "Rýchle odkazy" [level=4] [ref=e189]
+          - navigation [ref=e190]:
+            - link "Naše apartmány" [ref=e191] [cursor=pointer]:
+              - /url: /apartments
+            - link "Rezervácia" [ref=e192] [cursor=pointer]:
+              - /url: /booking
+            - link "Kontakt" [ref=e193] [cursor=pointer]:
+              - /url: /contact
+            - link "O nás" [ref=e194] [cursor=pointer]:
+              - /url: /about
+        - generic [ref=e195]:
+          - heading "Právne informácie" [level=4] [ref=e196]
+          - navigation [ref=e197]:
+            - link "Obchodné podmienky" [ref=e198] [cursor=pointer]:
+              - /url: /terms
+            - link "Ochrana súkromia" [ref=e199] [cursor=pointer]:
+              - /url: /privacy
+            - link "Stornovacie podmienky" [ref=e200] [cursor=pointer]:
+              - /url: /cancellation
+        - generic [ref=e201]:
+          - heading "Kontakt" [level=4] [ref=e202]
+          - generic [ref=e203]:
+            - generic [ref=e204]:
+              - img [ref=e205]
+              - generic [ref=e208]:
+                - generic [ref=e209]: Štúrovo námestie 132/16
+                - generic [ref=e210]: 911 01 Trenčín
+            - generic [ref=e211]:
+              - img [ref=e212]
+              - link "+421 900 123 456" [ref=e214] [cursor=pointer]:
+                - /url: tel:+421 900 123 456
+            - generic [ref=e215]:
+              - img [ref=e216]
+              - link "info@apartmanyvita.sk" [ref=e219] [cursor=pointer]:
+                - /url: mailto:info@apartmanyvita.sk
+      - generic [ref=e220]:
+        - paragraph [ref=e221]: © 2025 Apartmány Vita. Všetky práva vyhradené.
+        - paragraph [ref=e222]:
+          - text: Vytvorené s
+          - img [ref=e223]
+          - text: pre najlepší pobyt v Trenčíne
+```

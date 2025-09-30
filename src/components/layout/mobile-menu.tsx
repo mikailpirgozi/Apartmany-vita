@@ -26,7 +26,7 @@ export function MobileMenu({ navigation }: MobileMenuProps) {
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen} modal>
       <SheetTrigger asChild className="md:hidden">
-        <Button variant="ghost" size="sm">
+        <Button variant="ghost" size="sm" data-testid="mobile-menu-button">
           <Menu className="h-5 w-5" />
           <span className="sr-only">Toggle menu</span>
         </Button>

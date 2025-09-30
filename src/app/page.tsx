@@ -35,7 +35,7 @@ export default async function HomePage() {
           <ApartmentGrid apartments={apartments} />
           
           <div className="text-center mt-8">
-            <Button asChild size="lg">
+            <Button asChild size="lg" data-testid="view-all-apartments">
               <Link href="/apartments">Zobraziť všetky apartmány</Link>
             </Button>
           </div>

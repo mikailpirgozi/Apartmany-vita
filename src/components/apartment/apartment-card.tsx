@@ -42,7 +42,7 @@ export function ApartmentCard({ apartment, startDate, endDate, guests, childrenC
             <span className="text-muted-foreground">Foto nie je dostupné</span>
           </div>
         )}
-        <Badge variant="secondary" className="absolute top-2 right-2">
+        <Badge variant="secondary" className="absolute top-2 right-2" data-testid="apartment-size">
           {apartment.size}m²
         </Badge>
       </div>
@@ -82,14 +82,14 @@ export function ApartmentCard({ apartment, startDate, endDate, guests, childrenC
                         -{stayDiscount.discountPercent}%
                       </Badge>
                     </div>
-                    <span className="text-2xl font-bold text-blue-600">{Math.round(discountedPrice)} eur</span>
+                    <span className="text-2xl font-bold text-blue-600" data-testid="apartment-price">{Math.round(discountedPrice)} eur</span>
                     <div className="text-xs text-blue-600">po zľave za {stayDiscount.label}</div>
                   </div>
                 );
               }
               
-              return <span className="text-2xl font-bold">{basePrice} eur</span>;
-            })() || <span className="text-2xl font-bold">{toNumber(apartment.basePrice)} eur</span>}
+              return <span className="text-2xl font-bold" data-testid="apartment-price">{basePrice} eur</span>;
+            })() || <span className="text-2xl font-bold" data-testid="apartment-price">{toNumber(apartment.basePrice)} eur</span>}
           </div>
           
           <Button asChild>

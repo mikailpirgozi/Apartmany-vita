@@ -103,9 +103,9 @@ export function Footer() {
           </motion.div>
 
           {/* Contact Info */}
-          <motion.div className="space-y-4" variants={staggerItem}>
+          <motion.div className="space-y-4" variants={staggerItem} data-testid="footer-contact">
             <h4 className="font-semibold text-brand-accent">Kontakt</h4>
-            <div className="space-y-3">
+            <div className="space-y-3" data-testid="footer-address">
               <div className="flex items-start space-x-2">
                 <MapPin className="h-4 w-4 mt-0.5 text-brand-accent" />
                 <div className="text-sm text-muted-foreground">

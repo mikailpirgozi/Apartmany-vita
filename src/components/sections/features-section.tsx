@@ -21,7 +21,7 @@ export function FeaturesSection() {
   ]
 
   return (
-    <section className="py-16">
+    <section className="py-16" data-testid="features-section">
       <div className="container">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold mb-4">Prečo si vybrať Apartmány Vita?</h2>
@@ -31,10 +31,11 @@ export function FeaturesSection() {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {features.map((feature) => {
+          {features.map((feature, index) => {
             const Icon = feature.icon
+            const testId = index === 0 ? 'feature-location' : index === 1 ? 'feature-amenities' : 'feature-access'
             return (
-              <Card key={feature.title} className="text-center p-6">
+              <Card key={feature.title} className="text-center p-6" data-testid={testId}>
                 <CardContent className="pt-6">
                   <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-4">
                     <Icon className="h-6 w-6 text-primary" />

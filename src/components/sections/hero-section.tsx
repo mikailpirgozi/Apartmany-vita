@@ -7,10 +7,9 @@ export function HeroSection() {
       <div className="container">
         <div className="max-w-3xl mx-auto text-center">
           <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6">
-            Luxusné apartmány v{' '}
-            <span className="text-primary">centre Trenčína</span>
+            Apartmány Vita
           </h1>
-          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto" data-testid="hero-description">
             Vyberte si z našich 4 krásne zariadených apartmánov na Štúrovom námestí. 
             Dokonalé ubytovanie pre váš pobyt v historickom centre mesta.
           </p>

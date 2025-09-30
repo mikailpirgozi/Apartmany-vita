@@ -4,6 +4,7 @@ import type { Session, User } from 'next-auth'
 import type { JWT } from 'next-auth/jwt'
 import GoogleProvider from 'next-auth/providers/google'
 import CredentialsProvider from 'next-auth/providers/credentials'
+import { PrismaAdapter } from '@next-auth/prisma-adapter'
 import { prisma } from './db'
 import bcrypt from 'bcryptjs'
 import { z } from 'zod'
@@ -30,8 +31,7 @@ interface RedirectCallbackParams {
 }
 
 export const authOptions = {
-  // Temporarily disable adapter to test OAuth without database
-  // adapter: PrismaAdapter(prisma),
+  adapter: PrismaAdapter(prisma),
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -81,12 +81,9 @@ export const authOptions = {
   ],
   
   callbacks: {
-    jwt: async ({ token, user, account }: AuthCallbackParams) => {
+    jwt: async ({ token, user }: AuthCallbackParams) => {
       if (user) {
-        // For OAuth without adapter, generate stable ID from email
-        const emailSafe = user.email?.replace(/[^a-zA-Z0-9]/g, '_') || 'user'
-        const provider = account?.provider || 'google'
-        token.id = user.id || `oauth_${emailSafe}_${provider}`
+        token.id = user.id
       }
       return token
     },

@@ -31,6 +31,13 @@ export function ApartmentSearch({ initialValues, className }: ApartmentSearchPro
     children: initialValues?.children || 0
   })
 
+  // Track validation errors
+  const [errors, setErrors] = useState<{
+    checkIn?: string
+    checkOut?: string
+    date?: string
+  }>({})
+
   // Track if component is mounted (client-side only)
   const [isMounted, setIsMounted] = useState(false)
 
@@ -48,13 +55,33 @@ export function ApartmentSearch({ initialValues, className }: ApartmentSearchPro
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (!searchParams.checkIn || !searchParams.checkOut) {
+    // Clear previous errors
+    setErrors({})
+    
+    // Validate required fields
+    const newErrors: typeof errors = {}
+    
+    if (!searchParams.checkIn) {
+      newErrors.checkIn = 'Vyberte dátum príchodu'
+    }
+    
+    if (!searchParams.checkOut) {
+      newErrors.checkOut = 'Vyberte dátum odchodu'
+    }
+    
+    // Validate date logic
+    if (searchParams.checkIn && searchParams.checkOut && searchParams.checkIn >= searchParams.checkOut) {
+      newErrors.date = 'Dátum odchodu musí byť po dátume príchodu'
+    }
+    
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors)
       return
     }
 
     const params = new URLSearchParams({
-      checkIn: searchParams.checkIn.toISOString().split('T')[0],
-      checkOut: searchParams.checkOut.toISOString().split('T')[0],
+      checkIn: searchParams.checkIn!.toISOString().split('T')[0],
+      checkOut: searchParams.checkOut!.toISOString().split('T')[0],
       guests: searchParams.guests.toString(),
       children: searchParams.children.toString()
     })
@@ -82,7 +109,7 @@ export function ApartmentSearch({ initialValues, className }: ApartmentSearchPro
   }
 
   return (
-    <Card className={cn("p-6", className)}>
+    <Card className={cn("p-6", className)} data-testid="search-widget">
       <form onSubmit={handleSearch} className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {/* Check-in Date */}
@@ -93,6 +120,7 @@ export function ApartmentSearch({ initialValues, className }: ApartmentSearchPro
             <div className="relative">
               <Input
                 id="checkin"
+                data-testid="search-checkin"
                 type="date"
                 value={formatDate(searchParams.checkIn)}
                 onChange={(e) => setSearchParams(prev => ({ 
@@ -105,6 +133,9 @@ export function ApartmentSearch({ initialValues, className }: ApartmentSearchPro
               />
               <Calendar className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
             </div>
+            {errors.checkIn && (
+              <p className="text-sm text-red-600 mt-1" data-testid="checkin-error">{errors.checkIn}</p>
+            )}
           </div>
 
           {/* Check-out Date */}
@@ -115,6 +146,7 @@ export function ApartmentSearch({ initialValues, className }: ApartmentSearchPro
             <div className="relative">
               <Input
                 id="checkout"
+                data-testid="search-checkout"
                 type="date"
                 value={formatDate(searchParams.checkOut)}
                 onChange={(e) => setSearchParams(prev => ({ 
@@ -130,6 +162,9 @@ export function ApartmentSearch({ initialValues, className }: ApartmentSearchPro
               />
               <Calendar className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
             </div>
+            {errors.checkOut && (
+              <p className="text-sm text-red-600 mt-1" data-testid="checkout-error">{errors.checkOut}</p>
+            )}
           </div>
 
           {/* Guest Selector */}
@@ -140,6 +175,7 @@ export function ApartmentSearch({ initialValues, className }: ApartmentSearchPro
                 <Button
                   variant="outline"
                   className="w-full justify-start text-left font-normal pl-10"
+                  data-testid="search-guests"
                 >
                   <Users className="absolute left-3 h-4 w-4 text-muted-foreground" />
                   {searchParams.guests} {searchParams.guests === 1 ? 'hosť' : 'hostia'}
@@ -158,16 +194,18 @@ export function ApartmentSearch({ initialValues, className }: ApartmentSearchPro
                         type="button"
                         variant="outline"
                         size="sm"
+                        data-testid="guests-adults-minus"
                         onClick={() => updateGuests('guests', false)}
                         disabled={searchParams.guests <= 1}
                       >
                         -
                       </Button>
-                      <span className="w-8 text-center">{searchParams.guests}</span>
+                      <span className="w-8 text-center" data-testid="guests-adults-count">{searchParams.guests}</span>
                       <Button
                         type="button"
                         variant="outline"
                         size="sm"
+                        data-testid="guests-adults-plus"
                         onClick={() => updateGuests('guests', true)}
                         disabled={searchParams.guests >= 8}
                       >
@@ -186,16 +224,18 @@ export function ApartmentSearch({ initialValues, className }: ApartmentSearchPro
                         type="button"
                         variant="outline"
                         size="sm"
+                        data-testid="guests-children-minus"
                         onClick={() => updateGuests('children', false)}
                         disabled={searchParams.children <= 0}
                       >
                         -
                       </Button>
-                      <span className="w-8 text-center">{searchParams.children}</span>
+                      <span className="w-8 text-center" data-testid="guests-children-count">{searchParams.children}</span>
                       <Button
                         type="button"
                         variant="outline"
                         size="sm"
+                        data-testid="guests-children-plus"
                         onClick={() => updateGuests('children', true)}
                         disabled={searchParams.children >= 6}
                       >
@@ -213,6 +253,7 @@ export function ApartmentSearch({ initialValues, className }: ApartmentSearchPro
             <Button 
               type="submit" 
               className="w-full"
+              data-testid="search-button"
               disabled={!searchParams.checkIn || !searchParams.checkOut}
             >
               <Search className="mr-2 h-4 w-4" />
@@ -220,6 +261,13 @@ export function ApartmentSearch({ initialValues, className }: ApartmentSearchPro
             </Button>
           </div>
         </div>
+        
+        {/* Date validation error */}
+        {errors.date && (
+          <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
+            <p className="text-sm text-red-600" data-testid="date-error">{errors.date}</p>
+          </div>
+        )}
       </form>
     </Card>
   )

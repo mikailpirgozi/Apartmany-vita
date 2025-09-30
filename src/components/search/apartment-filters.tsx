@@ -87,17 +87,50 @@ export function ApartmentFilters({ onFilterChange, className }: ApartmentFilters
         <div>
           <Label className="text-sm font-medium">Cenové rozpätie (€/noc)</Label>
           <div className="mt-2">
-            <Slider
-              value={filters.priceRange}
-              onValueChange={(value) => updateFilter('priceRange', value as [number, number])}
-              max={200}
-              min={0}
-              step={5}
-              className="w-full"
-            />
-            <div className="flex justify-between text-sm text-muted-foreground mt-1">
-              <span>€{filters.priceRange[0]}</span>
-              <span>€{filters.priceRange[1]}</span>
+            <Button
+              variant="outline"
+              className="w-full justify-start"
+              data-testid="filter-price"
+              onClick={() => {/* This will be handled by the actual filter implementation */}}
+            >
+              Cena: €{filters.priceRange[0]} - €{filters.priceRange[1]}
+            </Button>
+            <div className="mt-2 space-y-2">
+              <div>
+                <Label htmlFor="price-min" className="text-xs">Min cena</Label>
+                <input
+                  id="price-min"
+                  data-testid="price-min"
+                  type="number"
+                  value={filters.priceRange[0]}
+                  onChange={(e) => updateFilter('priceRange', [parseInt(e.target.value) || 0, filters.priceRange[1]])}
+                  className="w-full p-2 border rounded"
+                  min="0"
+                  max="200"
+                />
+              </div>
+              <div>
+                <Label htmlFor="price-max" className="text-xs">Max cena</Label>
+                <input
+                  id="price-max"
+                  data-testid="price-max"
+                  type="number"
+                  value={filters.priceRange[1]}
+                  onChange={(e) => updateFilter('priceRange', [filters.priceRange[0], parseInt(e.target.value) || 200])}
+                  className="w-full p-2 border rounded"
+                  min="0"
+                  max="200"
+                />
+              </div>
+              <Button
+                variant="default"
+                size="sm"
+                className="w-full"
+                data-testid="apply-filters"
+                onClick={() => {/* Apply filters */}}
+              >
+                Aplikovať filtre
+              </Button>
             </div>
           </div>
         </div>

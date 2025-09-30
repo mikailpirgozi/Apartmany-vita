@@ -56,17 +56,22 @@ export function Header() {
           className="hidden md:flex items-center space-x-6"
           variants={staggerContainer}
         >
-          {navigation.map((item) => (
-            <motion.div key={item.name} variants={staggerItem}>
-              <Link
-                href={item.href}
-                className="text-sm font-medium transition-colors hover:text-brand-accent relative group"
-              >
-                {item.name}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-brand-accent transition-all group-hover:w-full"></span>
-              </Link>
-            </motion.div>
-          ))}
+          {navigation.map((item) => {
+            const testId = item.name === 'Apartmány' ? 'nav-apartments' : 
+                          item.name === 'Kontakt' ? 'nav-contact' : null
+            return (
+              <motion.div key={item.name} variants={staggerItem}>
+                <Link
+                  href={item.href}
+                  className="text-sm font-medium transition-colors hover:text-brand-accent relative group"
+                  data-testid={testId}
+                >
+                  {item.name}
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-brand-accent transition-all group-hover:w-full"></span>
+                </Link>
+              </motion.div>
+            )
+          })}
         </motion.nav>
 
         {/* Desktop Actions */}

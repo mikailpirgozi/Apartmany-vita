@@ -15,12 +15,12 @@ export function ApartmentDetails({ apartment }: ApartmentDetailsProps) {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
-            <span>{apartment.name}</span>
+            <span data-testid="apartment-name">{apartment.name}</span>
             <Badge variant="outline">{apartment.floor}. poschodie</Badge>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <p className="text-muted-foreground leading-relaxed">
+          <p className="text-muted-foreground leading-relaxed" data-testid="apartment-description">
             {apartment.description}
           </p>
           

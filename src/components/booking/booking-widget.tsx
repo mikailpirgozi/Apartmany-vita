@@ -179,7 +179,7 @@ export function BookingWidget({
   };
 
   return (
-    <Card className={cn("sticky top-8", className)}>
+    <Card className={cn("sticky top-8", className)} data-testid="booking-widget">
       <CardHeader className="pb-4">
         <div className="flex items-baseline justify-between">
           <div>
