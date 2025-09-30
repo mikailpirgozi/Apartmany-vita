@@ -69,8 +69,9 @@ export const authOptions = {
     jwt: async ({ token, user, account }: { token: JWT; user?: User; account?: any }) => {
       if (user) {
         // For OAuth without adapter, generate stable ID from email
-        token.id = user.id || `oauth_${user.email?.replace(/[^a-zA-Z0-9]/g, '_')}_${account?.provider || 'google'}`
-        token.email = user.email
+        const emailSafe = user.email?.replace(/[^a-zA-Z0-9]/g, '_') || 'user'
+        const provider = account?.provider || 'google'
+        token.id = user.id || `oauth_${emailSafe}_${provider}`
       }
       return token
     },
