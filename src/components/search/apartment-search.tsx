@@ -1,13 +1,14 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
+import { DateRange } from 'react-day-picker'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Calendar, Users, Search } from 'lucide-react'
+import { DateRangePicker } from '@/components/ui/date-range-picker'
+import { Users, Search } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface SearchParams {
@@ -24,33 +25,32 @@ interface ApartmentSearchProps {
 
 export function ApartmentSearch({ initialValues, className }: ApartmentSearchProps) {
   const router = useRouter()
-  const [searchParams, setSearchParams] = useState<SearchParams>({
-    checkIn: initialValues?.checkIn || null,
-    checkOut: initialValues?.checkOut || null,
-    guests: initialValues?.guests || 2,
-    children: initialValues?.children || 0
+  
+  // Initialize date range
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(() => {
+    if (initialValues?.checkIn && initialValues?.checkOut) {
+      return {
+        from: initialValues.checkIn,
+        to: initialValues.checkOut
+      }
+    }
+    return undefined
   })
+
+  const [guests, setGuests] = useState(initialValues?.guests || 2)
+  const [children, setChildren] = useState(initialValues?.children || 0)
 
   // Track validation errors
   const [errors, setErrors] = useState<{
-    checkIn?: string
-    checkOut?: string
-    date?: string
+    dateRange?: string
   }>({})
 
-  // Track if component is mounted (client-side only)
-  const [isMounted, setIsMounted] = useState(false)
-
-  useEffect(() => {
-    // Mark component as mounted after hydration
-    setIsMounted(true)
-  }, [])
-
-  // Calculate minDate only on client side
+  // Calculate minDate - block past dates
   const minDate = useMemo(() => {
-    if (!isMounted) return ''
-    return new Date().toISOString().split('T')[0]
-  }, [isMounted])
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    return today
+  }, [])
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -61,17 +61,8 @@ export function ApartmentSearch({ initialValues, className }: ApartmentSearchPro
     // Validate required fields
     const newErrors: typeof errors = {}
     
-    if (!searchParams.checkIn) {
-      newErrors.checkIn = 'Vyberte dátum príchodu'
-    }
-    
-    if (!searchParams.checkOut) {
-      newErrors.checkOut = 'Vyberte dátum odchodu'
-    }
-    
-    // Validate date logic
-    if (searchParams.checkIn && searchParams.checkOut && searchParams.checkIn >= searchParams.checkOut) {
-      newErrors.date = 'Dátum odchodu musí byť po dátume príchodu'
+    if (!dateRange?.from || !dateRange?.to) {
+      newErrors.dateRange = 'Vyberte dátumy príchodu a odchodu'
     }
     
     if (Object.keys(newErrors).length > 0) {
@@ -80,106 +71,65 @@ export function ApartmentSearch({ initialValues, className }: ApartmentSearchPro
     }
 
     const params = new URLSearchParams({
-      checkIn: searchParams.checkIn!.toISOString().split('T')[0],
-      checkOut: searchParams.checkOut!.toISOString().split('T')[0],
-      guests: searchParams.guests.toString(),
-      children: searchParams.children.toString()
+      checkIn: dateRange!.from!.toISOString().split('T')[0],
+      checkOut: dateRange!.to!.toISOString().split('T')[0],
+      guests: guests.toString(),
+      children: children.toString()
     })
 
     router.push(`/apartments?${params.toString()}`)
   }
 
   const updateGuests = (type: 'guests' | 'children', increment: boolean) => {
-    setSearchParams(prev => {
-      const current = prev[type]
-      const newValue = increment ? current + 1 : Math.max(0, current - 1)
-      
-      // Limit guests to reasonable numbers
-      if (type === 'guests' && newValue > 8) return prev
-      if (type === 'children' && newValue > 6) return prev
-      if (type === 'guests' && newValue < 1) return prev
-      
-      return { ...prev, [type]: newValue }
-    })
-  }
-
-  const formatDate = (date: Date | null) => {
-    if (!date) return ''
-    return date.toISOString().split('T')[0]
+    if (type === 'guests') {
+      const newValue = increment ? guests + 1 : Math.max(1, guests - 1)
+      if (newValue <= 8) {
+        setGuests(newValue)
+      }
+    } else {
+      const newValue = increment ? children + 1 : Math.max(0, children - 1)
+      if (newValue <= 6) {
+        setChildren(newValue)
+      }
+    }
   }
 
   return (
     <Card className={cn("p-6", className)} data-testid="search-widget">
       <form onSubmit={handleSearch} className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          {/* Check-in Date */}
-          <div>
-            <Label htmlFor="checkin" className="text-sm font-medium">
-              Príchod
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Date Range Picker */}
+          <div className="md:col-span-2">
+            <Label className="text-sm font-medium mb-2 block">
+              Dátumy pobytu
             </Label>
-            <div className="relative">
-              <Input
-                id="checkin"
-                data-testid="search-checkin"
-                type="date"
-                value={formatDate(searchParams.checkIn)}
-                onChange={(e) => setSearchParams(prev => ({ 
-                  ...prev, 
-                  checkIn: e.target.value ? new Date(e.target.value) : null 
-                }))}
-                min={minDate}
-                className="pl-10"
-                suppressHydrationWarning
-              />
-              <Calendar className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-            </div>
-            {errors.checkIn && (
-              <p className="text-sm text-red-600 mt-1" data-testid="checkin-error">{errors.checkIn}</p>
-            )}
-          </div>
-
-          {/* Check-out Date */}
-          <div>
-            <Label htmlFor="checkout" className="text-sm font-medium">
-              Odchod
-            </Label>
-            <div className="relative">
-              <Input
-                id="checkout"
-                data-testid="search-checkout"
-                type="date"
-                value={formatDate(searchParams.checkOut)}
-                onChange={(e) => setSearchParams(prev => ({ 
-                  ...prev, 
-                  checkOut: e.target.value ? new Date(e.target.value) : null 
-                }))}
-                min={searchParams.checkIn ? 
-                  new Date(searchParams.checkIn.getTime() + 86400000).toISOString().split('T')[0] : 
-                  minDate
-                }
-                className="pl-10"
-                suppressHydrationWarning
-              />
-              <Calendar className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-            </div>
-            {errors.checkOut && (
-              <p className="text-sm text-red-600 mt-1" data-testid="checkout-error">{errors.checkOut}</p>
+            <DateRangePicker
+              value={dateRange}
+              onChange={setDateRange}
+              minDate={minDate}
+              placeholder="Príchod → Odchod"
+              numberOfMonths={2}
+            />
+            {errors.dateRange && (
+              <p className="text-sm text-red-600 mt-1" data-testid="daterange-error">
+                {errors.dateRange}
+              </p>
             )}
           </div>
 
           {/* Guest Selector */}
           <div>
-            <Label className="text-sm font-medium">Hostia</Label>
+            <Label className="text-sm font-medium mb-2 block">Hostia</Label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
-                  className="w-full justify-start text-left font-normal pl-10"
+                  className="w-full justify-start text-left font-normal"
                   data-testid="search-guests"
                 >
-                  <Users className="absolute left-3 h-4 w-4 text-muted-foreground" />
-                  {searchParams.guests} {searchParams.guests === 1 ? 'hosť' : 'hostia'}
-                  {searchParams.children > 0 && `, ${searchParams.children} ${searchParams.children === 1 ? 'dieťa' : 'detí'}`}
+                  <Users className="mr-2 h-4 w-4 text-muted-foreground" />
+                  {guests} {guests === 1 ? 'hosť' : 'hostia'}
+                  {children > 0 && `, ${children} ${children === 1 ? 'dieťa' : 'detí'}`}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-80" align="start">
@@ -196,18 +146,18 @@ export function ApartmentSearch({ initialValues, className }: ApartmentSearchPro
                         size="sm"
                         data-testid="guests-adults-minus"
                         onClick={() => updateGuests('guests', false)}
-                        disabled={searchParams.guests <= 1}
+                        disabled={guests <= 1}
                       >
                         -
                       </Button>
-                      <span className="w-8 text-center" data-testid="guests-adults-count">{searchParams.guests}</span>
+                      <span className="w-8 text-center" data-testid="guests-adults-count">{guests}</span>
                       <Button
                         type="button"
                         variant="outline"
                         size="sm"
                         data-testid="guests-adults-plus"
                         onClick={() => updateGuests('guests', true)}
-                        disabled={searchParams.guests >= 8}
+                        disabled={guests >= 8}
                       >
                         +
                       </Button>
@@ -226,18 +176,18 @@ export function ApartmentSearch({ initialValues, className }: ApartmentSearchPro
                         size="sm"
                         data-testid="guests-children-minus"
                         onClick={() => updateGuests('children', false)}
-                        disabled={searchParams.children <= 0}
+                        disabled={children <= 0}
                       >
                         -
                       </Button>
-                      <span className="w-8 text-center" data-testid="guests-children-count">{searchParams.children}</span>
+                      <span className="w-8 text-center" data-testid="guests-children-count">{children}</span>
                       <Button
                         type="button"
                         variant="outline"
                         size="sm"
                         data-testid="guests-children-plus"
                         onClick={() => updateGuests('children', true)}
-                        disabled={searchParams.children >= 6}
+                        disabled={children >= 6}
                       >
                         +
                       </Button>
@@ -247,27 +197,21 @@ export function ApartmentSearch({ initialValues, className }: ApartmentSearchPro
               </PopoverContent>
             </Popover>
           </div>
-
-          {/* Search Button */}
-          <div className="flex items-end">
-            <Button 
-              type="submit" 
-              className="w-full"
-              data-testid="search-button"
-              disabled={!searchParams.checkIn || !searchParams.checkOut}
-            >
-              <Search className="mr-2 h-4 w-4" />
-              Vyhľadať
-            </Button>
-          </div>
         </div>
-        
-        {/* Date validation error */}
-        {errors.date && (
-          <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
-            <p className="text-sm text-red-600" data-testid="date-error">{errors.date}</p>
-          </div>
-        )}
+
+        {/* Search Button */}
+        <div className="flex justify-end">
+          <Button 
+            type="submit" 
+            size="lg"
+            className="w-full md:w-auto min-w-[200px]"
+            data-testid="search-button"
+            disabled={!dateRange?.from || !dateRange?.to}
+          >
+            <Search className="mr-2 h-4 w-4" />
+            Vyhľadať apartmány
+          </Button>
+        </div>
       </form>
     </Card>
   )
