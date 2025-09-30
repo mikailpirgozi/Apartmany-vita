@@ -33,8 +33,9 @@ async function BookingContent({ searchParams }: BookingPageProps) {
       error: dbValidation.error,
       info: getDatabaseInfo()
     });
-    // In production, this should never happen - redirect with clear error
-    redirect('/apartments?error=database-config');
+    // TEMPORARY: Log error but don't redirect (for debugging)
+    console.warn('⚠️ Database validation failed but continuing anyway for debugging...');
+    // redirect('/apartments?error=database-config'); // TEMPORARILY DISABLED
   }
   
   const { apartment: apartmentSlug, checkin, checkout, guests, children } = await searchParams

@@ -176,14 +176,22 @@ export function BookingFlow2Step({ apartment, bookingData, availability, initial
     : 0;
 
   const handleNextStep = () => {
+    console.log('🚀 handleNextStep called, current step:', currentStep);
     if (currentStep === 'details') {
+      console.log('✅ Moving to payment step');
       setCurrentStep('payment');
+      // Scroll to top when changing steps
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
   const handlePrevStep = () => {
+    console.log('⬅️ handlePrevStep called, current step:', currentStep);
     if (currentStep === 'payment') {
+      console.log('✅ Moving back to details step');
       setCurrentStep('details');
+      // Scroll to top when changing steps
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
@@ -395,7 +403,16 @@ export function BookingFlow2Step({ apartment, bookingData, availability, initial
               </Card>
 
               {/* Continue Button */}
-              <Button onClick={handleNextStep} className="w-full" size="lg">
+              <Button 
+                onClick={(e) => {
+                  e.preventDefault();
+                  console.log('📌 Continue button clicked');
+                  handleNextStep();
+                }} 
+                className="w-full" 
+                size="lg"
+                type="button"
+              >
                 Pokračovať na platbu
                 <ChevronRight className="ml-2 w-4 h-4" />
               </Button>

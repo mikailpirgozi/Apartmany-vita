@@ -138,16 +138,27 @@ Automatické zľavy pre registrovaných používateľov:
 
 ## 🌐 Deployment
 
-### **Railway (Odporúčané)**
+### **Vercel (Recommended for Production)** ⭐
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new)
+
+**🚨 Having issues with Vercel deployment?**  
+→ **[Read DEPLOYMENT_DOCS_INDEX.md](./DEPLOYMENT_DOCS_INDEX.md)** for complete guides
+
+**Quick Links:**
+- ⚡ [5-minute fix](./VERCEL_QUICK_FIX.md) - Fast solution
+- 📖 [Complete guide](./VERCEL_PRODUCTION_FIX.md) - Detailed setup
+- ✅ [Deployment checklist](./VERCEL_DEPLOYMENT_CHECKLIST.md) - Step-by-step
+
+**Common Issue:** Booking redirects back on Vercel?  
+→ Missing `DATABASE_URL` in environment variables
+
+### **Railway**
 [![Deploy on Railway](https://railway.app/button.svg)](https://railway.app)
 
 1. Pripojte GitHub repository
 2. Railway automaticky detekuje Next.js
 3. Nastavte environment variables
 4. Deploy!
-
-### **Vercel**
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new)
 
 ---
 
@@ -238,11 +249,32 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 ---
 
+## 📚 Deployment Documentation
+
+**Complete deployment guides available:**
+- 📑 [**DEPLOYMENT_DOCS_INDEX.md**](./DEPLOYMENT_DOCS_INDEX.md) - Start here!
+- ⚡ [VERCEL_QUICK_FIX.md](./VERCEL_QUICK_FIX.md) - 5-minute solution
+- 📖 [VERCEL_PRODUCTION_FIX.md](./VERCEL_PRODUCTION_FIX.md) - Complete guide
+- ✅ [VERCEL_DEPLOYMENT_CHECKLIST.md](./VERCEL_DEPLOYMENT_CHECKLIST.md) - Systematic deployment
+- 🗺️ [DOCS_NAVIGATION_GUIDE.md](./DOCS_NAVIGATION_GUIDE.md) - Find the right doc
+
+**Testing Tools:**
+```bash
+# Test environment configuration
+curl https://your-app.vercel.app/api/test-env
+
+# Verify production deployment
+./scripts/verify-production.sh https://your-app.vercel.app
+```
+
+---
+
 ## 🙏 Acknowledgments
 
 - [Next.js](https://nextjs.org/) - React framework
 - [Shadcn/UI](https://ui.shadcn.com/) - Component library
-- [Railway](https://railway.app/) - Deployment platform
+- [Vercel](https://vercel.com/) - Deployment platform
+- [Railway](https://railway.app/) - Alternative deployment
 - [Tailwind CSS](https://tailwindcss.com/) - CSS framework
 
 ---
