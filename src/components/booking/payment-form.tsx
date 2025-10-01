@@ -83,12 +83,7 @@ export function PaymentForm(props: PaymentFormProps) {
         setLoading(true);
         setError(null);
 
-        const response = await fetch('/api/payments/create-intent', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
+        const paymentData = {
             amount: props.totalPrice,
             apartmentId: props.apartment.id,
             guestEmail: props.guestInfo.email,
@@ -108,7 +103,16 @@ export function PaymentForm(props: PaymentFormProps) {
               nights: props.availability?.nights || 1
             },
             extrasTotal: props.extrasTotal
-          }),
+        };
+
+        console.log('📤 Sending payment data:', JSON.stringify(paymentData, null, 2));
+
+        const response = await fetch('/api/payments/create-intent', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(paymentData),
         });
 
         if (!response.ok) {
