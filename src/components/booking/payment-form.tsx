@@ -98,7 +98,7 @@ export function PaymentForm(props: PaymentFormProps) {
             checkOut: format(props.bookingData.checkOut, 'yyyy-MM-dd'),
             bookingData: props.bookingData,
             guestInfo: props.guestInfo,
-            availability: props.availability,
+            pricing: props.availability.pricing,
             extrasTotal: props.extrasTotal
           }),
         });
