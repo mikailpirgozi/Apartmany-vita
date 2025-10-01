@@ -215,10 +215,18 @@ export function BookingFlow2Step({ apartment, bookingData, availability, initial
   // Total price = subtotal - stay discount - loyalty discount + extras
   const totalPrice = currentSubtotal - currentStayDiscount - currentLoyaltyDiscount + extrasTotal;
 
-  const handleNextStep = () => {
+  const handleNextStep = async () => {
     console.log('🚀 handleNextStep called, current step:', currentStep);
     if (currentStep === 'details') {
-      console.log('✅ Moving to payment step');
+      // Validate contact form before moving to payment
+      const isValid = await contactForm.trigger(['firstName', 'lastName', 'email', 'phone', 'country', 'city']);
+      
+      if (!isValid) {
+        console.error('❌ Form validation failed');
+        return;
+      }
+      
+      console.log('✅ Form validated, moving to payment step');
       setCurrentStep('payment');
       // Scroll to top when changing steps
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -548,6 +556,34 @@ export function BookingFlow2Step({ apartment, bookingData, availability, initial
                             <FormLabel>Telefón *</FormLabel>
                             <FormControl>
                               <Input placeholder="+421 900 123 456" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={contactForm.control}
+                        name="country"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Krajina *</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Slovakia" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={contactForm.control}
+                        name="city"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Mesto *</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Bratislava" {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
