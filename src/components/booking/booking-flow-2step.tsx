@@ -472,29 +472,7 @@ export function BookingFlow2Step({ apartment, bookingData, availability, initial
                 </CardContent>
               </Card>
 
-              {/* Continue Button */}
-              <Button 
-                onClick={(e) => {
-                  e.preventDefault();
-                  console.log('📌 Continue button clicked');
-                  handleNextStep();
-                }} 
-                className="w-full" 
-                size="lg"
-                type="button"
-                suppressHydrationWarning
-              >
-                Pokračovať na platbu
-                <ChevronRight className="ml-2 w-4 h-4" />
-              </Button>
-            </div>
-          </>
-        )}
-
-        {currentStep === 'payment' && (
-          <>
-            {/* Left Side - Contact Form */}
-            <div className="lg:col-span-3 space-y-6">
+              {/* Contact Form in Step 1 */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -562,166 +540,104 @@ export function BookingFlow2Step({ apartment, bookingData, availability, initial
                         )}
                       />
 
-                      <FormField
-                        control={contactForm.control}
-                        name="country"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Krajina *</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Slovakia" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                      <div className="grid grid-cols-2 gap-4">
+                        <FormField
+                          control={contactForm.control}
+                          name="country"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Krajina *</FormLabel>
+                              <FormControl>
+                                <Input placeholder="Slovakia" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
 
-                      <FormField
-                        control={contactForm.control}
-                        name="city"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Mesto *</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Bratislava" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                        <FormField
+                          control={contactForm.control}
+                          name="city"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Mesto *</FormLabel>
+                              <FormControl>
+                                <Input placeholder="Bratislava" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
                     </form>
                   </Form>
                 </CardContent>
               </Card>
 
-              {/* Invoice Section */}
+              {/* Continue Button */}
+              <Button 
+                onClick={(e) => {
+                  e.preventDefault();
+                  console.log('📌 Continue button clicked');
+                  handleNextStep();
+                }} 
+                className="w-full" 
+                size="lg"
+                type="button"
+                suppressHydrationWarning
+              >
+                Pokračovať na platbu
+                <ChevronRight className="ml-2 w-4 h-4" />
+              </Button>
+            </div>
+          </>
+        )}
+
+        {currentStep === 'payment' && (
+          <>
+            {/* Payment Step - Only show payment */}
+            <div className="lg:col-span-5">
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Building className="w-5 h-5" />
-                    Fakturačné údaje
+                    <CreditCard className="w-5 h-5" />
+                    Platba
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <Form {...contactForm}>
-                    <form className="space-y-4">
-                      <FormField
-                        control={contactForm.control}
-                        name="needsInvoice"
-                        render={({ field }) => (
-                          <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                            <FormControl>
-                              <Checkbox
-                                checked={field.value}
-                                onCheckedChange={field.onChange}
-                              />
-                            </FormControl>
-                            <div className="space-y-1 leading-none">
-                              <FormLabel>Potrebujem faktúru</FormLabel>
-                            </div>
-                          </FormItem>
-                        )}
-                      />
+                  <Alert className="mb-6">
+                    <AlertDescription>
+                      💳 Platba sa autorizuje teraz, ale zúčtuje sa až 7 dní pred príchodom.
+                    </AlertDescription>
+                  </Alert>
 
-                      {contactForm.watch('needsInvoice') && (
-                        <div className="space-y-4 pt-4">
-                          <div className="grid grid-cols-2 gap-4">
-                            <FormField
-                              control={contactForm.control}
-                              name="companyName"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Názov firmy</FormLabel>
-                                  <FormControl>
-                                    <Input placeholder="Firma s.r.o." {...field} />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                            <FormField
-                              control={contactForm.control}
-                              name="companyId"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>IČO</FormLabel>
-                                  <FormControl>
-                                    <Input placeholder="12345678" {...field} />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                          </div>
-                          
-                          <FormField
-                            control={contactForm.control}
-                            name="companyVat"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>DIČ</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="SK1234567890" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          
-                          <FormField
-                            control={contactForm.control}
-                            name="companyAddress"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Adresa</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="Ulica 123, 911 01 Trenčín" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-                      )}
-                    </form>
-                  </Form>
-                </CardContent>
-              </Card>
-
-              {/* Special Requests */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <MessageSquare className="w-5 h-5" />
-                    Špeciálne požiadavky
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <Form {...contactForm}>
-                    <form>
-                      <FormField
-                        control={contactForm.control}
-                        name="specialRequests"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormControl>
-                              <Textarea 
-                                placeholder="Napíšte nám svoje požiadavky alebo poznámky k rezervácii..."
-                                className="min-h-[80px]"
-                                {...field} 
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </form>
-                  </Form>
+                  {/* Payment Form */}
+                  <PaymentForm
+                    apartment={apartment}
+                    bookingData={bookingData}
+                    guestInfo={contactForm.getValues()}
+                    availability={{
+                      success: true,
+                      isAvailable: availability,
+                      totalPrice: totalPrice,
+                      pricePerNight: currentSubtotal / initialPricing.nights,
+                      nights: initialPricing.nights
+                    }}
+                    extrasTotal={extrasTotal}
+                    totalPrice={totalPrice}
+                    onSuccess={(bookingId) => setPaymentState({ success: true, bookingId })}
+                    onBack={handlePrevStep}
+                  />
                 </CardContent>
               </Card>
             </div>
+          </>
+        )}
 
-            {/* Right Side - Order Summary & Payment */}
+        {/* OLD PAYMENT STEP CONTENT REMOVED - keeping only the essential parts above */}
+        {false && currentStep === 'payment' && (
+          <>
+            {/* REMOVED DUPLICATE CONTENT */}
             <div className="lg:col-span-2 space-y-6">
               {/* Order Summary - Sticky */}
               <div className="sticky top-4">
