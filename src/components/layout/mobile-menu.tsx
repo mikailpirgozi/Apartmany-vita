@@ -38,7 +38,7 @@ export function MobileMenu({ navigation }: MobileMenuProps) {
       </SheetTrigger>
       <SheetContent 
         side="right" 
-        className="w-[85vw] max-w-[400px] p-0 overflow-y-auto"
+        className="p-0 overflow-y-auto"
       >
         <div className="flex flex-col h-full">
           {/* Header */}

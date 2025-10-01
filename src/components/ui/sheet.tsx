@@ -36,7 +36,7 @@ function SheetOverlay({
     <SheetPrimitive.Overlay
       data-slot="sheet-overlay"
       className={cn(
-        "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/60 backdrop-blur-sm touch-none",
+        "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm touch-none",
         className
       )}
       {...props}
@@ -59,11 +59,11 @@ function SheetContent({
         data-slot="sheet-content"
         suppressHydrationWarning
         className={cn(
-          "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out fixed z-50 flex flex-col gap-4 shadow-lg transition ease-in-out data-[state=closed]:duration-300 data-[state=open]:duration-500",
+          "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out fixed z-[110] flex flex-col gap-0 shadow-2xl transition ease-in-out data-[state=closed]:duration-300 data-[state=open]:duration-300",
           side === "right" &&
-            "data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right inset-y-0 right-0 h-full border-l data-[state=open]:duration-300 data-[state=closed]:duration-200 touch-pan-y overscroll-contain",
+            "data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right inset-y-0 right-0 h-full w-full max-w-[85vw] sm:max-w-[400px] border-l touch-pan-y overscroll-contain",
           side === "left" &&
-            "data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left inset-y-0 left-0 h-full border-r touch-pan-y overscroll-contain",
+            "data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left inset-y-0 left-0 h-full w-full max-w-[85vw] sm:max-w-[400px] border-r touch-pan-y overscroll-contain",
           side === "top" &&
             "data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top inset-x-0 top-0 h-auto border-b",
           side === "bottom" &&
@@ -73,8 +73,8 @@ function SheetContent({
         {...props}
       >
         {children}
-        <SheetPrimitive.Close className="ring-offset-background focus:ring-ring data-[state=open]:bg-secondary absolute top-4 right-4 rounded-full p-2 opacity-70 transition-all duration-200 hover:opacity-100 hover:bg-muted focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none touch-manipulation z-10">
-          <XIcon className="size-5" />
+        <SheetPrimitive.Close className="ring-offset-background focus:ring-ring data-[state=open]:bg-secondary absolute top-3 right-3 rounded-full p-2.5 opacity-90 transition-all duration-200 hover:opacity-100 hover:bg-muted/80 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none touch-manipulation z-[120] bg-background/50 backdrop-blur-sm">
+          <XIcon className="size-6" />
           <span className="sr-only">Close</span>
         </SheetPrimitive.Close>
       </SheetPrimitive.Content>
