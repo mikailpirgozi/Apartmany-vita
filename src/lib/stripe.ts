@@ -110,7 +110,7 @@ export async function createBookingPaymentIntent(data: PaymentIntentData): Promi
  */
 export async function createCheckoutSession(data: CheckoutSessionData): Promise<CheckoutSessionResult> {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXTAUTH_URL || 'https://www.apartmanvita.sk';
     
     console.log('🔧 Creating Stripe Checkout Session:', {
       amount: data.amount,
