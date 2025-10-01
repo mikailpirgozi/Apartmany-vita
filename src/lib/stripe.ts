@@ -15,6 +15,23 @@ if (typeof window === 'undefined') {
   if (!stripeSecretKey && process.env.NODE_ENV === 'production') {
     console.error('STRIPE_SECRET_KEY is missing in production!');
   }
+  
+  // Log Stripe configuration (only key prefix for security)
+  if (stripeSecretKey) {
+    const keyPrefix = stripeSecretKey.substring(0, 8);
+    const isTestMode = stripeSecretKey.startsWith('sk_test_');
+    const isLiveMode = stripeSecretKey.startsWith('sk_live_');
+    console.log('🔧 Stripe Configuration:', {
+      keyPrefix,
+      isTestMode,
+      isLiveMode,
+      environment: process.env.NODE_ENV
+    });
+    
+    if (isTestMode && process.env.NODE_ENV === 'production') {
+      console.warn('⚠️ WARNING: Using TEST Stripe keys in PRODUCTION environment!');
+    }
+  }
 }
 
 // Client-side validation (PUBLIC_KEY is safe in browser)
