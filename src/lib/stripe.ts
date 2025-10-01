@@ -9,10 +9,15 @@ import Stripe from 'stripe';
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
 const stripePublishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
 
-if (!stripeSecretKey && process.env.NODE_ENV === 'production') {
-  console.error('STRIPE_SECRET_KEY is missing in production!');
+// Server-side only validation (SECRET_KEY should never be in browser)
+if (typeof window === 'undefined') {
+  // Running on server
+  if (!stripeSecretKey && process.env.NODE_ENV === 'production') {
+    console.error('STRIPE_SECRET_KEY is missing in production!');
+  }
 }
 
+// Client-side validation (PUBLIC_KEY is safe in browser)
 if (!stripePublishableKey && process.env.NODE_ENV === 'production') {
   console.error('NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY is missing in production!');
 }
@@ -40,6 +45,23 @@ export interface BookingPaymentResult {
   paymentIntentId: string;
   clientSecret: string;
   status: string;
+}
+
+export interface CheckoutSessionData {
+  amount: number; // in euros
+  bookingId: string;
+  apartmentId: string;
+  apartmentName: string;
+  guestEmail: string;
+  guestName: string;
+  checkIn: string;
+  checkOut: string;
+  nights: number;
+}
+
+export interface CheckoutSessionResult {
+  sessionId: string;
+  url: string;
 }
 
 /**
@@ -79,6 +101,60 @@ export async function createBookingPaymentIntent(data: PaymentIntentData): Promi
   } catch (error) {
     console.error('Error creating payment intent:', error);
     throw new Error('Failed to create payment intent');
+  }
+}
+
+/**
+ * Create Stripe Checkout Session with automatic tax calculation
+ * Tax code txcd_10103100 = Hotel/Accommodation (5% VAT in Slovakia)
+ */
+export async function createCheckoutSession(data: CheckoutSessionData): Promise<CheckoutSessionResult> {
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      mode: 'payment',
+      line_items: [
+        {
+          price_data: {
+            currency: 'eur',
+            product_data: {
+              name: `${data.apartmentName} - Ubytovanie`,
+              description: `${data.nights} ${data.nights === 1 ? 'noc' : data.nights < 5 ? 'noci' : 'nocí'} (${data.checkIn} - ${data.checkOut})`,
+              tax_code: 'txcd_20030000', // General Services - 5% VAT in Slovakia for accommodation
+            },
+            unit_amount: Math.round(data.amount * 100), // Convert to cents
+            tax_behavior: 'inclusive', // Price includes VAT - Stripe will calculate the breakdown
+          },
+          quantity: 1,
+        },
+      ],
+      automatic_tax: {
+        enabled: true, // Enable automatic tax calculation
+      },
+      customer_email: data.guestEmail,
+      metadata: {
+        bookingId: data.bookingId,
+        apartmentId: data.apartmentId,
+        guestEmail: data.guestEmail,
+        guestName: data.guestName,
+        checkIn: data.checkIn,
+        checkOut: data.checkOut,
+        type: 'booking_payment',
+      },
+      success_url: `${baseUrl}/booking/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${baseUrl}/booking/cancel?booking_id=${data.bookingId}`,
+      locale: 'sk', // Slovak language
+    });
+
+    return {
+      sessionId: session.id,
+      url: session.url!,
+    };
+  } catch (error) {
+    console.error('Error creating checkout session:', error);
+    throw new Error('Failed to create checkout session');
   }
 }
 
