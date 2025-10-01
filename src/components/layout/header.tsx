@@ -14,7 +14,7 @@ const UserMenu = dynamic(() => import('./user-menu').then(mod => ({ default: mod
   loading: () => <div className="w-8 h-8 rounded-full bg-muted animate-pulse" />
 })
 
-const MobileMenu = dynamic(() => import('./mobile-menu').then(mod => ({ default: mod.MobileMenu })), {
+const MobileMenu = dynamic(() => import('./mobile-menu-simple').then(mod => ({ default: mod.MobileMenuSimple })), {
   ssr: false,
   loading: () => null // No loading state needed for mobile menu
 })
