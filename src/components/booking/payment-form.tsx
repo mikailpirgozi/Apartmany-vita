@@ -77,9 +77,9 @@ export function PaymentForm(props: PaymentFormProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Create payment intent on component mount
+  // Create Stripe Checkout Session and redirect
   useEffect(() => {
-    const createPaymentIntent = async () => {
+    const createCheckoutSession = async () => {
       try {
         setLoading(true);
         setError(null);
@@ -113,19 +113,36 @@ export function PaymentForm(props: PaymentFormProps) {
         });
 
         if (!response.ok) {
-          throw new Error('Failed to create payment intent');
+          // Get detailed error from API
+          const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+          console.error('❌ Payment API Error:', {
+            status: response.status,
+            statusText: response.statusText,
+            error: errorData
+          });
+          throw new Error(errorData.error || `Failed to create checkout session (${response.status})`);
         }
 
-        const { clientSecret } = await response.json();
-        setClientSecret(clientSecret);
+        const { url, sessionId, bookingId } = await response.json();
+        
+        // Store booking ID for later use
+        if (typeof window !== 'undefined') {
+          sessionStorage.setItem('pendingBookingId', bookingId);
+        }
+        
+        // Redirect to Stripe Checkout
+        if (url) {
+          window.location.href = url;
+        } else {
+          throw new Error('No checkout URL received');
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Nepodarilo sa inicializovať platbu');
-      } finally {
         setLoading(false);
       }
     };
 
-    createPaymentIntent();
+    createCheckoutSession();
   }, [props]);
 
   if (loading) {
@@ -422,17 +439,22 @@ function PaymentElementForm({
 function PaymentLoadingSkeleton() {
   return (
     <div className="space-y-6">
-      <div>
-        <div className="h-6 bg-muted rounded w-32 mb-2" />
-        <div className="h-4 bg-muted rounded w-96" />
-      </div>
-      
-      <div className="h-24 bg-muted rounded" />
-      
-      <div className="space-y-4">
-        <div className="h-32 bg-muted rounded" />
-        <div className="h-16 bg-muted rounded" />
-        <div className="h-12 bg-muted rounded" />
+      <div className="text-center py-12">
+        <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-primary" />
+        <h2 className="text-xl font-semibold mb-2">Pripravujem platbu...</h2>
+        <p className="text-muted-foreground mb-4">
+          O chvíľu vás presmerujeme na bezpečnú Stripe platobnú bránu.
+        </p>
+        <div className="flex items-center justify-center gap-4 text-sm text-muted-foreground">
+          <div className="flex items-center gap-2">
+            <Shield className="h-4 w-4 text-green-600" />
+            <span>SSL šifrovanie</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Lock className="h-4 w-4 text-green-600" />
+            <span>PCI DSS certifikované</span>
+          </div>
+        </div>
       </div>
     </div>
   );

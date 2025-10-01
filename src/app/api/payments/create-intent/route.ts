@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { createBookingPaymentIntent } from '@/lib/stripe';
+import { createCheckoutSession } from '@/lib/stripe';
 import { prisma } from '@/lib/db';
 import { createApartmentBooking } from '@/services/beds24';
 
@@ -96,22 +96,24 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    // Create payment intent with Stripe
-    const paymentResult = await createBookingPaymentIntent({
+    // Create Stripe Checkout Session with automatic tax
+    const checkoutResult = await createCheckoutSession({
       amount: validatedData.amount,
       bookingId: booking.id,
       apartmentId: validatedData.apartmentId,
+      apartmentName: apartment.name,
       guestEmail: validatedData.guestInfo.email,
       guestName: validatedData.guestName,
       checkIn: validatedData.checkIn,
-      checkOut: validatedData.checkOut
+      checkOut: validatedData.checkOut,
+      nights: validatedData.pricing.nights
     });
 
-    // Update booking with payment intent ID
+    // Update booking with session ID
     await prisma.booking.update({
       where: { id: booking.id },
       data: {
-        paymentId: paymentResult.paymentIntentId
+        paymentId: checkoutResult.sessionId
       }
     });
 
@@ -135,23 +137,40 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({
-      clientSecret: paymentResult.clientSecret,
-      bookingId: booking.id,
-      paymentIntentId: paymentResult.paymentIntentId
+      sessionId: checkoutResult.sessionId,
+      url: checkoutResult.url,
+      bookingId: booking.id
     });
 
   } catch (error) {
-    console.error('Error creating payment intent:', error);
+    console.error('❌ Error creating payment intent:', error);
 
     if (error instanceof z.ZodError) {
+      console.error('Validation error:', error.issues);
       return NextResponse.json(
         { error: 'Invalid request data', details: error.issues },
         { status: 400 }
       );
     }
 
+    // Stripe-specific errors
+    if (error && typeof error === 'object' && 'type' in error) {
+      const stripeError = error as { type: string; message: string; code?: string };
+      console.error('Stripe error:', stripeError);
+      return NextResponse.json(
+        { 
+          error: `Stripe error: ${stripeError.message}`,
+          code: stripeError.code,
+          type: stripeError.type
+        },
+        { status: 500 }
+      );
+    }
+
+    // Generic error
+    const errorMessage = error instanceof Error ? error.message : 'Internal server error';
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: errorMessage },
       { status: 500 }
     );
   }

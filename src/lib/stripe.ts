@@ -112,6 +112,14 @@ export async function createCheckoutSession(data: CheckoutSessionData): Promise<
   try {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
     
+    console.log('🔧 Creating Stripe Checkout Session:', {
+      amount: data.amount,
+      bookingId: data.bookingId,
+      apartmentName: data.apartmentName,
+      nights: data.nights,
+      baseUrl
+    });
+    
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       mode: 'payment',
