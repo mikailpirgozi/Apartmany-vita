@@ -73,7 +73,6 @@ interface PaymentElementFormProps {
 
 // Main payment wrapper component
 export function PaymentForm(props: PaymentFormProps) {
-  const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -123,7 +122,7 @@ export function PaymentForm(props: PaymentFormProps) {
           throw new Error(errorData.error || `Failed to create checkout session (${response.status})`);
         }
 
-        const { url, sessionId, bookingId } = await response.json();
+        const { url, bookingId } = await response.json();
         
         // Store booking ID for later use
         if (typeof window !== 'undefined') {
@@ -159,47 +158,7 @@ export function PaymentForm(props: PaymentFormProps) {
     );
   }
 
-  if (!clientSecret) {
-    return (
-      <PaymentErrorState 
-        error="Nepodarilo sa inicializovať platbu" 
-        onRetry={() => window.location.reload()}
-        onBack={props.onBack}
-      />
-    );
-  }
-
-  const stripeOptions = {
-    clientSecret,
-    appearance: {
-      theme: 'stripe' as const,
-      variables: {
-        colorPrimary: 'hsl(var(--primary))',
-        colorBackground: 'hsl(var(--background))',
-        colorText: 'hsl(var(--foreground))',
-        colorDanger: 'hsl(var(--destructive))',
-        fontFamily: 'system-ui, sans-serif',
-        spacingUnit: '4px',
-        borderRadius: '6px'
-      }
-    }
-  };
-
-  return (
-    <Elements stripe={stripePromise} options={stripeOptions}>
-      <PaymentElementForm
-        apartment={props.apartment}
-        guestInfo={props.guestInfo}
-        bookingData={props.bookingData}
-        totalPrice={props.totalPrice}
-        extrasTotal={props.extrasTotal}
-        clientSecret={clientSecret}
-        onPaymentSuccess={(bookingId) => props.onSuccess?.(bookingId)}
-        onPaymentError={(error) => setError(error)}
-        onBack={props.onBack}
-      />
-    </Elements>
-  );
+  return null; // Payment form redirects to Stripe Checkout, no inline form needed
 }
 
 // Payment form with Stripe Elements

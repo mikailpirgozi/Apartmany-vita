@@ -1,11 +1,12 @@
 "use client";
 
+import { Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { XCircle } from 'lucide-react';
+import { XCircle, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 
-export default function BookingCancelPage() {
+function BookingCancelContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const bookingId = searchParams.get('booking_id');
@@ -59,4 +60,17 @@ export default function BookingCancelPage() {
   );
 }
 
-
+export default function BookingCancelPage() {
+  return (
+    <Suspense fallback={
+      <div className="container mx-auto px-4 py-16">
+        <div className="max-w-2xl mx-auto text-center">
+          <Loader2 className="h-16 w-16 animate-spin mx-auto mb-4 text-primary" />
+          <p className="text-muted-foreground">Načítavam...</p>
+        </div>
+      </div>
+    }>
+      <BookingCancelContent />
+    </Suspense>
+  );
+}

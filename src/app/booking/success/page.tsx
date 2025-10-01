@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { CheckCircle, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 
-export default function BookingSuccessPage() {
+function BookingSuccessContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const sessionId = searchParams.get('session_id');
@@ -144,4 +144,18 @@ export default function BookingSuccessPage() {
   );
 }
 
-
+export default function BookingSuccessPage() {
+  return (
+    <Suspense fallback={
+      <div className="container mx-auto px-4 py-16">
+        <div className="max-w-2xl mx-auto text-center">
+          <Loader2 className="h-16 w-16 animate-spin mx-auto mb-4 text-primary" />
+          <h1 className="text-2xl font-bold mb-2">Načítavam...</h1>
+          <p className="text-muted-foreground">Prosím počkajte, overujem platbu.</p>
+        </div>
+      </div>
+    }>
+      <BookingSuccessContent />
+    </Suspense>
+  );
+}
