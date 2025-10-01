@@ -26,12 +26,20 @@ export function MobileMenu({ navigation }: MobileMenuProps) {
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen} modal>
       <SheetTrigger asChild className="md:hidden">
-        <Button variant="ghost" size="sm" data-testid="mobile-menu-button">
-          <Menu className="h-5 w-5" />
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          data-testid="mobile-menu-button"
+          className="touch-manipulation active:scale-95 transition-transform"
+        >
+          <Menu className="h-6 w-6" />
           <span className="sr-only">Toggle menu</span>
         </Button>
       </SheetTrigger>
-      <SheetContent side="right" className="w-[280px] sm:w-[320px] md:w-[360px] p-0">
+      <SheetContent 
+        side="right" 
+        className="w-[85vw] max-w-[400px] p-0 overflow-y-auto"
+      >
         <div className="flex flex-col h-full">
           {/* Header */}
           <div className="px-6 py-4 border-b bg-muted/30">
@@ -52,7 +60,7 @@ export function MobileMenu({ navigation }: MobileMenuProps) {
                 <Link
                   key={item.name}
                   href={item.href}
-                  className="text-base font-medium py-3 px-4 rounded-lg transition-all duration-200 hover:bg-brand-accent/10 hover:text-brand-accent active:scale-95"
+                  className="text-base font-medium py-4 px-4 rounded-lg transition-all duration-200 hover:bg-brand-accent/10 hover:text-brand-accent active:scale-95 active:bg-brand-accent/20 touch-manipulation min-h-[48px] flex items-center"
                   onClick={() => setIsOpen(false)}
                 >
                   {item.name}
@@ -76,7 +84,7 @@ export function MobileMenu({ navigation }: MobileMenuProps) {
                     </div>
                     <Link
                       href="/account/dashboard"
-                      className="flex items-center space-x-3 text-base font-medium py-3 px-4 rounded-lg transition-all duration-200 hover:bg-brand-accent/10 hover:text-brand-accent active:scale-95"
+                      className="flex items-center space-x-3 text-base font-medium py-4 px-4 rounded-lg transition-all duration-200 hover:bg-brand-accent/10 hover:text-brand-accent active:scale-95 active:bg-brand-accent/20 touch-manipulation min-h-[48px]"
                       onClick={() => setIsOpen(false)}
                     >
                       <Home className="h-4 w-4" />
@@ -87,7 +95,7 @@ export function MobileMenu({ navigation }: MobileMenuProps) {
                   <div className="space-y-2">
                     <Link
                       href="/auth/signin"
-                      className="flex items-center space-x-3 text-base font-medium py-3 px-4 rounded-lg transition-all duration-200 hover:bg-brand-accent/10 hover:text-brand-accent active:scale-95"
+                      className="flex items-center space-x-3 text-base font-medium py-4 px-4 rounded-lg transition-all duration-200 hover:bg-brand-accent/10 hover:text-brand-accent active:scale-95 active:bg-brand-accent/20 touch-manipulation min-h-[48px]"
                       onClick={() => setIsOpen(false)}
                     >
                       <LogIn className="h-4 w-4" />
@@ -95,7 +103,7 @@ export function MobileMenu({ navigation }: MobileMenuProps) {
                     </Link>
                     <Link
                       href="/auth/signup"
-                      className="flex items-center space-x-3 text-base font-medium py-3 px-4 rounded-lg transition-all duration-200 hover:bg-brand-accent/10 hover:text-brand-accent active:scale-95"
+                      className="flex items-center space-x-3 text-base font-medium py-4 px-4 rounded-lg transition-all duration-200 hover:bg-brand-accent/10 hover:text-brand-accent active:scale-95 active:bg-brand-accent/20 touch-manipulation min-h-[48px]"
                       onClick={() => setIsOpen(false)}
                     >
                       <UserPlus className="h-4 w-4" />
@@ -121,7 +129,7 @@ export function MobileMenu({ navigation }: MobileMenuProps) {
                 </div>
               </div>
               
-              <Button asChild className="w-full bg-brand-accent hover:bg-brand-accent-dark text-white font-semibold py-3 rounded-lg shadow-lg">
+              <Button asChild className="w-full bg-brand-accent hover:bg-brand-accent-dark text-white font-semibold py-3 rounded-lg shadow-lg touch-manipulation min-h-[48px]">
                 <Link href="/booking" onClick={() => setIsOpen(false)}>
                   Rezervovať
                 </Link>

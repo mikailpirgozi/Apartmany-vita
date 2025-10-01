@@ -144,6 +144,29 @@
   html, body {
     @apply w-full;
   }
+  
+  /* Mobile touch optimization */
+  @media (max-width: 768px) {
+    html {
+      -webkit-tap-highlight-color: rgba(158, 162, 151, 0.1);
+      -webkit-text-size-adjust: 100%;
+      touch-action: manipulation;
+    }
+    
+    body {
+      /* Prevent bounce scrolling on iOS */
+      overscroll-behavior-y: none;
+    }
+    
+    /* Improve button touch targets */
+    button, 
+    a,
+    [role="button"] {
+      min-height: 44px;
+      min-width: 44px;
+      touch-action: manipulation;
+    }
+  }
 }
 
 @layer utilities {
