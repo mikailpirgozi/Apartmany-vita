@@ -98,7 +98,16 @@ export function PaymentForm(props: PaymentFormProps) {
             checkOut: format(props.bookingData.checkOut, 'yyyy-MM-dd'),
             bookingData: props.bookingData,
             guestInfo: props.guestInfo,
-            pricing: props.availability.pricing,
+            pricing: {
+              total: props.totalPrice,
+              subtotal: (props.availability?.pricePerNight && props.availability?.nights) 
+                ? props.availability.pricePerNight * props.availability.nights 
+                : props.totalPrice,
+              loyaltyDiscount: 0,
+              cleaningFee: 0,
+              cityTax: 0,
+              nights: props.availability?.nights || 1
+            },
             extrasTotal: props.extrasTotal
           }),
         });
