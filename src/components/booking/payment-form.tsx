@@ -85,7 +85,7 @@ export function PaymentForm(props: PaymentFormProps) {
 
         const paymentData = {
             amount: props.totalPrice,
-            apartmentId: props.apartment.id,
+            apartmentId: props.apartment.slug, // Use slug instead of ID (works with both static and DB apartments)
             guestEmail: props.guestInfo.email,
             guestName: `${props.guestInfo.firstName} ${props.guestInfo.lastName}`,
             checkIn: format(props.bookingData.checkIn, 'yyyy-MM-dd'),

@@ -6,7 +6,7 @@ import { createApartmentBooking } from '@/services/beds24';
 
 const createPaymentIntentSchema = z.object({
   amount: z.number().positive(),
-  apartmentId: z.string(),
+  apartmentId: z.string(), // Can be either ID or slug
   guestEmail: z.string().email(),
   guestName: z.string(),
   checkIn: z.string(),
@@ -46,17 +46,34 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validatedData = createPaymentIntentSchema.parse(body);
 
-    // Get apartment details
-    const apartment = await prisma.apartment.findUnique({
+    // Get apartment details - try by ID first, then by slug
+    let apartment = await prisma.apartment.findUnique({
       where: { id: validatedData.apartmentId }
     });
 
+    // If not found by ID, try by slug
     if (!apartment) {
+      apartment = await prisma.apartment.findUnique({
+        where: { slug: validatedData.apartmentId }
+      });
+    }
+
+    if (!apartment) {
+      console.error('❌ Apartment not found:', {
+        providedId: validatedData.apartmentId,
+        attemptedBy: ['id', 'slug']
+      });
       return NextResponse.json(
         { error: 'Apartment not found' },
         { status: 404 }
       );
     }
+
+    console.log('✅ Found apartment:', {
+      id: apartment.id,
+      name: apartment.name,
+      slug: apartment.slug
+    });
 
     // First, create or find user
     const user = await prisma.user.upsert({
