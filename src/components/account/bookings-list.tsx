@@ -162,12 +162,6 @@ export function BookingsList({ bookings }: BookingsListProps) {
                         Detail
                       </Link>
                     </Button>
-
-                    {booking.status === 'CONFIRMED' && new Date() < booking.checkIn && (
-                      <Button variant="outline" size="sm">
-                        Zrušiť
-                      </Button>
-                    )}
                   </div>
                 </div>
               </div>
