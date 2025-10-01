@@ -156,12 +156,30 @@ export async function createCheckoutSession(data: CheckoutSessionData): Promise<
       locale: 'sk', // Slovak language
     });
 
+    console.log('✅ Stripe Checkout Session created:', {
+      sessionId: session.id,
+      url: session.url,
+      hasUrl: !!session.url
+    });
+
     return {
       sessionId: session.id,
       url: session.url!,
     };
   } catch (error) {
-    console.error('Error creating checkout session:', error);
+    console.error('❌ Error creating checkout session:', error);
+    
+    // Log Stripe-specific error details
+    if (error && typeof error === 'object' && 'type' in error) {
+      const stripeError = error as { type: string; message: string; code?: string; param?: string };
+      console.error('Stripe Error Details:', {
+        type: stripeError.type,
+        message: stripeError.message,
+        code: stripeError.code,
+        param: stripeError.param
+      });
+    }
+    
     throw new Error('Failed to create checkout session');
   }
 }
