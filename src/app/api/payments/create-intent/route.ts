@@ -96,7 +96,7 @@ export async function POST(request: NextRequest) {
         totalPrice: validatedData.amount,
         discount: validatedData.pricing.loyaltyDiscount,
         status: 'PENDING',
-        apartmentId: validatedData.apartmentId,
+        apartmentId: apartment.id, // Use actual DB ID, not the slug from request
         userId: user.id,
         guestName: `${validatedData.guestInfo.firstName} ${validatedData.guestInfo.lastName}`,
         guestEmail: validatedData.guestInfo.email,
@@ -117,7 +117,7 @@ export async function POST(request: NextRequest) {
     const checkoutResult = await createCheckoutSession({
       amount: validatedData.amount,
       bookingId: booking.id,
-      apartmentId: validatedData.apartmentId,
+      apartmentId: apartment.id, // Use actual DB ID for metadata
       apartmentName: apartment.name,
       guestEmail: validatedData.guestInfo.email,
       guestName: validatedData.guestName,
