@@ -139,7 +139,7 @@ export async function createCheckoutSession(data: CheckoutSessionData): Promise<
         },
       ],
       automatic_tax: {
-        enabled: true, // Enable automatic tax calculation
+        enabled: false, // Disabled until Stripe Tax is fully configured
       },
       customer_email: data.guestEmail,
       metadata: {
