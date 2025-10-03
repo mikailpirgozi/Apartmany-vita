@@ -20,9 +20,9 @@ export function OrganizationStructuredData() {
     '@context': 'https://schema.org',
     '@type': 'Organization',
     name: 'Apartmány Vita',
-    description: 'Luxusné apartmány v centre Trenčína',
+    description: 'Luxusné apartmány v centre Lučenca',
     url: 'https://apartmanyvita.sk',
-    logo: 'https://apartmanyvita.sk/images/logo.png',
+    logo: 'https://apartmanyvita.sk/logo.png',
     contactPoint: {
       '@type': 'ContactPoint',
       telephone: '+421-900-123-456',
@@ -31,9 +31,9 @@ export function OrganizationStructuredData() {
     },
     address: {
       '@type': 'PostalAddress',
-      streetAddress: 'Štúrovo námestie 132/16',
-      addressLocality: 'Trenčín',
-      postalCode: '911 01',
+      streetAddress: 'Štúrova 1',
+      addressLocality: 'Lučenec',
+      postalCode: '984 01',
       addressCountry: 'SK'
     },
     sameAs: [
@@ -50,28 +50,27 @@ export function LocalBusinessStructuredData() {
     '@context': 'https://schema.org',
     '@type': 'LodgingBusiness',
     name: 'Apartmány Vita',
-    description: 'Luxusné apartmány na Štúrovom námestí v Trenčíne',
+    description: 'Luxusné apartmány v centre Lučenca',
     image: [
-      'https://apartmanyvita.sk/images/apartments/exterior.jpg',
-      'https://apartmanyvita.sk/images/apartments/interior.jpg'
+      'https://apartmanyvita.sk/og-default.jpg'
     ],
     address: {
       '@type': 'PostalAddress',
-      streetAddress: 'Štúrovo námestie 132/16',
-      addressLocality: 'Trenčín',
-      addressRegion: 'Trenčiansky kraj',
-      postalCode: '911 01',
+      streetAddress: 'Štúrova 1',
+      addressLocality: 'Lučenec',
+      addressRegion: 'Banskobystrický kraj',
+      postalCode: '984 01',
       addressCountry: 'SK'
     },
     geo: {
       '@type': 'GeoCoordinates',
-      latitude: 48.8951,
-      longitude: 18.0447
+      latitude: 48.3314,
+      longitude: 19.6649
     },
     telephone: '+421-900-123-456',
     email: 'info@apartmanyvita.sk',
     url: 'https://apartmanyvita.sk',
-    priceRange: '€45-€95',
+    priceRange: '€€',
     starRating: {
       '@type': 'Rating',
       ratingValue: '4.8',
@@ -92,7 +91,7 @@ export function LocalBusinessStructuredData() {
       },
       {
         '@type': 'LocationFeatureSpecification',
-        name: '24/7 Check-in'
+        name: 'Free Parking'
       }
     ],
     openingHours: '24/7',

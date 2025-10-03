@@ -1,13 +1,24 @@
+import type { Metadata } from 'next'
 import { Button } from '@/components/ui/button'
 import { ApartmentGrid } from '@/components/apartment/apartment-grid'
 import { ApartmentSearch } from '@/components/search/apartment-search'
 import { HeroSection } from '@/components/sections/hero-section'
 import { FeaturesSection } from '@/components/sections/features-section'
 import { getApartments } from '@/services/apartments'
+import { getSeoMetadata } from '@/services/seo'
+import { seoDataToMetadata } from '@/lib/seo-helpers'
 import Link from 'next/link'
 
 // Revalidate every 60 seconds (ISR)
 export const revalidate = 60
+
+/**
+ * Generate SEO metadata for homepage
+ */
+export async function generateMetadata(): Promise<Metadata> {
+  const seoData = await getSeoMetadata('home', 'sk')
+  return seoDataToMetadata(seoData)
+}
 
 export default async function HomePage() {
   const apartments = await getApartments()

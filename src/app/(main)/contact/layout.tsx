@@ -1,13 +1,13 @@
 import type { Metadata } from 'next'
+import { getSeoMetadata } from '@/services/seo'
+import { seoDataToMetadata } from '@/lib/seo-helpers'
 
-export const metadata: Metadata = {
-  title: 'Kontakt',
-  description: 'Kontaktujte nás pre rezervácie apartmánov v Trenčíne. Sme tu pre vás 24/7.',
-  keywords: ['kontakt', 'apartmány Trenčín', 'rezervácia', 'telefón', 'email'],
-  openGraph: {
-    title: 'Kontakt - Apartmány Vita',
-    description: 'Kontaktujte nás pre rezervácie apartmánov v Trenčíne. Sme tu pre vás 24/7.',
-  }
+/**
+ * Generate SEO metadata for contact page
+ */
+export async function generateMetadata(): Promise<Metadata> {
+  const seoData = await getSeoMetadata('contact', 'sk')
+  return seoDataToMetadata(seoData)
 }
 
 export default function ContactLayout({

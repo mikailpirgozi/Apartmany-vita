@@ -93,6 +93,13 @@ model Apartment {
   basePrice   Decimal  @db.Decimal(10, 2)
   isActive    Boolean  @default(true)
   beds24Id    String?  @unique // Beds24 property ID
+  
+  // SEO fields
+  seoTitle       String?  @db.VarChar(60)  // Max 60 chars for Google
+  seoDescription String?  @db.VarChar(160) // Max 160 chars for Google
+  seoKeywords    String[] // Keywords array
+  ogImage        String?  // Open Graph image URL
+  
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -234,6 +241,47 @@ model ChatLearning {
   updatedAt   DateTime @updatedAt
 
   @@map("chat_learning")
+}
+
+model SeoMetadata {
+  id              String   @id @default(cuid())
+  pageSlug        String   // e.g., "home", "about", "contact", "apartments"
+  locale          String   @default("sk") // Language: sk, en, de, hu, pl
+  
+  // Meta tags
+  metaTitle       String   @db.VarChar(60)  // Max 60 chars for Google
+  metaDescription String   @db.VarChar(160) // Max 160 chars for Google
+  metaKeywords    String[] // Keywords array
+  
+  // Open Graph
+  ogTitle         String?  @db.VarChar(60)
+  ogDescription   String?  @db.VarChar(160)
+  ogImage         String?  // URL to OG image
+  ogType          String   @default("website") // "website", "article", etc.
+  
+  // Twitter Card
+  twitterCard     String   @default("summary_large_image") // "summary", "summary_large_image"
+  twitterTitle    String?  @db.VarChar(60)
+  twitterDescription String? @db.VarChar(160)
+  twitterImage    String?
+  
+  // Canonical & alternate
+  canonicalUrl    String?  // Canonical URL
+  alternateUrls   Json?    // {en: "url", de: "url"}
+  
+  // Structured data
+  jsonLd          Json?    // Schema.org JSON-LD
+  
+  // H1 heading (primary)
+  h1Heading       String?  @db.VarChar(100)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([pageSlug, locale])
+  @@index([pageSlug])
+  @@index([locale])
+  @@map("seo_metadata")
 }
 
 // Enums

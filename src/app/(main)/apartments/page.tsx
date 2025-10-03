@@ -1,20 +1,19 @@
 import { ApartmentSearch } from '@/components/search/apartment-search'
 import { ApartmentsWithFilters } from '@/components/apartment/apartments-with-filters'
 import { getApartments } from '@/services/apartments'
-import { Metadata } from 'next'
+import { getSeoMetadata } from '@/services/seo'
+import { seoDataToMetadata } from '@/lib/seo-helpers'
+import type { Metadata } from 'next'
 
 // Revalidate every 60 seconds (ISR)
 export const revalidate = 60
 
-export const metadata: Metadata = {
-  title: 'Všetky apartmány - Apartmány Vita Trenčín',
-  description: 'Prezrite si všetky naše luxusné apartmány v centre Trenčína. Vyberte si z 4 krásne zariadených apartmánov na Štúrovom námestí.',
-  keywords: [
-    'apartmány Trenčín',
-    'ubytovanie Trenčín centrum',
-    'apartmány Štúrovo námestie',
-    'luxusné ubytovanie Trenčín'
-  ]
+/**
+ * Generate SEO metadata for apartments list page
+ */
+export async function generateMetadata(): Promise<Metadata> {
+  const seoData = await getSeoMetadata('apartments', 'sk')
+  return seoDataToMetadata(seoData)
 }
 
 interface ApartmentsPageProps {
