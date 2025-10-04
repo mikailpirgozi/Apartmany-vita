@@ -56,7 +56,6 @@ export function SeoManager() {
   const [seoList, setSeoList] = useState<SeoMetadata[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
-  const [selectedItem, setSelectedItem] = useState<SeoMetadata | null>(null)
   const { toast } = useToast()
 
   const [formData, setFormData] = useState<SeoFormData>({
@@ -75,6 +74,7 @@ export function SeoManager() {
   // Fetch SEO metadata list
   useEffect(() => {
     fetchSeoList()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const fetchSeoList = async (): Promise<void> => {
@@ -101,7 +101,6 @@ export function SeoManager() {
   }
 
   const handleSelectItem = (item: SeoMetadata): void => {
-    setSelectedItem(item)
     setFormData({
       pageSlug: item.pageSlug,
       locale: item.locale,
@@ -142,7 +141,6 @@ export function SeoManager() {
           description: 'SEO metadata boli uložené',
         })
         await fetchSeoList()
-        setSelectedItem(null)
         resetForm()
       } else {
         throw new Error('Failed to save')
@@ -204,7 +202,6 @@ export function SeoManager() {
   }
 
   const handleNewEntry = (): void => {
-    setSelectedItem(null)
     resetForm()
   }
 

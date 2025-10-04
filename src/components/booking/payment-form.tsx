@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useStripe, useElements, PaymentElement, Elements } from "@stripe/react-stripe-js";
+import { useStripe, useElements, PaymentElement } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
@@ -15,8 +15,8 @@ import { Label } from "@/components/ui/label";
 import { STRIPE_PUBLISHABLE_KEY } from "@/lib/stripe";
 import type { Apartment } from "@/types";
 
-// Initialize Stripe
-const stripePromise = loadStripe(STRIPE_PUBLISHABLE_KEY);
+// Initialize Stripe (exported for potential future use)
+export const stripePromise = loadStripe(STRIPE_PUBLISHABLE_KEY);
 
 interface PaymentFormProps {
   apartment: Apartment;
@@ -165,8 +165,8 @@ export function PaymentForm(props: PaymentFormProps) {
   return null; // Payment form redirects to Stripe Checkout, no inline form needed
 }
 
-// Payment form with Stripe Elements
-function PaymentElementForm({
+// Payment form with Stripe Elements (exported for potential future use)
+export function PaymentElementForm({
   apartment,
   guestInfo,
   onPaymentSuccess,

@@ -9,7 +9,7 @@ import { format } from "date-fns";
 import { useSession } from "next-auth/react";
 import type { Session } from "next-auth";
 import { useQuery } from "@tanstack/react-query";
-import { Check, ChevronLeft, ChevronRight, User, CreditCard, Calendar, Euro, Percent, Building, MessageSquare } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, User, CreditCard, Calendar, Euro, Percent } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,7 +17,6 @@ import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 // import { Skeleton } from "@/components/ui/skeleton"; // Currently unused

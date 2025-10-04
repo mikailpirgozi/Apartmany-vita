@@ -5,7 +5,7 @@
  */
 
 import { prisma } from "@/lib/db";
-import type { SeoMetadata, Apartment } from "@prisma/client";
+import type { SeoMetadata, Apartment, Prisma } from "@prisma/client";
 
 // ==================== TYPES ====================
 
@@ -264,7 +264,45 @@ export async function upsertSeoMetadata(
   locale: string,
   data: Partial<SeoMetadata>
 ): Promise<SeoMetadata> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // Extract fields for update/create (excluding auto-generated fields)
+  const updateData: Prisma.SeoMetadataUpdateInput = {
+    ...(data.metaTitle !== undefined && { metaTitle: data.metaTitle }),
+    ...(data.metaDescription !== undefined && { metaDescription: data.metaDescription }),
+    ...(data.metaKeywords !== undefined && { metaKeywords: data.metaKeywords }),
+    ...(data.ogType !== undefined && { ogType: data.ogType }),
+    ...(data.twitterCard !== undefined && { twitterCard: data.twitterCard }),
+    ...(data.ogImage !== undefined && { ogImage: data.ogImage }),
+    ...(data.ogTitle !== undefined && { ogTitle: data.ogTitle }),
+    ...(data.ogDescription !== undefined && { ogDescription: data.ogDescription }),
+    ...(data.twitterTitle !== undefined && { twitterTitle: data.twitterTitle }),
+    ...(data.twitterDescription !== undefined && { twitterDescription: data.twitterDescription }),
+    ...(data.twitterImage !== undefined && { twitterImage: data.twitterImage }),
+    ...(data.canonicalUrl !== undefined && { canonicalUrl: data.canonicalUrl }),
+    ...(data.alternateUrls !== undefined && { alternateUrls: data.alternateUrls as Prisma.InputJsonValue }),
+    ...(data.jsonLd !== undefined && { jsonLd: data.jsonLd as Prisma.InputJsonValue }),
+    ...(data.h1Heading !== undefined && { h1Heading: data.h1Heading }),
+  };
+
+  const createData: Prisma.SeoMetadataCreateInput = {
+    pageSlug,
+    locale,
+    metaTitle: data.metaTitle || '',
+    metaDescription: data.metaDescription || '',
+    metaKeywords: data.metaKeywords || [],
+    ogType: data.ogType || 'website',
+    twitterCard: data.twitterCard || 'summary_large_image',
+    ogImage: data.ogImage || null,
+    ogTitle: data.ogTitle || null,
+    ogDescription: data.ogDescription || null,
+    twitterTitle: data.twitterTitle || null,
+    twitterDescription: data.twitterDescription || null,
+    twitterImage: data.twitterImage || null,
+    canonicalUrl: data.canonicalUrl || null,
+    alternateUrls: (data.alternateUrls || null) as Prisma.InputJsonValue,
+    jsonLd: (data.jsonLd || null) as Prisma.InputJsonValue,
+    h1Heading: data.h1Heading || null,
+  };
+
   return await prisma.seoMetadata.upsert({
     where: {
       pageSlug_locale: {
@@ -272,12 +310,8 @@ export async function upsertSeoMetadata(
         locale,
       },
     },
-    update: data as any,
-    create: {
-      pageSlug,
-      locale,
-      ...data,
-    } as any,
+    update: updateData,
+    create: createData,
   });
 }
 
