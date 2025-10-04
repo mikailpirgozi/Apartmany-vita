@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
+import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { updateApartmentSeo } from "@/services/seo";
 import { z } from "zod";
@@ -26,7 +26,9 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
   try {
-    const session = await getServerSession(authOptions);
+    // Type assertion needed due to NextAuth v4 compatibility with Next.js 15
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const session = await getServerSession(authOptions as any) as any;
 
     if (!session?.user?.isAdmin) {
       return NextResponse.json(

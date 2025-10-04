@@ -9,6 +9,15 @@ import { TypographyH1, TypographyP } from '@/components/ui/typography'
 import { LoyaltyTier } from '@/services/pricing'
 import Link from 'next/link'
 import { Settings, User, CreditCard } from 'lucide-react'
+import { Decimal } from '@prisma/client/runtime/library'
+
+/**
+ * Helper function to convert Decimal to number
+ * Prevents "toNumber is not a function" error after JSON serialization
+ */
+const toNumber = (value: number | Decimal): number => {
+  return typeof value === 'number' ? value : value.toNumber();
+}
 
 export default async function DashboardPage() {
   const session = await auth()
@@ -27,7 +36,8 @@ export default async function DashboardPage() {
             apartment: {
               select: {
                 name: true,
-                images: true
+                images: true,
+                basePrice: true
               }
             }
           },
@@ -58,7 +68,8 @@ export default async function DashboardPage() {
               apartment: {
                 select: {
                   name: true,
-                  images: true
+                  images: true,
+                  basePrice: true
                 }
               }
             },
@@ -236,7 +247,15 @@ export default async function DashboardPage() {
           </div>
         </CardHeader>
         <CardContent>
-          <BookingsList bookings={user.bookings} />
+          <BookingsList bookings={user.bookings.map(booking => ({
+            ...booking,
+            totalPrice: toNumber(booking.totalPrice),
+            discount: toNumber(booking.discount),
+            apartment: {
+              ...booking.apartment,
+              basePrice: toNumber(booking.apartment.basePrice)
+            }
+          }))} />
         </CardContent>
       </Card>
     </div>

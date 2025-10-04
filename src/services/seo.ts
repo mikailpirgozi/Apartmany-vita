@@ -264,6 +264,7 @@ export async function upsertSeoMetadata(
   locale: string,
   data: Partial<SeoMetadata>
 ): Promise<SeoMetadata> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return await prisma.seoMetadata.upsert({
     where: {
       pageSlug_locale: {
@@ -271,12 +272,12 @@ export async function upsertSeoMetadata(
         locale,
       },
     },
-    update: data,
+    update: data as any,
     create: {
       pageSlug,
       locale,
       ...data,
-    } as SeoMetadata,
+    } as any,
   });
 }
 

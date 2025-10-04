@@ -5,7 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
+import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import {
   getAllSeoMetadata,
@@ -30,7 +30,7 @@ const SeoMetadataSchema = z.object({
   twitterImage: z.string().url().optional(),
   canonicalUrl: z.string().url().optional(),
   alternateUrls: z.record(z.string()).optional(),
-  jsonLd: z.record(z.unknown()).optional(),
+  jsonLd: z.any().optional(),
   h1Heading: z.string().max(100).optional(),
 });
 
@@ -40,7 +40,9 @@ const SeoMetadataSchema = z.object({
  */
 export async function GET(): Promise<NextResponse> {
   try {
-    const session = await getServerSession(authOptions);
+    // Type assertion needed due to NextAuth v4 compatibility with Next.js 15
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const session = await getServerSession(authOptions as any) as any;
 
     if (!session?.user?.isAdmin) {
       return NextResponse.json(
@@ -70,7 +72,9 @@ export async function GET(): Promise<NextResponse> {
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    const session = await getServerSession(authOptions);
+    // Type assertion needed due to NextAuth v4 compatibility with Next.js 15
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const session = await getServerSession(authOptions as any) as any;
 
     if (!session?.user?.isAdmin) {
       return NextResponse.json(

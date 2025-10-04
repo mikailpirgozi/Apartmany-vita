@@ -2,6 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/db';
 import { auth } from '@/lib/auth';
+import { Decimal } from '@prisma/client/runtime/library';
+
+/**
+ * Helper function to convert Decimal to number
+ * Prevents "toNumber is not a function" error after JSON serialization
+ */
+const toNumber = (value: number | Decimal): number => {
+  return typeof value === 'number' ? value : value.toNumber();
+};
 
 /**
  * GET /api/bookings
@@ -76,9 +85,24 @@ export async function GET(request: NextRequest) {
       ]
     });
 
+    // Convert Decimal values to numbers before JSON serialization
+    const bookingsWithNumbers = bookings.map(booking => ({
+      ...booking,
+      totalPrice: toNumber(booking.totalPrice),
+      discount: toNumber(booking.discount),
+      apartment: {
+        ...booking.apartment,
+        basePrice: toNumber(booking.apartment.basePrice)
+      },
+      extras: booking.extras?.map(extra => ({
+        ...extra,
+        price: toNumber(extra.price)
+      }))
+    }));
+
     return NextResponse.json({
       success: true,
-      bookings
+      bookings: bookingsWithNumbers
     });
 
   } catch (error) {

@@ -85,8 +85,15 @@ interface BookingDetailClientProps {
   userId: string;
 }
 
+// Helper function to safely convert to number (handles already-converted values)
 const toNumber = (value: number | Decimal): number => {
-  return typeof value === 'number' ? value : value.toNumber();
+  if (typeof value === 'number') return value;
+  // If it's a Decimal object with toNumber method
+  if (value && typeof value === 'object' && 'toNumber' in value && typeof value.toNumber === 'function') {
+    return value.toNumber();
+  }
+  // If it's already serialized (plain object or string), parse it
+  return typeof value === 'string' ? parseFloat(value) : Number(value);
 };
 
 export function BookingDetailClient({ bookingId }: BookingDetailClientProps) {
