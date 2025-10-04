@@ -63,12 +63,12 @@ export default function TermsOfServicePage() {
               <h3 className="text-xl font-semibold text-gray-800 mb-3 mt-6">1.2 Predmet podnikania</h3>
               <p className="text-gray-700 mb-4">
                 Prevádzkovateľ poskytuje služby krátkodobého ubytovania v apartmánoch Vita 
-                (ďalej len "Apartmány") prostredníctvom online rezervačného systému.
+                (ďalej len &quot;Apartmány&quot;) prostredníctvom online rezervačného systému.
               </p>
 
               <h3 className="text-xl font-semibold text-gray-800 mb-3 mt-6">1.3 Platnosť podmienok</h3>
               <p className="text-gray-700">
-                Tieto Všeobecné obchodné podmienky (ďalej len "VOP") upravujú vzťahy medzi 
+                Tieto Všeobecné obchodné podmienky (ďalej len &quot;VOP&quot;) upravujú vzťahy medzi 
                 prevádzkovateľom a hosťom pri poskytovaní ubytovacích služieb. Vytvorením 
                 rezervácie hosť potvrdzuje, že sa oboznámil s týmito VOP a súhlasí s nimi.
               </p>
@@ -241,8 +241,8 @@ export default function TermsOfServicePage() {
               <h3 className="text-xl font-semibold text-gray-800 mb-3 mt-6">5.2 Ako stornovať rezerváciu</h3>
               <ol className="list-decimal pl-6 space-y-2 text-gray-700">
                 <li>Prihláste sa do svojho účtu na apartmanyvita.sk</li>
-                <li>Prejdite do sekcie "Moje rezervácie"</li>
-                <li>Kliknite na "Stornovať rezerváciu"</li>
+                <li>Prejdite do sekcie &quot;Moje rezervácie&quot;</li>
+                <li>Kliknite na &quot;Stornovať rezerváciu&quot;</li>
                 <li>Potvrdenie o storne obdržíte e-mailom</li>
               </ol>
               <p className="text-gray-700 mt-4">

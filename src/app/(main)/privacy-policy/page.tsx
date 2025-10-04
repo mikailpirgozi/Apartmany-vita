@@ -248,7 +248,7 @@ export default function PrivacyPolicyPage() {
                 </div>
 
                 <div className="bg-blue-50 p-4 rounded-lg">
-                  <h4 className="font-semibold text-gray-900 mb-2">✓ Právo na výmaz ("právo byť zabudnutý")</h4>
+                  <h4 className="font-semibold text-gray-900 mb-2">✓ Právo na výmaz (&quot;právo byť zabudnutý&quot;)</h4>
                   <p className="text-gray-700">Môžete požiadať o vymazanie vašich údajov (s výnimkou zákonných povinností)</p>
                 </div>
 
