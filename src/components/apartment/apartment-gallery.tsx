@@ -92,11 +92,11 @@ export function ApartmentGallery({ images, apartmentName }: ApartmentGalleryProp
   // Touch/swipe handlers
   const onTouchStart = (e: React.TouchEvent) => {
     setTouchEnd(null)
-    setTouchStart(e.targetTouches[0].clientX)
+    setTouchStart(e.targetTouches[0]?.clientX ?? 0)
   }
 
   const onTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX)
+    setTouchEnd(e.targetTouches[0]?.clientX ?? 0)
   }
 
   const onTouchEnd = () => {
@@ -126,7 +126,7 @@ export function ApartmentGallery({ images, apartmentName }: ApartmentGalleryProp
         onClick={() => openLightbox(selectedImage)}
       >
         <Image
-          src={images[selectedImage]}
+          src={images[selectedImage] ?? ''}
           alt={`${apartmentName} - hlavná fotka`}
           fill
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 70vw, 60vw"
@@ -230,7 +230,7 @@ export function ApartmentGallery({ images, apartmentName }: ApartmentGalleryProp
               onDragStart={handleDragStart}
             >
               <Image
-                src={images[lightboxIndex]}
+                src={images[lightboxIndex] ?? ''}
                 alt={`${apartmentName} - fotka ${lightboxIndex + 1}`}
                 fill
                 sizes="100vw"

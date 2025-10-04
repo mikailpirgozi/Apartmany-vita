@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import { checkRateLimit, RATE_LIMITS } from '@/lib/rate-limiter';
 
 const BEDS24_API_BASE = 'https://api.beds24.com/v2';
 const API_TOKEN = process.env.BEDS24_ACCESS_TOKEN || 'XwJnUUA7YS9aHRIBFPhVWiIEBlb/+whEpT0SRe7m5IWp30A9+uJlz54IN+KTAYSFNkftzJQ9ODvTYrafP6c2o3sUExKkk288hi7lKcuJZ8zxfh3CxnUZckm/W3dGGs1ibWb1BIr/ch69m5RKYemFu/Rn6KfTjwgMUi+zyCgifcg=';
@@ -52,6 +53,22 @@ const createBookingSchema = z.object({
  */
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting
+    const rateLimit = await checkRateLimit(request, RATE_LIMITS.BOOKING);
+    if (rateLimit.limited) {
+      return NextResponse.json({
+        success: false,
+        error: rateLimit.message
+      }, { 
+        status: 429,
+        headers: {
+          'X-RateLimit-Limit': RATE_LIMITS.BOOKING.maxRequests.toString(),
+          'X-RateLimit-Remaining': rateLimit.remaining.toString(),
+          'X-RateLimit-Reset': new Date(rateLimit.resetTime).toISOString()
+        }
+      });
+    }
+    
     const body = await request.json();
     console.log('📝 Creating booking with data:', body);
 

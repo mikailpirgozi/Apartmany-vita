@@ -214,7 +214,10 @@ export async function GET(request: NextRequest) {
     // FIXED: Don't include checkout day in pricing calculation (checkout day is not charged)
     // For 1 night stay (13.10 -> 14.10), only charge 13.10, not 14.10
     for (let d = new Date(startDate); d < endDate; d.setDate(d.getDate() + 1)) {
-      requestedDates.push(d.toISOString().split('T')[0]);
+      const dateStr = d.toISOString().split('T')[0];
+      if (dateStr) {
+        requestedDates.push(dateStr);
+      }
     }
 
     const isAvailable = requestedDates.every(date => 
@@ -252,12 +255,13 @@ export async function GET(request: NextRequest) {
     });
 
     // DEBUG: Log final prices object
+    const lastDate = availableDates[availableDates.length - 1];
     console.log(`📊 Final prices for ${apartment}:`, {
       totalDates: availableDates.length,
       pricesCount: Object.keys(dailyPricesFromBeds24).length,
       missingPrices: availableDates.filter(date => !dailyPricesFromBeds24[date]),
-      lastDate: availableDates[availableDates.length - 1],
-      lastDatePrice: dailyPricesFromBeds24[availableDates[availableDates.length - 1]]
+      lastDate,
+      lastDatePrice: lastDate ? dailyPricesFromBeds24[lastDate] : undefined
     });
     
     // Dodatočné poplatky za hostí nad základ 2 ľudí (ZA KAŽDÚ NOC!)

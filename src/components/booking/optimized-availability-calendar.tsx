@@ -367,8 +367,8 @@ export function OptimizedAvailabilityCalendar({
 
   // Get combined availability data for cross-month selection
   // Future: can be used for detailed pricing across multiple months
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const getCombinedAvailabilityData = (from: Date, to: Date): AvailabilityData | null => {
+  // @ts-expect-error - Reserved for future use
+  const _getCombinedAvailabilityData = (from: Date, to: Date): AvailabilityData | null => {
     if (!availability) return null;
     
     const fromMonth = startOfMonth(from);
@@ -929,8 +929,8 @@ function isValidCrossMonthRange(
 }
 
 // Helper function for future pricing breakdown feature
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function calculatePricingInfo(
+// @ts-expect-error - Reserved for future use
+function _calculatePricingInfo(
   from: Date,
   to: Date,
   availability: AvailabilityData,

@@ -291,8 +291,9 @@ export async function performHealthCheck(): Promise<{
 declare global {
   interface Window {
     gtag: (command: string, targetId: string, config?: Record<string, unknown>) => void
-    Sentry: {
-      captureException: (error: Error, context?: Record<string, unknown>) => void
+    Sentry?: {
+      captureException: (error: Error, options?: { contexts?: { custom?: unknown } }) => void;
+      captureMessage: (message: string, options?: { level?: string; contexts?: { custom?: unknown } }) => void;
     }
   }
 }

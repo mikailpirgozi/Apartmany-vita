@@ -82,22 +82,16 @@ export function Footer() {
             <h4 className="font-semibold text-brand-accent">Právne informácie</h4>
             <nav className="flex flex-col space-y-2">
               <Link
-                href="/terms"
+                href="/terms-of-service"
                 className="text-sm text-muted-foreground hover:text-brand-accent transition-colors"
               >
                 Obchodné podmienky
               </Link>
               <Link
-                href="/privacy"
+                href="/privacy-policy"
                 className="text-sm text-muted-foreground hover:text-brand-accent transition-colors"
               >
-                Ochrana súkromia
-              </Link>
-              <Link
-                href="/cancellation"
-                className="text-sm text-muted-foreground hover:text-brand-accent transition-colors"
-              >
-                Stornovacie podmienky
+                Ochrana osobných údajov
               </Link>
             </nav>
           </motion.div>
@@ -142,9 +136,14 @@ export function Footer() {
           variants={staggerItem}
           suppressHydrationWarning
         >
-          <p className="text-sm text-muted-foreground" suppressHydrationWarning>
-            © {new Date().getFullYear()} {APP_NAME}. Všetky práva vyhradené.
-          </p>
+          <div className="text-center md:text-left">
+            <p className="text-sm text-muted-foreground" suppressHydrationWarning>
+              © {new Date().getFullYear()} {APP_NAME}. Všetky práva vyhradené.
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">
+              P2 invest s.r.o. | IČO: 47992701 | IČ DPH: SK2120035951
+            </p>
+          </div>
           <p className="text-sm text-muted-foreground flex items-center gap-1">
             Vytvorené s <Heart className="h-4 w-4 text-red-500 animate-pulse" /> pre najlepší pobyt v Trenčíne
           </p>

@@ -258,14 +258,17 @@ export async function getAvailableApartments(
       const availabilityData = await beds24Service.getInventoryCalendar({
         propId: apartmentConfig.propId,
         roomId: apartmentConfig.roomId,
-        startDate: checkInStr,
-        endDate: checkOutStr
+        startDate: checkInStr ?? '',
+        endDate: checkOutStr ?? ''
       });
       
       // Check if all requested dates are available (exclude checkout day)
       const requestedDates: string[] = [];
       for (let d = new Date(checkIn); d < checkOut; d.setDate(d.getDate() + 1)) {
-        requestedDates.push(d.toISOString().split('T')[0]);
+        const dateStr = d.toISOString().split('T')[0];
+        if (dateStr) {
+          requestedDates.push(dateStr);
+        }
       }
       
       const isAvailable = requestedDates.every(date => 

@@ -121,6 +121,7 @@ export function PerformanceDashboard({
       const interval = setInterval(fetchData, refreshInterval);
       return () => clearInterval(interval);
     }
+    return undefined;
   }, [autoRefresh, refreshInterval, timeWindow, fetchData]);
 
   // Export data

@@ -40,6 +40,26 @@ const contactRateLimit = createRateLimit({
 export default async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   
+  // SECURITY: Block debug endpoints in production
+  if (process.env.NODE_ENV === 'production') {
+    const debugPaths = [
+      '/api/debug',
+      '/api/beds24-debug',
+      '/api/test-pricing',
+      '/beds24-setup',
+      '/beds24-debug',
+      '/beds24-final-test',
+      '/invite-to-token'
+    ];
+    
+    if (debugPaths.some(path => pathname.startsWith(path))) {
+      return NextResponse.json(
+        { error: 'Not Found' },
+        { status: 404 }
+      );
+    }
+  }
+  
   // Apply rate limiting
   if (pathname.startsWith('/api/')) {
     if (pathname.includes('/auth/') || pathname.includes('/register')) {

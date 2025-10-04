@@ -37,9 +37,9 @@ function UserMenuContent() {
 
   const getInitials = (name: string | null, email: string) => {
     if (name) {
-      return name.split(' ').map(n => n[0]).join('').toUpperCase()
+      return name.split(' ').map(n => n[0]).filter(Boolean).join('').toUpperCase()
     }
-    return email[0].toUpperCase()
+    return email.charAt(0).toUpperCase()
   }
 
   // Only render DropdownMenu after mount to prevent hydration mismatch

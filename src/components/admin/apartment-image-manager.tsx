@@ -113,7 +113,9 @@ export function ApartmentImageManager({
   const handleReorder = (fromIndex: number, toIndex: number) => {
     const newImages = [...images]
     const [movedImage] = newImages.splice(fromIndex, 1)
-    newImages.splice(toIndex, 0, movedImage)
+    if (movedImage) {
+      newImages.splice(toIndex, 0, movedImage)
+    }
     setImages(newImages)
     
     // Show feedback

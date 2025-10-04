@@ -123,7 +123,7 @@ export function BookingsList({ bookings }: BookingsListProps) {
                     <Calendar className="h-4 w-4 text-muted-foreground" />
                     <div>
                       <p className="font-medium">
-                        {booking.checkIn.toISOString().split('T')[0].split('-').reverse().join('.')}
+                        {booking.checkIn?.toISOString().split('T')[0]?.split('-').reverse().join('.') || 'N/A'}
                       </p>
                       <p className="text-muted-foreground">Príchod</p>
                     </div>
@@ -133,7 +133,7 @@ export function BookingsList({ bookings }: BookingsListProps) {
                     <Calendar className="h-4 w-4 text-muted-foreground" />
                     <div>
                       <p className="font-medium">
-                        {booking.checkOut.toISOString().split('T')[0].split('-').reverse().join('.')}
+                        {booking.checkOut?.toISOString().split('T')[0]?.split('-').reverse().join('.') || 'N/A'}
                       </p>
                       <p className="text-muted-foreground">Odchod</p>
                     </div>

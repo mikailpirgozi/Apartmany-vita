@@ -453,7 +453,7 @@ export function validateCardNumber(cardNumber: string): boolean {
 export function validateExpiryDate(expiry: string): boolean {
   // Format: MM/YY
   const match = expiry.match(/^(\d{2})\/(\d{2})$/);
-  if (!match) return false;
+  if (!match || !match[1] || !match[2]) return false;
   
   const month = parseInt(match[1]);
   const year = parseInt(match[2]) + 2000;

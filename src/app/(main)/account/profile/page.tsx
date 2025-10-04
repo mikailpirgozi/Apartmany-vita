@@ -101,9 +101,9 @@ export default async function ProfilePage() {
 
   const getInitials = (name: string | null, email: string) => {
     if (name) {
-      return name.split(' ').map(n => n[0]).join('').toUpperCase()
+      return name.split(' ').map(n => n[0]).filter(Boolean).join('').toUpperCase()
     }
-    return email[0].toUpperCase()
+    return email.charAt(0).toUpperCase()
   }
 
   return (
@@ -184,7 +184,7 @@ export default async function ProfilePage() {
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Člen od:</span>
-                    <span>{user.createdAt.toISOString().split('T')[0].split('-').reverse().join('.')}</span>
+                    <span>{user.createdAt?.toISOString().split('T')[0]?.split('-').reverse().join('.') || 'N/A'}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Rezervácie:</span>

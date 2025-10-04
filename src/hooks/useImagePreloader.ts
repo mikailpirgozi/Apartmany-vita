@@ -38,47 +38,60 @@ export function useImagePreloader({
     const totalImages = images.length
 
     // Priority 1: Current image
-    priorities.push({
-      url: images[index],
-      loaded: false,
-      priority: 1
-    })
+    const currentUrl = images[index];
+    if (currentUrl) {
+      priorities.push({
+        url: currentUrl,
+        loaded: false,
+        priority: 1
+      })
+    }
 
     // Priority 2: Immediate neighbors (±1)
     for (let offset = 1; offset <= Math.min(2, preloadCount); offset++) {
       const nextIndex = (index + offset) % totalImages
       const prevIndex = (index - offset + totalImages) % totalImages
 
-      priorities.push({
-        url: images[nextIndex],
-        loaded: false,
-        priority: 2
-      })
-
-      if (offset <= preloadCount / 2) {
+      const nextUrl = images[nextIndex];
+      if (nextUrl) {
         priorities.push({
-          url: images[prevIndex],
+          url: nextUrl,
           loaded: false,
           priority: 2
         })
+      }
+
+      if (offset <= preloadCount / 2) {
+        const prevUrl = images[prevIndex];
+        if (prevUrl) {
+          priorities.push({
+            url: prevUrl,
+            loaded: false,
+            priority: 2
+          })
+        }
       }
     }
 
     // Priority 3: Extended range (up to preloadCount)
     for (let offset = 3; offset <= preloadCount; offset++) {
       const nextIndex = (index + offset) % totalImages
-      priorities.push({
-        url: images[nextIndex],
-        loaded: false,
-        priority: 3
-      })
+      const nextUrl = images[nextIndex];
+      if (nextUrl) {
+        priorities.push({
+          url: nextUrl,
+          loaded: false,
+          priority: 3
+        })
+      }
     }
 
     // Priority 4: Remaining images
     for (let i = 0; i < totalImages; i++) {
-      if (!priorities.some(p => p.url === images[i])) {
+      const imageUrl = images[i];
+      if (imageUrl && !priorities.some(p => p.url === imageUrl)) {
         priorities.push({
-          url: images[i],
+          url: imageUrl,
           loaded: false,
           priority: 4
         })

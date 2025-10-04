@@ -34,7 +34,7 @@ export function ApartmentCard({ apartment, startDate, endDate, guests, childrenC
   return (
     <Card className={`overflow-hidden transition-all hover:shadow-xl rounded-xl py-0 gap-0 ${variant === 'compact' ? 'compact' : ''}`} data-testid="apartment-card">
       <div className="relative w-full">
-        {apartment.images.length > 0 ? (
+        {apartment.images.length > 0 && apartment.images[0] ? (
           <Image
             src={apartment.images[0]}
             alt={apartment.name}

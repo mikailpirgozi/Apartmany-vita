@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { createCheckoutSession } from '@/lib/stripe';
 import { prisma } from '@/lib/db';
 import { createApartmentBooking } from '@/services/beds24';
+import { checkRateLimit, RATE_LIMITS } from '@/lib/rate-limiter';
 
 const createPaymentIntentSchema = z.object({
   amount: z.number().positive(),
@@ -43,6 +44,21 @@ const createPaymentIntentSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting
+    const rateLimit = await checkRateLimit(request, RATE_LIMITS.PAYMENT);
+    if (rateLimit.limited) {
+      return NextResponse.json({
+        error: rateLimit.message
+      }, { 
+        status: 429,
+        headers: {
+          'X-RateLimit-Limit': RATE_LIMITS.PAYMENT.maxRequests.toString(),
+          'X-RateLimit-Remaining': rateLimit.remaining.toString(),
+          'X-RateLimit-Reset': new Date(rateLimit.resetTime).toISOString()
+        }
+      });
+    }
+    
     const body = await request.json();
     const validatedData = createPaymentIntentSchema.parse(body);
 

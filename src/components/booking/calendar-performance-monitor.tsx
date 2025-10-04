@@ -261,7 +261,7 @@ export function CalendarPerformanceMonitor({
 export function useCalendarPerformanceTracking(apartmentSlug: string) {
   useEffect(() => {
     // Only run on client side
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined') return undefined;
     
     // Track page load performance
     const trackPageLoad = () => {
@@ -303,6 +303,7 @@ export function useCalendarPerformanceTracking(apartmentSlug: string) {
     // Track after page is fully loaded
     if (document.readyState === 'complete') {
       trackPageLoad();
+      return undefined;
     } else {
       window.addEventListener('load', trackPageLoad);
       return () => window.removeEventListener('load', trackPageLoad);

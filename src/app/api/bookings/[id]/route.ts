@@ -17,7 +17,7 @@ const toNumber = (value: number | Decimal): number => {
  * Cancel a booking if it's more than 7 days before check-in
  */
 export async function DELETE(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -141,7 +141,7 @@ export async function DELETE(
  * Get single booking detail for authenticated user
  */
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {

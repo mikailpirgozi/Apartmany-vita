@@ -41,6 +41,7 @@ function ToastItem({ toast, onDismiss }: ToastItemProps) {
 
       return () => clearTimeout(timer)
     }
+    return undefined;
   }, [toast.duration, onDismiss])
 
   const getIcon = () => {

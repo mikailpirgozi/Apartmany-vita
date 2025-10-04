@@ -59,7 +59,8 @@ function getClientIP(request: NextRequest): string {
   const realIP = request.headers.get('x-real-ip')
   
   if (forwarded) {
-    return forwarded.split(',')[0].trim()
+    const firstIp = forwarded.split(',')[0]?.trim();
+    if (firstIp) return firstIp;
   }
   
   if (realIP) {
@@ -174,7 +175,7 @@ export function escapeHTML(input: string): string {
     '/': '&#x2F;',
   }
   
-  return input.replace(/[&<>"'/]/g, (s) => map[s])
+  return input.replace(/[&<>"'/]/g, (s) => map[s] || s)
 }
 
 // Password strength validation

@@ -4,7 +4,15 @@
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
+    
+    // Strict Type Checking (Phase 2 - Full Strict Mode)
     "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    
     "noEmit": true,
     "esModuleInterop": true,
     "module": "esnext",

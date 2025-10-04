@@ -10,6 +10,7 @@ import { getBeds24Service } from "./beds24";
 import { LoyaltyTier } from "@/lib/loyalty";
 import { PRICING_CONSTANTS } from "@/constants";
 import { calculateStayDiscount, type StayDiscount } from "@/lib/discounts";
+import { log } from "@/lib/logger";
 
 // Re-export LoyaltyTier for backward compatibility
 export { LoyaltyTier } from "@/lib/loyalty";
@@ -170,16 +171,16 @@ class PricingService {
       
       const apartmentConfig = apartmentMapping[apartmentSlug];
       if (!apartmentConfig) {
-        console.log(`⚠️ No Beds24 mapping for apartment: ${apartmentSlug}`);
+        log.warn(`No Beds24 mapping for apartment: ${apartmentSlug}`);
         return {};
       }
       
-      console.log(`🎯 Getting dynamic pricing for ${apartmentSlug} with ${guests} guests, ${children} children`);
+      log.debug(`Getting dynamic pricing for ${apartmentSlug}`, { guests, children });
       
       // Check if BEDS24 environment variables are available (support both Long Life Token and legacy tokens)
       const hasBeds24Config = process.env.BEDS24_LONG_LIFE_TOKEN || (process.env.BEDS24_ACCESS_TOKEN && process.env.BEDS24_REFRESH_TOKEN);
       if (!hasBeds24Config) {
-        console.warn('⚠️ BEDS24 environment variables not available, using fallback pricing');
+        log.warn('BEDS24 environment variables not available, using fallback pricing');
         return {};
       }
       
@@ -254,7 +255,7 @@ class PricingService {
   /**
    * Calculate loyalty discount based on user's booking history
    */
-  private async calculateLoyaltyDiscount(userId: string, subtotal: number) {
+  private async calculateLoyaltyDiscount(_userId: string, subtotal: number) {
     // WORKAROUND: Without Prisma, assume Bronze tier (5% discount)
     // In production with working Prisma, this would query actual booking history
     const tier = LoyaltyTier.BRONZE; // Default tier
@@ -273,7 +274,8 @@ class PricingService {
   /**
    * Determine loyalty tier based on completed bookings
    */
-  private calculateLoyaltyTier(bookingCount: number): LoyaltyTier {
+  // @ts-expect-error - Reserved for future use
+  private _calculateLoyaltyTier(bookingCount: number): LoyaltyTier {
     if (bookingCount >= 6) return LoyaltyTier.GOLD;
     if (bookingCount >= 3) return LoyaltyTier.SILVER;
     return LoyaltyTier.BRONZE;

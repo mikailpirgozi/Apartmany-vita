@@ -157,7 +157,7 @@ function generateApartmentSeo(
     ogTitle: title,
     ogDescription: description,
     ogImage,
-    ogType: "place",
+    ogType: "website",
     twitterCard: "summary_large_image",
     twitterTitle: title,
     twitterDescription: description,
@@ -192,7 +192,7 @@ function generateApartmentJsonLd(
       "@type": "QuantitativeValue",
       maxValue: apartment.maxGuests,
     },
-    amenityFeature: apartment.amenities.map((amenity) => ({
+    amenityFeature: apartment.amenities.map((amenity: string) => ({
       "@type": "LocationFeatureSpecification",
       name: amenity,
     })),
@@ -238,19 +238,19 @@ function generateDefaultSeo(pageSlug: string, locale: string): SeoData {
   const canonicalUrl = `${BASE_URL}/${locale}/${pageSlug}`;
 
   return {
-    metaTitle: defaults.metaTitle || "Apartmány Vita Lučenec",
-    metaDescription: defaults.metaDescription || "Moderné apartmány v Lučenci",
-    metaKeywords: defaults.metaKeywords || [],
-    ogTitle: defaults.metaTitle || "Apartmány Vita Lučenec",
-    ogDescription: defaults.metaDescription || "Moderné apartmány v Lučenci",
+    metaTitle: defaults?.metaTitle || "Apartmány Vita Lučenec",
+    metaDescription: defaults?.metaDescription || "Moderné apartmány v Lučenci",
+    metaKeywords: defaults?.metaKeywords || [],
+    ogTitle: defaults?.metaTitle || "Apartmány Vita Lučenec",
+    ogDescription: defaults?.metaDescription || "Moderné apartmány v Lučenci",
     ogImage: `${BASE_URL}/og-default.jpg`,
-    ogType: defaults.ogType || "website",
+    ogType: defaults?.ogType || "website",
     twitterCard: "summary_large_image",
-    twitterTitle: defaults.metaTitle || "Apartmány Vita Lučenec",
-    twitterDescription: defaults.metaDescription || "Moderné apartmány v Lučenci",
+    twitterTitle: defaults?.metaTitle || "Apartmány Vita Lučenec",
+    twitterDescription: defaults?.metaDescription || "Moderné apartmány v Lučenci",
     twitterImage: `${BASE_URL}/og-default.jpg`,
     canonicalUrl,
-    h1Heading: defaults.h1Heading || "Apartmány Vita",
+    h1Heading: defaults?.h1Heading || "Apartmány Vita",
   };
 }
 

@@ -70,9 +70,14 @@ export function ApartmentSearch({ initialValues, className }: ApartmentSearchPro
       return
     }
 
+    const checkInStr = dateRange?.from?.toISOString().split('T')[0];
+    const checkOutStr = dateRange?.to?.toISOString().split('T')[0];
+    
+    if (!checkInStr || !checkOutStr) return;
+    
     const params = new URLSearchParams({
-      checkIn: dateRange!.from!.toISOString().split('T')[0],
-      checkOut: dateRange!.to!.toISOString().split('T')[0],
+      checkIn: checkInStr,
+      checkOut: checkOutStr,
       guests: guests.toString(),
       children: children.toString()
     })

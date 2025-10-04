@@ -5,8 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
+import { requireAdmin } from "@/lib/admin";
 import {
   getAllSeoMetadata,
   upsertSeoMetadata,
@@ -40,16 +39,8 @@ const SeoMetadataSchema = z.object({
  */
 export async function GET(): Promise<NextResponse> {
   try {
-    // Type assertion needed due to NextAuth v4 compatibility with Next.js 15
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const session = await getServerSession(authOptions as any) as any;
-
-    if (!session?.user?.isAdmin) {
-      return NextResponse.json(
-        { error: "Unauthorized: Admin access required" },
-        { status: 401 }
-      );
-    }
+    // Unified admin check
+    await requireAdmin();
 
     const seoMetadata = await getAllSeoMetadata();
 
@@ -72,16 +63,8 @@ export async function GET(): Promise<NextResponse> {
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    // Type assertion needed due to NextAuth v4 compatibility with Next.js 15
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const session = await getServerSession(authOptions as any) as any;
-
-    if (!session?.user?.isAdmin) {
-      return NextResponse.json(
-        { error: "Unauthorized: Admin access required" },
-        { status: 401 }
-      );
-    }
+    // Unified admin check
+    await requireAdmin();
 
     const body = await request.json();
     const validated = SeoMetadataSchema.parse(body);

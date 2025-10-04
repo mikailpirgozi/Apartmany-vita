@@ -86,7 +86,7 @@ export const mediaQueries = {
 
 // Hook for responsive values (can be used with useMediaQuery)
 export function getResponsiveValue<T>(
-  values: { sm?: T; md?: T; lg?: T; xl?: T; '2xl'?: T },
+  _values: { sm?: T; md?: T; lg?: T; xl?: T; '2xl'?: T },
   defaultValue: T
 ): T {
   // This would typically be used with a useMediaQuery hook

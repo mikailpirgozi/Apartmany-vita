@@ -40,6 +40,7 @@ export function MobileMenuSimple({ navigation }: MobileMenuSimpleProps) {
       document.addEventListener('keydown', handleEscape)
       return () => document.removeEventListener('keydown', handleEscape)
     }
+    return undefined;
   }, [isOpen])
 
   return (

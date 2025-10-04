@@ -1,13 +1,17 @@
 /**
  * Admin authorization utilities
+ * UNIFIED: Uses both DB isAdmin flag AND email whitelist for security
  */
 
 import { auth } from './auth'
+import { prisma } from './db'
 
-const ADMIN_EMAILS = ['pirgozi1@gmail.com']
+// Email whitelist as backup security layer
+const ADMIN_EMAILS: readonly string[] = ['pirgozi1@gmail.com']
 
 /**
  * Check if current user is admin
+ * Uses BOTH DB flag AND email whitelist for double security
  */
 export async function isAdmin(): Promise<boolean> {
   const session = await auth()
@@ -16,7 +20,23 @@ export async function isAdmin(): Promise<boolean> {
     return false
   }
   
-  return ADMIN_EMAILS.includes(session.user.email)
+  // Check email whitelist first (fast check)
+  if (!ADMIN_EMAILS.includes(session.user.email)) {
+    return false
+  }
+  
+  // Then verify DB flag (authoritative source)
+  try {
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+      select: { isAdmin: true }
+    })
+    
+    return user?.isAdmin ?? false
+  } catch (error) {
+    console.error('Admin check error:', error)
+    return false
+  }
 }
 
 /**
@@ -41,10 +61,11 @@ export async function getAdminSession() {
     throw new Error('Unauthorized: Not authenticated')
   }
   
-  if (!ADMIN_EMAILS.includes(session.user.email)) {
+  // Use unified isAdmin check
+  const isAdminUser = await isAdmin()
+  if (!isAdminUser) {
     throw new Error('Unauthorized: Admin access required')
   }
   
   return session
 }
-

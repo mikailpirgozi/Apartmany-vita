@@ -33,6 +33,7 @@ export function SimpleUserMenu({ isLoggedIn, userName, userEmail, userImage }: S
       document.addEventListener('mousedown', handleClickOutside)
       return () => document.removeEventListener('mousedown', handleClickOutside)
     }
+    return undefined;
   }, [isOpen])
 
   if (!isLoggedIn) {
@@ -56,9 +57,9 @@ export function SimpleUserMenu({ isLoggedIn, userName, userEmail, userImage }: S
 
   const getInitials = (name: string | null, email: string) => {
     if (name) {
-      return name.split(' ').map(n => n[0]).join('').toUpperCase()
+      return name.split(' ').map(n => n[0]).filter(Boolean).join('').toUpperCase()
     }
-    return email[0].toUpperCase()
+    return email.charAt(0).toUpperCase()
   }
 
   return (
