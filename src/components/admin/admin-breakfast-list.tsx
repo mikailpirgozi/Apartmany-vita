@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Plus } from 'lucide-react'
 import type { BreakfastCategory } from '@prisma/client'
 
-interface Breakfast {
+interface BreakfastData {
   id: string
   name: string
   slug: string
@@ -19,19 +19,17 @@ interface Breakfast {
   isActive: boolean
   sortOrder: number
   guestPrice: string | null
-  createdAt: string
-  updatedAt: string
 }
 
 interface AdminBreakfastListProps {
-  breakfasts: Breakfast[]
+  breakfasts: BreakfastData[]
 }
 
 export function AdminBreakfastList({ breakfasts: initialBreakfasts }: AdminBreakfastListProps) {
   const [breakfasts, setBreakfasts] = useState(initialBreakfasts)
   const [showNewForm, setShowNewForm] = useState(false)
 
-  const handleBreakfastUpdate = (updatedBreakfast: Breakfast) => {
+  const handleBreakfastUpdate = (updatedBreakfast: BreakfastData) => {
     setBreakfasts(prev => 
       prev.map(b => b.id === updatedBreakfast.id ? updatedBreakfast : b)
     )
@@ -41,7 +39,7 @@ export function AdminBreakfastList({ breakfasts: initialBreakfasts }: AdminBreak
     setBreakfasts(prev => prev.filter(b => b.id !== id))
   }
 
-  const handleBreakfastCreate = (newBreakfast: Breakfast) => {
+  const handleBreakfastCreate = (newBreakfast: BreakfastData) => {
     setBreakfasts(prev => [...prev, newBreakfast])
     setShowNewForm(false)
   }

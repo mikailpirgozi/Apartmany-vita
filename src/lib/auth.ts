@@ -17,7 +17,7 @@ const loginSchema = z.object({
 interface AuthCallbackParams {
   token: JWT
   user?: User
-  account?: Record<string, string> | null
+  account?: Record<string, unknown> | null
 }
 
 interface SessionCallbackParams {
@@ -73,7 +73,8 @@ export const authOptions = {
             id: user.id,
             email: user.email,
             name: user.name,
-            image: user.image
+            image: user.image,
+            isAdmin: user.isAdmin
           }
         } catch (error) {
           console.error('Auth error:', error)
@@ -87,6 +88,7 @@ export const authOptions = {
     jwt: async ({ token, user }: AuthCallbackParams) => {
       if (user) {
         token.id = user.id
+        token.isAdmin = user.isAdmin
       }
       return token
     },
@@ -94,6 +96,7 @@ export const authOptions = {
     session: async ({ session, token }: SessionCallbackParams) => {
       if (token && session.user) {
         session.user.id = token.id as string
+        session.user.isAdmin = token.isAdmin as boolean
       }
       return session
     },
@@ -122,7 +125,7 @@ export const authOptions = {
 export const auth = async (): Promise<Session | null> => {
   // Type assertion needed due to NextAuth v4 compatibility with Next.js 15
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return await getServerSession(authOptions as any)
+  return await getServerSession(authOptions as any) as Session | null
 }
 
 // Type assertion needed due to NextAuth v4 compatibility with Next.js 15

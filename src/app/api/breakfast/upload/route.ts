@@ -6,7 +6,8 @@ import { authOptions } from '@/lib/auth'
 // POST /api/breakfast/upload - Upload breakfast image (Admin only)
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const session = await getServerSession(authOptions as any) as any
     
     if (!session?.user?.isAdmin) {
       return NextResponse.json(

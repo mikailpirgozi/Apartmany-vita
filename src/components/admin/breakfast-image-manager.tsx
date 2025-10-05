@@ -78,8 +78,10 @@ export function BreakfastImageManager({
   const handleMoveImage = (fromIndex: number, toIndex: number) => {
     const newImages = [...images]
     const [movedImage] = newImages.splice(fromIndex, 1)
-    newImages.splice(toIndex, 0, movedImage)
-    onImagesChange(newImages)
+    if (movedImage) {
+      newImages.splice(toIndex, 0, movedImage)
+      onImagesChange(newImages)
+    }
   }
 
   return (

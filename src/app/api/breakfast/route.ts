@@ -34,7 +34,8 @@ export async function GET(request: NextRequest) {
 // POST /api/breakfast - Create new breakfast (Admin only)
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const session = await getServerSession(authOptions as any) as any
     
     if (!session?.user?.isAdmin) {
       return NextResponse.json(
