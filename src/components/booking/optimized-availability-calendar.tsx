@@ -277,7 +277,13 @@ export function OptimizedAvailabilityCalendar({
   );
 
   const handleDateClick = (date: Date) => {
-    if (!isDateSelectable(date, availability as AvailabilityData | undefined)) return;
+    // CRITICAL FIX: Allow clicking on booked dates when selecting check-out
+    // If we're in range selection mode (selectingRange exists), allow booked dates as check-out
+    const canClickAsCheckout = selectingRange && availability?.booked?.includes(format(date, 'yyyy-MM-dd'));
+    
+    if (!canClickAsCheckout && !isDateSelectable(date, availability as AvailabilityData | undefined)) {
+      return;
+    }
 
     if (onRangeSelect) {
       if (!selectingRange) {
@@ -604,12 +610,18 @@ function CalendarDayCell({
   onLeave: () => void;
   isRangeSelectionMode?: boolean;
 }) {
+  // CRITICAL FIX: In range selection mode, don't disable booked dates
+  // They can be selected as check-out day (same-day turnover)
+  const isDisabled = isRangeSelectionMode 
+    ? (!day.isAvailable && !day.isBooked) || !day.isCurrentMonth || day.isPast
+    : !day.isAvailable || !day.isCurrentMonth || day.isPast;
+  
   return (
     <button
       onClick={onClick}
       onMouseEnter={onHover}
       onMouseLeave={onLeave}
-      disabled={!day.isAvailable || !day.isCurrentMonth || day.isPast}
+      disabled={isDisabled}
       className={cn(
         "w-full aspect-square min-h-[44px] sm:min-h-[48px] p-0.5 sm:p-1 text-xs sm:text-sm rounded transition-all relative group flex flex-col items-center justify-center overflow-hidden",
         "hover:scale-102 focus:outline-none focus:ring-1 focus:ring-primary touch-manipulation",
