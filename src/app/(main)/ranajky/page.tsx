@@ -150,7 +150,7 @@ export default async function RanajkyPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {category.items.map((item) => (
                 <Card key={item.id} className="hover:shadow-lg transition-shadow">
-                  {item.images.length > 0 && (
+                  {item.images.length > 0 && item.images[0] && (
                     <div className="relative h-48 w-full">
                       <Image
                         src={item.images[0]}
