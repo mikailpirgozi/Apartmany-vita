@@ -56,19 +56,20 @@ export function SimpleMobileMenu({ navigation, isLoggedIn, userName, userEmail }
         <Menu className="h-5 w-5" />
       </button>
 
-      {/* Full-screen container for overlay + menu - z-[9999] to be above EVERYTHING */}
+      {/* Overlay - behind menu, lower z-index */}
       {isOpen && (
-        <div className="fixed inset-0 z-[9999] md:hidden">
-          {/* Overlay - darker and more opaque with backdrop blur */}
+        <>
           <div
-            className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+            className="fixed inset-0 bg-black/60 z-[100] md:hidden animate-in fade-in duration-200"
             onClick={() => setIsOpen(false)}
             aria-hidden="true"
           />
 
-          {/* Slideout Menu - solid white background, above overlay */}
+          {/* Slideout Menu - above overlay with animation */}
           <div
-            className="absolute top-0 right-0 h-full w-[280px] sm:w-[320px] bg-white dark:bg-gray-900 shadow-2xl overflow-hidden"
+            className={`fixed top-0 right-0 h-full w-[280px] sm:w-[320px] bg-white dark:bg-gray-900 shadow-2xl z-[200] md:hidden transform transition-transform duration-300 ease-in-out overflow-hidden ${
+              isOpen ? 'translate-x-0' : 'translate-x-full'
+            }`}
             role="dialog"
             aria-modal="true"
             aria-label="Mobile navigation menu"
@@ -180,7 +181,7 @@ export function SimpleMobileMenu({ navigation, isLoggedIn, userName, userEmail }
               </div>
             </div>
           </div>
-        </div>
+        </>
       )}
     </div>
   )
