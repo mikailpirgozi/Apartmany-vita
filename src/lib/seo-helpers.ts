@@ -122,7 +122,7 @@ export function generateOrganizationJsonLd(
     address: {
       "@type": "PostalAddress",
       streetAddress: "Štúrova 1",
-      addressLocality: "Lučenec",
+      addressLocality: "Trenčín",
       postalCode: "984 01",
       addressCountry: "SK",
     },

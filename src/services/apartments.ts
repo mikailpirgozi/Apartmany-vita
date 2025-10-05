@@ -22,7 +22,7 @@ const STATIC_APARTMENTS: Apartment[] = [
     amenities: ['wifi', 'kitchen', 'tv', 'heating', 'washer', 'elevator', 'parking'],
     basePrice: 105, // NOTE: Real prices come from Beds24 API
     isActive: true,
-    seoKeywords: ['design', 'apartmán', 'lučenec', 'moderný', 'dizajn'],
+    seoKeywords: ['design', 'apartmán', 'Trenčín', 'moderný', 'dizajn'],
     createdAt: new Date('2024-01-01'),
     updatedAt: new Date('2024-01-01')
   },
@@ -45,7 +45,7 @@ const STATIC_APARTMENTS: Apartment[] = [
     amenities: ['wifi', 'kitchen', 'tv', 'heating', 'washer', 'dishwasher', 'balcony', 'elevator', 'parking'],
     basePrice: 75, // NOTE: Real prices come from Beds24 API
     isActive: true,
-    seoKeywords: ['lite', 'apartmán', 'lučenec', 'balkón', 'ubytovanie'],
+    seoKeywords: ['lite', 'apartmán', 'Trenčín', 'balkón', 'ubytovanie'],
     createdAt: new Date('2024-01-01'),
     updatedAt: new Date('2024-01-01')
   },
@@ -67,7 +67,7 @@ const STATIC_APARTMENTS: Apartment[] = [
     amenities: ['wifi', 'kitchen', 'tv', 'heating', 'washer', 'dishwasher', 'balcony', 'elevator', 'parking', 'aircon'],
     basePrice: 100, // NOTE: Real prices come from Beds24 API
     isActive: true,
-    seoKeywords: ['deluxe', 'apartmán', 'lučenec', 'luxusné', 'ubytovanie'],
+    seoKeywords: ['deluxe', 'apartmán', 'Trenčín', 'luxusné', 'ubytovanie'],
     createdAt: new Date('2024-01-01'),
     updatedAt: new Date('2024-01-01')
   }

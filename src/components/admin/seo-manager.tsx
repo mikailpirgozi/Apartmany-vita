@@ -365,7 +365,7 @@ export function SeoManager() {
                   onChange={(e) =>
                     setFormData({ ...formData, metaKeywords: e.target.value })
                   }
-                  placeholder="apartmány lučenec, ubytovanie, prenájom"
+                  placeholder="apartmány Trenčín, ubytovanie, prenájom"
                 />
               </div>
 

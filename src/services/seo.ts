@@ -43,28 +43,28 @@ const DEFAULT_SEO: Record<string, Partial<SeoData>> = {
   home: {
     metaTitle: "Apartmány Vita - Luxusné ubytovanie v Lučenci",
     metaDescription: "Moderné apartmány v centre Lučenca. WiFi, parkovanie, plne vybavené kuchyne. Rezervujte si svoj pobyt online.",
-    metaKeywords: ["apartmány lučenec", "ubytovanie lučenec", "apartmány vita", "prenájom lučenec"],
+    metaKeywords: ["apartmány Trenčín", "ubytovanie Trenčín", "apartmány vita", "prenájom Trenčín"],
     h1Heading: "Luxusné apartmány v srdci Lučenca",
     ogType: "website",
   },
   apartments: {
-    metaTitle: "Naše apartmány - Apartmány Vita Lučenec",
-    metaDescription: "Vyberte si z našich moderných apartmánov. Deluxe, Lite a Design varianty s plným vybavením.",
-    metaKeywords: ["apartmány", "ubytovanie", "lučenec", "prenájom"],
+    metaTitle: "Naše apartmány - Apartmány Vita Trenčín",
+    metaDescription: "Vyberte si z našich moderných apartmánov v centre Trenčína. Deluxe, Lite a Design varianty s plným vybavením.",
+    metaKeywords: ["apartmány", "ubytovanie", "Trenčín", "prenájom"],
     h1Heading: "Naše apartmány",
     ogType: "website",
   },
   contact: {
     metaTitle: "Kontakt - Apartmány Vita",
     metaDescription: "Kontaktujte nás pre rezervácie a otázky. Sme tu pre vás 24/7.",
-    metaKeywords: ["kontakt", "apartmány vita", "lučenec"],
+    metaKeywords: ["kontakt", "apartmány vita", "Trenčín"],
     h1Heading: "Kontaktujte nás",
     ogType: "website",
   },
   about: {
     metaTitle: "O nás - Apartmány Vita",
     metaDescription: "Spoznajte Apartmány Vita - váš domov v Lučenci. Moderné ubytovanie s osobným prístupom.",
-    metaKeywords: ["o nás", "apartmány vita", "lučenec"],
+    metaKeywords: ["o nás", "apartmány vita", "Trenčín"],
     h1Heading: "O nás",
     ogType: "website",
   },
@@ -138,13 +138,13 @@ function generateApartmentSeo(
   apartment: Apartment,
   locale: string
 ): ApartmentSeoData {
-  const title = apartment.seoTitle || `${apartment.name} - Apartmány Vita Lučenec`;
+  const title = apartment.seoTitle || `${apartment.name} - Apartmány Vita Trenčín`;
   const description = apartment.seoDescription || 
     `${apartment.name}: ${apartment.maxGuests} hostí, ${apartment.size}m², ${apartment.floor}. poschodie. ${apartment.description.slice(0, 100)}...`;
   
   const keywords = apartment.seoKeywords.length > 0 
     ? apartment.seoKeywords 
-    : [apartment.name, "apartmán lučenec", "prenájom", "ubytovanie"];
+    : [apartment.name, "apartmán Trenčín", "prenájom", "ubytovanie"];
 
   const ogImage = apartment.ogImage || apartment.images[0] || `${BASE_URL}/og-default.jpg`;
   const canonicalUrl = `${BASE_URL}/${locale}/apartments/${apartment.slug}`;
@@ -245,16 +245,16 @@ function generateDefaultSeo(pageSlug: string, locale: string): SeoData {
   const canonicalUrl = `${BASE_URL}${localePrefix}${pagePath}`;
 
   return {
-    metaTitle: defaults?.metaTitle || "Apartmány Vita Lučenec",
+    metaTitle: defaults?.metaTitle || "Apartmány Vita Trenčín",
     metaDescription: defaults?.metaDescription || "Moderné apartmány v Lučenci",
     metaKeywords: defaults?.metaKeywords || [],
-    ogTitle: defaults?.metaTitle || "Apartmány Vita Lučenec",
-    ogDescription: defaults?.metaDescription || "Moderné apartmány v Lučenci",
+    ogTitle: defaults?.metaTitle || "Apartmány Vita Trenčín",
+    ogDescription: defaults?.metaDescription || "Moderné apartmány v Trenčíne",
     ogImage: `${BASE_URL}/og-default.jpg`,
     ogType: defaults?.ogType || "website",
     twitterCard: "summary_large_image",
-    twitterTitle: defaults?.metaTitle || "Apartmány Vita Lučenec",
-    twitterDescription: defaults?.metaDescription || "Moderné apartmány v Lučenci",
+    twitterTitle: defaults?.metaTitle || "Apartmány Vita Trenčín",
+    twitterDescription: defaults?.metaDescription || "Moderné apartmány v Trenčíne",
     twitterImage: `${BASE_URL}/og-default.jpg`,
     canonicalUrl,
     h1Heading: defaults?.h1Heading || "Apartmány Vita",
