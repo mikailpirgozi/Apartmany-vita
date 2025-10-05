@@ -788,19 +788,18 @@ function generateCalendarDays(
     }
     
     // NEW: Detect checkout days - available date where next day is booked
-    // OR a booked date that can be selected as check-out in range mode
+    // OR a booked date that represents someone's check-in (can be used as our check-out)
     const nextDay = new Date(date);
     nextDay.setDate(nextDay.getDate() + 1);
     const nextDayStr = format(nextDay, 'yyyy-MM-dd');
     let isCheckoutDay = isAvailable && (availability?.booked?.includes(nextDayStr) || false);
     
-    // ALSO mark as checkout day if it's a booked date that's selectable as check-out
-    if (!isCheckoutDay && isBooked && isRangeSelectionMode && selectingRange) {
-      // If this booked date can be selected as check-out, mark it as checkout day
-      const canBeCheckout = isDateSelectableInRange(date, selectingRange, availability);
-      if (canBeCheckout) {
-        isCheckoutDay = true;
-      }
+    // CRITICAL: ALSO mark booked dates as checkout days (they represent check-in of existing reservation)
+    // This allows same-day turnover: our check-out = their check-in
+    if (!isCheckoutDay && isBooked) {
+      // Booked dates are check-in days of existing reservations
+      // They can be used as check-out days for new reservations (same-day turnover)
+      isCheckoutDay = true;
     }
     
     // STRICT: Only use real Beds24 prices - NO FALLBACKS
