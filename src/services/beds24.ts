@@ -578,6 +578,15 @@ class Beds24Service {
         pricesFromBookings: Object.keys(bookingsResponse.prices).length
       });
 
+      // DEBUG: Check specific date 2025-10-09
+      console.log('🔍 DEBUG getInventoryOffers - 2025-10-09:', {
+        isInAvailable: available.includes('2025-10-09'),
+        isInBooked: booked.includes('2025-10-09'),
+        price: mergedPrices['2025-10-09'],
+        bookingsBooked: bookingsResponse.booked,
+        calendarBooked: calendarResponse.booked
+      });
+
       return {
         available,
         booked,
@@ -1583,6 +1592,16 @@ class Beds24Service {
       bookedDates: booked
     });
 
+    // DEBUG: Check specific dates
+    console.log('🔍 DEBUG parseBookingsResponseV2 - 2025-10-09:', {
+      isInAvailable: available.includes('2025-10-09'),
+      isInBooked: booked.includes('2025-10-09')
+    });
+    console.log('🔍 DEBUG parseBookingsResponseV2 - 2025-10-10:', {
+      isInAvailable: available.includes('2025-10-10'),
+      isInBooked: booked.includes('2025-10-10')
+    });
+
     return {
       available,
       booked,
@@ -1842,6 +1861,20 @@ class Beds24Service {
       pricesFound: Object.keys(prices).length,
       availableDates: available.slice(0, 5),
       bookedDates: booked.slice(0, 5)
+    });
+
+    // DEBUG: Check specific dates
+    console.log('🔍 DEBUG parseInventoryCalendarResponseV2 - 2025-10-09:', {
+      isInAvailable: available.includes('2025-10-09'),
+      isInBooked: booked.includes('2025-10-09'),
+      price: prices['2025-10-09'],
+      calendarData: calendarMap['2025-10-09']
+    });
+    console.log('🔍 DEBUG parseInventoryCalendarResponseV2 - 2025-10-10:', {
+      isInAvailable: available.includes('2025-10-10'),
+      isInBooked: booked.includes('2025-10-10'),
+      price: prices['2025-10-10'],
+      calendarData: calendarMap['2025-10-10']
     });
 
     return {

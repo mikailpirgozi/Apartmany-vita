@@ -196,6 +196,12 @@ async function fetchAvailability(apartmentSlug: string, month: Date): Promise<Av
     
     const data = await response.json();
     console.log('📅 Calendar data received (single month):', data);
+    console.log('🔍 DEBUG - Available dates:', data.available);
+    console.log('🔍 DEBUG - Booked dates:', data.booked);
+    console.log('🔍 DEBUG - Prices:', data.prices);
+    console.log('🔍 DEBUG - Is 2025-10-09 in available?', data.available?.includes('2025-10-09'));
+    console.log('🔍 DEBUG - Is 2025-10-09 in booked?', data.booked?.includes('2025-10-09'));
+    console.log('🔍 DEBUG - Price for 2025-10-09:', data.prices?.['2025-10-09']);
     
     return data as AvailabilityData;
   } catch (error) {
@@ -757,6 +763,18 @@ function generateCalendarDays(
     const hasPrice = (availability?.prices?.[dateStr] || 0) > 0;
     let isAvailable = !isBooked && hasPrice;
     
+    // DEBUG: Log for 9.10
+    if (dateStr === '2025-10-09') {
+      console.log('🔍 DEBUG generateCalendarDays for 2025-10-09:', {
+        dateStr,
+        isBooked,
+        hasPrice,
+        price: availability?.prices?.[dateStr],
+        isAvailable,
+        bookedArray: availability?.booked
+      });
+    }
+    
     // NEW: Detect checkout days - available date where next day is booked
     const nextDay = new Date(date);
     nextDay.setDate(nextDay.getDate() + 1);
@@ -770,8 +788,16 @@ function generateCalendarDays(
     const isPast = isBefore(date, today);
     
     // V range selection mode, kontroluj či je dátum selectable
-    if (isRangeSelectionMode && selectingRange && isAvailable) {
-      isAvailable = isDateSelectableInRange(date, selectingRange, availability);
+    // CRITICAL FIX: Also check booked dates as potential check-out days
+    if (isRangeSelectionMode && selectingRange) {
+      // Allow both available dates AND booked dates (for check-out)
+      const canSelectAsCheckout = isBooked && isDateSelectableInRange(date, selectingRange, availability);
+      if (isAvailable) {
+        isAvailable = isDateSelectableInRange(date, selectingRange, availability);
+      } else if (canSelectAsCheckout) {
+        // Make booked date "available" for selection as check-out
+        isAvailable = true;
+      }
     }
     
     // Check if date is in selected range
@@ -843,7 +869,19 @@ function isDateSelectable(date: Date, availability?: AvailabilityData): boolean 
   // So if 10.10 is booked (someone's check-in), we can still select 9.10 for check-in with 10.10 as check-out
   if (!availability) return false;
   
-  return !availability.booked?.includes(dateStr);
+  const isSelectable = !availability.booked?.includes(dateStr);
+  
+  // DEBUG: Log for 9.10
+  if (dateStr === '2025-10-09') {
+    console.log('🔍 DEBUG isDateSelectable for 2025-10-09:', {
+      dateStr,
+      isInBooked: availability.booked?.includes(dateStr),
+      isSelectable,
+      bookedArray: availability.booked
+    });
+  }
+  
+  return isSelectable;
 }
 
 // Funkcia pre kontrolu či je dátum selectable v range mode
@@ -854,8 +892,17 @@ function isDateSelectableInRange(
 ): boolean {
   if (!selectingRange || !availability) return isDateSelectable(date, availability);
   
-  // Základná kontrola dostupnosti pre aktuálny dátum
-  if (!isDateSelectable(date, availability)) return false;
+  // CRITICAL FIX: Allow selecting a booked date as CHECK-OUT day
+  // When selecting the second date (check-out), we need to allow clicking on booked dates
+  // because check-out day of one reservation can be check-in day of another
+  const dateStr = format(date, 'yyyy-MM-dd');
+  const isBookedDate = availability.booked?.includes(dateStr);
+  
+  // If it's not a booked date, use standard check
+  if (!isBookedDate) {
+    if (!isDateSelectable(date, availability)) return false;
+  }
+  // If it IS a booked date, we'll allow it as check-out day (will be validated below)
   
   // Pre cross-month selection - ak sú dátumy v rôznych mesiacoch
   const isInDifferentMonth = date.getMonth() !== selectingRange.getMonth() || 
