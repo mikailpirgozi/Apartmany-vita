@@ -13,9 +13,9 @@ interface SimpleMobileMenuProps {
 }
 
 /**
- * Simple mobile menu without Radix UI
- * Pure HTML/CSS/Tailwind - NO hydration issues
- * Fixed z-index hierarchy and body scroll lock with proper positioning
+ * Simple mobile menu - FINAL VERSION
+ * Overlay and menu rendered conditionally when open
+ * Proper z-index stacking with Portal-like behavior
  */
 export function SimpleMobileMenu({ navigation, isLoggedIn, userName, userEmail }: SimpleMobileMenuProps) {
   const [isOpen, setIsOpen] = useState(false)
@@ -46,8 +46,8 @@ export function SimpleMobileMenu({ navigation, isLoggedIn, userName, userEmail }
   }, [isOpen])
 
   return (
-    <div className="md:hidden">
-      {/* Menu Button */}
+    <>
+      {/* Menu Button - always visible on mobile */}
       <button
         onClick={() => setIsOpen(true)}
         className="md:hidden inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-accent"
@@ -56,27 +56,28 @@ export function SimpleMobileMenu({ navigation, isLoggedIn, userName, userEmail }
         <Menu className="h-5 w-5" />
       </button>
 
-      {/* Overlay - behind menu */}
+      {/* Menu Overlay + Panel - only render when open */}
       {isOpen && (
-        <div
-          className="fixed inset-0 bg-black/60 z-[9998] md:hidden transition-opacity duration-200"
-          onClick={() => setIsOpen(false)}
-          aria-hidden="true"
-        />
-      )}
+        <>
+          {/* Overlay backdrop */}
+          <div
+            className="fixed inset-0 bg-black/60 md:hidden"
+            style={{ zIndex: 9998 }}
+            onClick={() => setIsOpen(false)}
+            aria-hidden="true"
+          />
 
-      {/* Slideout Menu - ALWAYS above overlay with highest z-index */}
-      <div
-        className={`fixed top-0 right-0 h-full w-[280px] sm:w-[320px] bg-white dark:bg-gray-900 shadow-2xl z-[9999] md:hidden transform transition-transform duration-300 ease-in-out overflow-hidden ${
-          isOpen ? 'translate-x-0' : 'translate-x-full'
-        }`}
-        role="dialog"
-        aria-modal="true"
-        aria-label="Mobile navigation menu"
-      >
-            <div className="flex flex-col h-full">
+          {/* Menu Panel */}
+          <div
+            className="fixed top-0 right-0 bottom-0 w-[280px] sm:w-[320px] bg-white dark:bg-gray-900 shadow-2xl md:hidden"
+            style={{ zIndex: 9999 }}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Mobile navigation menu"
+          >
+            <div className="flex flex-col h-full overflow-hidden">
               {/* Header */}
-              <div className="flex items-center justify-between px-6 py-4 border-b bg-gray-50 dark:bg-gray-800">
+              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
                 <div className="flex items-center space-x-2">
                   <div className="p-2 rounded-lg bg-brand-accent text-white">
                     <Home className="h-5 w-5" />
@@ -180,7 +181,9 @@ export function SimpleMobileMenu({ navigation, isLoggedIn, userName, userEmail }
                 </div>
               </div>
             </div>
-      </div>
-    </div>
+          </div>
+        </>
+      )}
+    </>
   )
 }
