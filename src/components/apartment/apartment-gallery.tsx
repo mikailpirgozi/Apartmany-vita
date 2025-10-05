@@ -127,7 +127,7 @@ export function ApartmentGallery({ images, apartmentName }: ApartmentGalleryProp
       >
         <Image
           src={images[selectedImage] ?? ''}
-          alt={`${apartmentName} - hlavná fotka`}
+          alt={`${apartmentName} Trenčín – moderný apartmán s kompletným vybavením v centre mesta`}
           fill
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 70vw, 60vw"
           className="object-cover transition-transform duration-300 group-hover:scale-105"
@@ -168,7 +168,7 @@ export function ApartmentGallery({ images, apartmentName }: ApartmentGalleryProp
             >
               <Image 
                 src={image} 
-                alt={`${apartmentName} - fotka ${index + 1}`} 
+                alt={`${apartmentName} Trenčín – ${index === 0 ? 'obývačka' : index === 1 ? 'spálňa' : index === 2 ? 'kúpeľňa' : 'kuchyňa'} s moderným vybavením`} 
                 fill 
                 sizes="(max-width: 768px) 25vw, (max-width: 1200px) 20vw, 15vw"
                 className="object-cover" 
@@ -231,7 +231,7 @@ export function ApartmentGallery({ images, apartmentName }: ApartmentGalleryProp
             >
               <Image
                 src={images[lightboxIndex] ?? ''}
-                alt={`${apartmentName} - fotka ${lightboxIndex + 1}`}
+                alt={`${apartmentName} Trenčín – ${lightboxIndex === 0 ? 'priestranná obývačka' : lightboxIndex === 1 ? 'pohodlná spálňa' : lightboxIndex === 2 ? 'moderná kúpeľňa' : 'plne vybavená kuchyňa'}`}
                 fill
                 sizes="100vw"
                 className="object-contain pointer-events-none"
@@ -285,7 +285,7 @@ export function ApartmentGallery({ images, apartmentName }: ApartmentGalleryProp
                   >
                     <Image
                       src={image}
-                      alt={`Thumbnail ${index + 1}`}
+                      alt={`${apartmentName} Trenčín – náhľad fotografie ${index + 1}`}
                       fill
                       sizes="64px"
                       className="object-cover pointer-events-none"

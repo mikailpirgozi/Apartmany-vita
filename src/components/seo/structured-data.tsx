@@ -20,7 +20,7 @@ export function OrganizationStructuredData() {
     '@context': 'https://schema.org',
     '@type': 'Organization',
     name: 'Apartmány Vita',
-    description: 'Luxusné apartmány v centre Lučenca',
+    description: 'Moderné apartmány v centre Trenčína',
     url: 'https://www.apartmanvita.sk',
     logo: 'https://www.apartmanvita.sk/logo.png',
     contactPoint: {
@@ -31,9 +31,9 @@ export function OrganizationStructuredData() {
     },
     address: {
       '@type': 'PostalAddress',
-      streetAddress: 'Štúrova 1',
-      addressLocality: 'Lučenec',
-      postalCode: '984 01',
+      streetAddress: 'Štúrovo námestie 132/16',
+      addressLocality: 'Trenčín',
+      postalCode: '911 01',
       addressCountry: 'SK'
     },
     sameAs: [
@@ -50,22 +50,22 @@ export function LocalBusinessStructuredData() {
     '@context': 'https://schema.org',
     '@type': 'LodgingBusiness',
     name: 'Apartmány Vita',
-    description: 'Luxusné apartmány v centre Lučenca',
+    description: 'Moderné apartmány v centre Trenčína',
     image: [
       'https://www.apartmanvita.sk/og-default.jpg'
     ],
     address: {
       '@type': 'PostalAddress',
-      streetAddress: 'Štúrova 1',
-      addressLocality: 'Lučenec',
-      addressRegion: 'Banskobystrický kraj',
-      postalCode: '984 01',
+      streetAddress: 'Štúrovo námestie 132/16',
+      addressLocality: 'Trenčín',
+      addressRegion: 'Trenčiansky kraj',
+      postalCode: '911 01',
       addressCountry: 'SK'
     },
     geo: {
       '@type': 'GeoCoordinates',
-      latitude: 48.3314,
-      longitude: 19.6649
+      latitude: 48.8951,
+      longitude: 18.0447
     },
     telephone: '+421-940-728-676',
     email: 'info@apartmanvita.sk',

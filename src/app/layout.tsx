@@ -7,6 +7,8 @@ import { AuthProvider } from "@/components/providers/session-provider";
 import { ToastProvider as ToastProviderComponent } from "@/components/ui/toast";
 import { QueryClientProvider } from "@/components/providers/query-client-provider";
 import { OrganizationStructuredData, LocalBusinessStructuredData } from "@/components/seo/structured-data";
+import { HotelStructuredData } from "@/components/seo/hotel-structured-data";
+import { FAQStructuredData } from "@/components/seo/faq-structured-data";
 // import { AIChatbot } from "@/components/chat/ai-chatbot";
 import { APP_NAME, APP_DESCRIPTION } from "@/constants";
 // import { NextIntlClientProvider } from 'next-intl';
@@ -109,6 +111,8 @@ export default function RootLayout({
         {/* Structured Data - must be in body for proper rendering */}
         <OrganizationStructuredData />
         <LocalBusinessStructuredData />
+        <HotelStructuredData />
+        <FAQStructuredData />
         
         <QueryClientProvider>
           <AuthProvider>

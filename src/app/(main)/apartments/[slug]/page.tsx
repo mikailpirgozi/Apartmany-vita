@@ -3,6 +3,7 @@ import { ApartmentGallery } from '@/components/apartment/apartment-gallery'
 import { ApartmentDetails } from '@/components/apartment/apartment-details'
 import { ApartmentAmenities } from '@/components/apartment/apartment-amenities'
 import { BookingWidget } from '@/components/booking/booking-widget'
+import { RoomStructuredData } from '@/components/seo/room-structured-data'
 import { getApartmentBySlug } from '@/services/apartments'
 import { getApartmentSeo } from '@/services/seo'
 import { apartmentSeoToMetadata } from '@/lib/seo-helpers'
@@ -49,10 +50,25 @@ export default async function ApartmentPage({ params, searchParams }: ApartmentP
   const guests = searchParamsData.guests ? parseInt(searchParamsData.guests) : undefined
   const children = searchParamsData.children ? parseInt(searchParamsData.children) : undefined
   
+  // Convert Decimal to number for Room schema
+  const apartmentForSchema = {
+    name: apartment.name,
+    slug: apartment.slug,
+    description: apartment.description,
+    size: apartment.size,
+    maxGuests: apartment.maxGuests,
+    basePrice: typeof apartment.basePrice === 'number' ? apartment.basePrice : apartment.basePrice.toNumber(),
+    images: apartment.images,
+    amenities: apartment.amenities
+  }
+
   return (
     <div className="container py-8">
-      {/* H1 heading for SEO */}
-      <h1 className="sr-only">{apartment.name} - Apartmány Vita Lučenec</h1>
+      {/* Room Structured Data for SEO */}
+      <RoomStructuredData apartment={apartmentForSchema} />
+      
+      {/* H1 heading for SEO - visible and optimized */}
+      <h1 className="text-3xl font-bold mb-6">{apartment.name} - Apartmány Vita Trenčín</h1>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Left Column - Images & Details */}

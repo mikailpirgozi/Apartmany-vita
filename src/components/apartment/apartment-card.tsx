@@ -37,7 +37,7 @@ export function ApartmentCard({ apartment, startDate, endDate, guests, childrenC
         {apartment.images.length > 0 && apartment.images[0] ? (
           <Image
             src={apartment.images[0]}
-            alt={apartment.name}
+            alt={`${apartment.name} Trenčín – moderný apartmán s kompletným vybavením, WiFi a parkovaním zadarmo`}
             width={400}
             height={225}
             className="aspect-[16/9] object-cover w-full"
