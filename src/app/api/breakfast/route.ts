@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
 
     const breakfasts = await prisma.breakfast.findMany({
       where: {
-        ...(category && { category: category as any }),
+        ...(category && { category: category as 'BREAD_AND_EGGS' | 'SWEET' | 'SAVORY' | 'DRINKS' | 'SNACKS' }),
         ...(activeOnly && { isActive: true }),
       },
       orderBy: [

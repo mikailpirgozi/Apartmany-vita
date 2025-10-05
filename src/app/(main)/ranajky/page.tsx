@@ -5,8 +5,8 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Coffee, Clock, Euro, MapPin, Phone, Mail } from 'lucide-react'
-import { BREAKFAST_CATEGORIES, ALLERGEN_LABELS, BREAKFAST_HOURS, GUEST_PRICING } from '@/types/breakfast'
+import { Coffee, Clock, MapPin, Phone } from 'lucide-react'
+import { ALLERGEN_LABELS, GUEST_PRICING } from '@/types/breakfast'
 import type { BreakfastCategory } from '@prisma/client'
 
 export const metadata: Metadata = {

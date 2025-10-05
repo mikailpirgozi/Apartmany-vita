@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -16,24 +17,26 @@ import { useToast } from '@/hooks/use-toast'
 import { BREAKFAST_CATEGORIES, ALLERGEN_LABELS } from '@/types/breakfast'
 import type { BreakfastCategory } from '@prisma/client'
 
+interface BreakfastData {
+  id: string
+  name: string
+  slug: string
+  description: string
+  price: string
+  weight: string | null
+  images: string[]
+  category: BreakfastCategory
+  allergens: string[]
+  isActive: boolean
+  sortOrder: number
+  guestPrice: string | null
+}
+
 interface BreakfastEditorProps {
-  breakfast?: {
-    id: string
-    name: string
-    slug: string
-    description: string
-    price: string
-    weight: string | null
-    images: string[]
-    category: BreakfastCategory
-    allergens: string[]
-    isActive: boolean
-    sortOrder: number
-    guestPrice: string | null
-  }
-  onUpdate?: (breakfast: any) => void
+  breakfast?: BreakfastData
+  onUpdate?: (breakfast: BreakfastData) => void
   onDelete?: (id: string) => void
-  onSave?: (breakfast: any) => void
+  onSave?: (breakfast: BreakfastData) => void
   onCancel?: () => void
 }
 
@@ -463,10 +466,12 @@ export function BreakfastEditor({ breakfast, onUpdate, onDelete, onSave, onCance
                 <p className="text-sm text-muted-foreground mb-2">Fotky ({breakfast.images.length})</p>
                 <div className="grid grid-cols-4 gap-2">
                   {breakfast.images.map((img, idx) => (
-                    <img
+                    <Image
                       key={idx}
                       src={img}
                       alt={breakfast.name}
+                      width={80}
+                      height={80}
                       className="w-full h-20 object-cover rounded"
                     />
                   ))}
