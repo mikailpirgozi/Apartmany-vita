@@ -63,16 +63,28 @@ export function Footer() {
                 Rezervácia
               </Link>
               <Link
+                href="/ranajky"
+                className="text-sm text-muted-foreground hover:text-brand-accent transition-colors"
+              >
+                Ranajky v Pražiarničke
+              </Link>
+              <Link
+                href="/okolie"
+                className="text-sm text-muted-foreground hover:text-brand-accent transition-colors"
+              >
+                Okolie Trenčína
+              </Link>
+              <Link
+                href="/faq"
+                className="text-sm text-muted-foreground hover:text-brand-accent transition-colors"
+              >
+                Často kladené otázky
+              </Link>
+              <Link
                 href="/contact"
                 className="text-sm text-muted-foreground hover:text-brand-accent transition-colors"
               >
                 Kontakt
-              </Link>
-              <Link
-                href="/about"
-                className="text-sm text-muted-foreground hover:text-brand-accent transition-colors"
-              >
-                O nás
               </Link>
             </nav>
           </motion.div>
