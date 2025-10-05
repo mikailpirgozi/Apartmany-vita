@@ -284,6 +284,48 @@ model SeoMetadata {
   @@map("seo_metadata")
 }
 
+model Breakfast {
+  id          String            @id @default(cuid())
+  name        String
+  slug        String            @unique
+  description String            @db.Text
+  price       Decimal           @db.Decimal(10, 2)
+  weight      String?           // e.g., "200g", "250g", "300g"
+  images      String[]          // Vercel Blob URLs
+  category    BreakfastCategory
+  allergens   String[]          // Allergen codes: 1,3,7 etc.
+  isActive    Boolean           @default(true)
+  sortOrder   Int               @default(0) // For custom ordering
+  
+  // Special pricing for apartment guests
+  guestPrice  Decimal?          @db.Decimal(10, 2) // Special price for guests
+  
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@index([category])
+  @@index([isActive])
+  @@map("breakfasts")
+}
+
+model BreakfastOrder {
+  id          String   @id @default(cuid())
+  bookingId   String
+  adults      Int      @default(0) // Number of adults
+  children    Int      @default(0) // Number of children
+  adultPrice  Decimal  @db.Decimal(10, 2) // 9.90€
+  childPrice  Decimal  @db.Decimal(10, 2) // 5.90€
+  totalPrice  Decimal  @db.Decimal(10, 2)
+  delivery    Boolean  @default(false) // Delivery to apartment
+  specialRequests String? @db.Text
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([bookingId])
+  @@map("breakfast_orders")
+}
+
 // Enums
 enum BookingStatus {
   PENDING
@@ -296,4 +338,12 @@ enum ContactStatus {
   UNREAD
   READ
   REPLIED
+}
+
+enum BreakfastCategory {
+  BREAD_AND_EGGS    // Chlieb a vajíčka
+  SWEET             // Sladké raňajky
+  SAVORY            // Slané raňajky
+  DRINKS            // Drinky
+  SNACKS            // Celodenné snacky
 }
