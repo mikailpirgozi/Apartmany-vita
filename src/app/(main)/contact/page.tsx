@@ -294,23 +294,60 @@ export default function ContactPage() {
                 </CardContent>
               </Card>
 
-              {/* Map placeholder */}
+              {/* Interactive Google Map */}
               <Card className="shadow-lg">
                 <CardHeader>
                   <CardTitle className="text-xl">Naša poloha</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
-                    <div className="text-center text-muted-foreground">
-                      <MapPin className="h-12 w-12 mx-auto mb-2" />
-                      <p>Interaktívna mapa</p>
-                      <p className="text-sm">Centrum Trenčína</p>
+                  <div className="aspect-video rounded-lg overflow-hidden">
+                    <iframe
+                      src={`https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2631.5!2d${CONTACT_INFO.coordinates.lng}!3d${CONTACT_INFO.coordinates.lat}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDjCsDUzJzQyLjQiTiAxOMKwMDInNDEuMCJF!5e0!3m2!1ssk!2ssk!4v1234567890123!5m2!1ssk!2ssk`}
+                      width="100%"
+                      height="100%"
+                      style={{ border: 0 }}
+                      allowFullScreen
+                      loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
+                      title="Apartmány Vita - Mapa"
+                      className="w-full h-full"
+                    />
+                  </div>
+                  <div className="mt-4 space-y-2">
+                    <p className="text-sm text-muted-foreground text-center">
+                      Naše apartmány sa nachádzajú v srdci Trenčína, 
+                      len pár krokov od Trenčianskeho hradu a hlavných atrakcií.
+                    </p>
+                    <div className="flex justify-center gap-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        asChild
+                      >
+                        <a 
+                          href={`https://www.google.com/maps/dir/?api=1&destination=${CONTACT_INFO.coordinates.lat},${CONTACT_INFO.coordinates.lng}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <MapPin className="h-4 w-4 mr-2" />
+                          Navigovať
+                        </a>
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        asChild
+                      >
+                        <a 
+                          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${CONTACT_INFO.address.street}, ${CONTACT_INFO.address.city}`)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Otvoriť v Google Maps
+                        </a>
+                      </Button>
                     </div>
                   </div>
-                  <p className="text-sm text-muted-foreground mt-4 text-center">
-                    Naše apartmány sa nachádzajú v srdci Trenčína, 
-                    len pár krokov od Trenčianskeho hradu a hlavných atrakcií.
-                  </p>
                 </CardContent>
               </Card>
             </motion.div>
