@@ -6,11 +6,12 @@ import { authOptions } from '@/lib/auth'
 // GET /api/breakfast/[id] - Get single breakfast
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const breakfast = await prisma.breakfast.findUnique({
-      where: { id: params.id },
+      where: { id },
     })
 
     if (!breakfast) {
@@ -33,7 +34,7 @@ export async function GET(
 // PATCH /api/breakfast/[id] - Update breakfast (Admin only)
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -45,10 +46,11 @@ export async function PATCH(
       )
     }
 
+    const { id } = await params
     const body = await request.json()
     
     const breakfast = await prisma.breakfast.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         ...(body.name && { name: body.name }),
         ...(body.slug && { slug: body.slug }),
@@ -77,7 +79,7 @@ export async function PATCH(
 // DELETE /api/breakfast/[id] - Delete breakfast (Admin only)
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -89,8 +91,9 @@ export async function DELETE(
       )
     }
 
+    const { id } = await params
     await prisma.breakfast.delete({
-      where: { id: params.id },
+      where: { id },
     })
 
     return NextResponse.json({ success: true })
