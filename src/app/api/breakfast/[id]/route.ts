@@ -5,7 +5,7 @@ import { authOptions } from '@/lib/auth'
 
 // GET /api/breakfast/[id] - Get single breakfast
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -78,7 +78,7 @@ export async function PATCH(
 
 // DELETE /api/breakfast/[id] - Delete breakfast (Admin only)
 export async function DELETE(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
