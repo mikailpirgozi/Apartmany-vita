@@ -3,9 +3,10 @@ import { ApartmentGallery } from '@/components/apartment/apartment-gallery'
 import { ApartmentDetails } from '@/components/apartment/apartment-details'
 import { ApartmentAmenities } from '@/components/apartment/apartment-amenities'
 import { BookingWidget } from '@/components/booking/booking-widget'
+import { RelatedApartments } from '@/components/apartment/related-apartments'
 import { RoomStructuredData } from '@/components/seo/room-structured-data'
 import { Breadcrumbs } from '@/components/layout/breadcrumbs'
-import { getApartmentBySlug } from '@/services/apartments'
+import { getApartmentBySlug, getApartments } from '@/services/apartments'
 import { getApartmentSeo } from '@/services/seo'
 import { apartmentSeoToMetadata } from '@/lib/seo-helpers'
 import type { Metadata } from 'next'
@@ -40,6 +41,7 @@ export default async function ApartmentPage({ params, searchParams }: ApartmentP
   const { slug } = await params
   const searchParamsData = await searchParams
   const apartment = await getApartmentBySlug(slug)
+  const allApartments = await getApartments()
   
   if (!apartment) {
     notFound()
@@ -103,6 +105,12 @@ export default async function ApartmentPage({ params, searchParams }: ApartmentP
           />
         </div>
       </div>
+
+      {/* Related Apartments */}
+      <RelatedApartments 
+        currentApartmentSlug={apartment.slug}
+        apartments={allApartments}
+      />
     </div>
   )
 }

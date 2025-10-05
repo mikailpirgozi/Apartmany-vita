@@ -1,0 +1,404 @@
+import type { Metadata } from 'next'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import Link from 'next/link'
+import { 
+  MapPin, 
+  Clock, 
+  Euro, 
+  ShoppingBag, 
+  Train,
+  Car,
+  Castle,
+  Church,
+  Mountain,
+  Camera
+} from 'lucide-react'
+
+export const metadata: Metadata = {
+  title: 'Okolie a atrakcie Trenčína – Apartmány Vita',
+  description: 'Objavte Trenčín a okolie. Trenčiansky hrad, centrum mesta, najlepšie reštaurácie, obchody a atrakcie v blízkosti Apartmánov Vita. Kompletný sprievodca mestom.',
+  keywords: [
+    'atrakcie Trenčín',
+    'čo robiť v Trenčíne',
+    'Trenčiansky hrad',
+    'centrum Trenčína',
+    'reštaurácie Trenčín',
+    'obchody Trenčín',
+    'okolie Trenčína',
+    'návšteva Trenčína',
+  ],
+  openGraph: {
+    title: 'Okolie a atrakcie Trenčína – Apartmány Vita',
+    description: 'Objavte Trenčín a okolie. Trenčiansky hrad, centrum mesta, reštaurácie a atrakcie.',
+    url: 'https://apartmanvita.sk/okolie',
+    type: 'website',
+  },
+}
+
+const attractions = [
+  {
+    icon: Castle,
+    name: 'Trenčiansky hrad',
+    category: 'Pamiatka',
+    distance: '5 min pešo',
+    description: 'Jeden z najväčších hradných komplexov v strednej Európe s úchvatným výhľadom na mesto. História siaha až do 11. storočia.',
+    openingHours: 'Máj-September: 9:00-18:00, Október-Apríl: 9:00-16:00',
+    price: '8-10 €',
+    highlight: true,
+  },
+  {
+    icon: Church,
+    name: 'Mestská veža',
+    category: 'Pamiatka',
+    distance: '2 min pešo',
+    description: 'Historická veža z 16. storočia s vyhliadkovou plošinou. Výborný výhľad na Štúrovo námestie a okolie.',
+    openingHours: 'Máj-September: 10:00-17:00',
+    price: '3 €',
+    highlight: false,
+  },
+  {
+    icon: Church,
+    name: 'Farský kostol sv. Františka Xaverského',
+    category: 'Pamiatka',
+    distance: '3 min pešo',
+    description: 'Barokový kostol s krásnymi freskami a interiérom. Dominanta Štúrovho námestia.',
+    openingHours: 'Denne počas omší',
+    price: 'Zadarmo',
+    highlight: false,
+  },
+  {
+    icon: Mountain,
+    name: 'Brezina',
+    category: 'Príroda',
+    distance: '15 min autom',
+    description: 'Obľúbené miesto na prechádzky a turistiku s výhľadom na Trenčín. Ideálne pre rodinné výlety.',
+    openingHours: 'Celoročne',
+    price: 'Zadarmo',
+    highlight: false,
+  },
+  {
+    icon: Camera,
+    name: 'Galéria Miloša Alexandra Bazovského',
+    category: 'Kultúra',
+    distance: '8 min pešo',
+    description: 'Moderná galéria s dielami slovenských výtvarníkov. Pravidelné výstavy a kultúrne podujatia.',
+    openingHours: 'Utorok-Nedeľa: 10:00-17:00',
+    price: '5 €',
+    highlight: false,
+  },
+]
+
+const restaurants = [
+  {
+    name: 'Reštaurácia Pohoda',
+    type: 'Slovenská kuchyňa',
+    distance: '1 min pešo',
+    priceRange: '€€',
+    description: 'Tradičné slovenské jedlá v modernom podaní. Výborné denné menu.',
+  },
+  {
+    name: 'Pizzeria La Piazza',
+    type: 'Talianska kuchyňa',
+    distance: '2 min pešo',
+    priceRange: '€€',
+    description: 'Autentická talianska pizza pečená v kamennej peci.',
+  },
+  {
+    name: 'Café Sládkovič',
+    type: 'Kaviareň',
+    distance: '3 min pešo',
+    priceRange: '€',
+    description: 'Útulná kaviareň s výbornou kávou a domácimi zákuskami.',
+  },
+  {
+    name: 'Bistro U Jakuba',
+    type: 'Medzinárodná kuchyňa',
+    distance: '4 min pešo',
+    priceRange: '€€€',
+    description: 'Moderná reštaurácia s denným menu a večernými špeciálmi.',
+  },
+]
+
+const shops = [
+  {
+    name: 'Tesco',
+    type: 'Supermarket',
+    distance: '3 min pešo',
+    openingHours: '7:00-21:00',
+  },
+  {
+    name: 'Billa',
+    type: 'Supermarket',
+    distance: '5 min pešo',
+    openingHours: '7:00-20:00',
+  },
+  {
+    name: 'Kaufland',
+    type: 'Hypermarket',
+    distance: '10 min autom',
+    openingHours: '7:00-21:00',
+  },
+  {
+    name: 'Lekáreň Dr.Max',
+    type: 'Lekáreň',
+    distance: '2 min pešo',
+    openingHours: '8:00-19:00',
+  },
+]
+
+const transport = [
+  {
+    icon: Train,
+    name: 'Vlakové nádražie',
+    distance: '10 min pešo',
+    description: 'Priame spojenia do Bratislavy, Žiliny a ďalších miest.',
+  },
+  {
+    icon: Car,
+    name: 'Autobusová stanica',
+    distance: '8 min pešo',
+    description: 'Regionálne a medzinárodné autobusové spojenia.',
+  },
+  {
+    icon: Car,
+    name: 'Parkovanie',
+    distance: 'Pri apartmánoch',
+    description: 'Bezplatné parkovanie pre hostí priamo pri budove.',
+  },
+]
+
+export default function OkoliePage() {
+  return (
+    <div className="container py-12">
+      {/* Header */}
+      <div className="max-w-4xl mx-auto text-center mb-12">
+        <h1 className="text-4xl font-bold mb-4">
+          Okolie a atrakcie Trenčína
+        </h1>
+        <p className="text-lg text-muted-foreground">
+          Apartmány Vita sa nachádzajú v srdci historického centra Trenčína. 
+          Všetky hlavné atrakcie, reštaurácie a obchody máte na dosah ruky.
+        </p>
+      </div>
+
+      {/* Location Highlight */}
+      <Card className="max-w-4xl mx-auto mb-12 bg-primary/5 border-primary/20">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <MapPin className="h-5 w-5 text-primary" />
+            Naša poloha
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-lg mb-4">
+            <strong>Štúrovo námestie 132/16, 911 01 Trenčín</strong>
+          </p>
+          <p className="text-muted-foreground">
+            Nachádzame sa priamo na Štúrovom námestí v historickom centre mesta. 
+            Trenčiansky hrad je vzdialený len 5 minút pešo, hlavné námestie 2 minúty. 
+            V okolí je množstvo reštaurácií, kaviarní a obchodov.
+          </p>
+        </CardContent>
+      </Card>
+
+      {/* Attractions */}
+      <section className="max-w-6xl mx-auto mb-16">
+        <h2 className="text-3xl font-bold mb-8 text-center">
+          Top atrakcie v Trenčíne
+        </h2>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {attractions.map((attraction, index) => (
+            <Card 
+              key={index} 
+              className={attraction.highlight ? 'border-primary shadow-lg' : ''}
+            >
+              <CardHeader>
+                <div className="flex items-start justify-between mb-2">
+                  <attraction.icon className="h-8 w-8 text-primary" />
+                  {attraction.highlight && (
+                    <Badge variant="default">Top atrakcia</Badge>
+                  )}
+                </div>
+                <CardTitle className="text-xl">{attraction.name}</CardTitle>
+                <CardDescription>
+                  <Badge variant="secondary" className="mr-2">
+                    {attraction.category}
+                  </Badge>
+                  <span className="text-sm">{attraction.distance}</span>
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <p className="text-sm text-muted-foreground">
+                  {attraction.description}
+                </p>
+                
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-muted-foreground" />
+                    <span>{attraction.openingHours}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Euro className="h-4 w-4 text-muted-foreground" />
+                    <span>{attraction.price}</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </section>
+
+      {/* Restaurants */}
+      <section className="max-w-6xl mx-auto mb-16">
+        <h2 className="text-3xl font-bold mb-8 text-center">
+          Reštaurácie a kaviarne
+        </h2>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {restaurants.map((restaurant, index) => (
+            <Card key={index}>
+              <CardHeader>
+                <div className="flex items-start justify-between">
+                  <div>
+                    <CardTitle className="text-xl">{restaurant.name}</CardTitle>
+                    <CardDescription>{restaurant.type}</CardDescription>
+                  </div>
+                  <Badge variant="outline">{restaurant.priceRange}</Badge>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <p className="text-sm text-muted-foreground">
+                  {restaurant.description}
+                </p>
+                <div className="flex items-center gap-2 text-sm">
+                  <MapPin className="h-4 w-4 text-muted-foreground" />
+                  <span>{restaurant.distance}</span>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </section>
+
+      {/* Shops */}
+      <section className="max-w-6xl mx-auto mb-16">
+        <h2 className="text-3xl font-bold mb-8 text-center">
+          Obchody v okolí
+        </h2>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {shops.map((shop, index) => (
+            <Card key={index}>
+              <CardHeader>
+                <ShoppingBag className="h-6 w-6 text-primary mb-2" />
+                <CardTitle className="text-lg">{shop.name}</CardTitle>
+                <CardDescription>{shop.type}</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-2 text-sm">
+                <div className="flex items-center gap-2">
+                  <MapPin className="h-4 w-4 text-muted-foreground" />
+                  <span>{shop.distance}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-muted-foreground" />
+                  <span>{shop.openingHours}</span>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </section>
+
+      {/* Transport */}
+      <section className="max-w-4xl mx-auto mb-16">
+        <h2 className="text-3xl font-bold mb-8 text-center">
+          Doprava a dostupnosť
+        </h2>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {transport.map((item, index) => (
+            <Card key={index}>
+              <CardHeader>
+                <item.icon className="h-8 w-8 text-primary mb-2" />
+                <CardTitle className="text-lg">{item.name}</CardTitle>
+                <CardDescription>{item.distance}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">
+                  {item.description}
+                </p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <div className="max-w-3xl mx-auto">
+        <Card className="bg-primary/5 border-primary/20">
+          <CardHeader>
+            <CardTitle className="text-2xl text-center">
+              Pripravení objaviť Trenčín?
+            </CardTitle>
+            <CardDescription className="text-center text-base">
+              Rezervujte si apartmán v centre mesta a užite si všetky atrakcie na dosah ruky.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button asChild size="lg">
+              <Link href="/apartments">Naše apartmány</Link>
+            </Button>
+            <Button asChild size="lg" variant="outline">
+              <Link href="/booking">Rezervovať</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Tips Section */}
+      <section className="max-w-4xl mx-auto mt-16">
+        <Card>
+          <CardHeader>
+            <CardTitle>💡 Tipy pre návštevníkov</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <h3 className="font-semibold mb-2">Najlepší čas na návštevu</h3>
+              <p className="text-sm text-muted-foreground">
+                Jar a leto (máj-september) sú ideálne pre návštevu hradu a prechádzky mestom. 
+                V zime je Trenčín kúzelný s vianočnými trhmi na námestí.
+              </p>
+            </div>
+            
+            <div>
+              <h3 className="font-semibold mb-2">Ako sa dostať na hrad</h3>
+              <p className="text-sm text-muted-foreground">
+                Z Apartmánov Vita je to 5 minút pešo cez historické centrum. 
+                Cesta vedie cez Štúrovo námestie a potom po schodoch hore k hradu.
+              </p>
+            </div>
+            
+            <div>
+              <h3 className="font-semibold mb-2">Parkovanie</h3>
+              <p className="text-sm text-muted-foreground">
+                Naši hostia majú bezplatné parkovanie priamo pri apartmánoch. 
+                Verejné parkovanie je dostupné na Štúrovom námestí (platené).
+              </p>
+            </div>
+            
+            <div>
+              <h3 className="font-semibold mb-2">Víkendový tip</h3>
+              <p className="text-sm text-muted-foreground">
+                Sobota ráno: návšteva hradu → obed v centre → popoludní prechádzka po Brezine → 
+                večer v reštaurácii na námestí.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </section>
+    </div>
+  )
+}

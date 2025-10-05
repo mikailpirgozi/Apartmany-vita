@@ -16,7 +16,7 @@ export function SimpleHeader() {
   const navigation = [
     { name: 'Domov', href: '/' },
     { name: 'Apartmány', href: '/apartments' },
-    { name: 'Rezervácia', href: '/booking' },
+    { name: 'Okolie', href: '/okolie' },
     { name: 'FAQ', href: '/faq' },
     { name: 'Kontakt', href: '/contact' },
   ]
