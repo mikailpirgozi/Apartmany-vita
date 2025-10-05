@@ -537,7 +537,7 @@ class Beds24Service {
         endDate: request.endDate
       });
 
-      // Get blocked dates from Calendar API
+      // Get prices from Calendar API
       const calendarResponse = await this.getInventoryCalendar({
         propId: request.propId,
         roomId: request.roomId || '',
@@ -545,37 +545,43 @@ class Beds24Service {
         endDate: request.endDate
       });
 
-      // Combine results: booked dates from both sources
-      const combinedBooked = new Set([
-        ...bookingsResponse.booked,
-        ...calendarResponse.booked
-      ]);
+      // FIXED: Use ONLY bookings for booked dates, NOT calendar blocked dates
+      // Calendar API may mark dates as blocked even if they're just before a reservation
+      // We want to allow check-out on the same day as someone else's check-in
+      const bookedDatesSet = new Set(bookingsResponse.booked);
 
       // Available dates = all dates minus booked dates
       const startDate = new Date(request.startDate);
       const endDate = new Date(request.endDate);
       const available: string[] = [];
-      const booked: string[] = Array.from(combinedBooked);
+      const booked: string[] = Array.from(bookedDatesSet);
 
       for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
         const dateStr = d.toISOString().split('T')[0];
-        if (dateStr && !combinedBooked.has(dateStr)) {
+        if (dateStr && !bookedDatesSet.has(dateStr)) {
           available.push(dateStr);
         }
       }
+
+      // Merge prices from both sources (prefer calendar prices, fallback to bookings)
+      const mergedPrices = {
+        ...bookingsResponse.prices,
+        ...calendarResponse.prices
+      };
 
       console.log('✅ Combined Bookings + Calendar API successful:', {
         totalDates: available.length + booked.length,
         available: available.length,
         booked: booked.length,
         bookedFromBookings: bookingsResponse.booked.length,
-        bookedFromCalendar: calendarResponse.booked.length
+        pricesFromCalendar: Object.keys(calendarResponse.prices).length,
+        pricesFromBookings: Object.keys(bookingsResponse.prices).length
       });
 
       return {
         available,
         booked,
-        prices: bookingsResponse.prices, // Use prices from bookings
+        prices: mergedPrices,
         minStay: bookingsResponse.minStay,
         maxStay: bookingsResponse.maxStay
       };
