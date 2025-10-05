@@ -9,6 +9,8 @@ export interface User {
   emailVerified?: Date
   phone?: string
   dateOfBirth?: Date
+  country?: string
+  city?: string
   preferences?: Record<string, string | number | boolean>
   createdAt: Date
   updatedAt: Date
