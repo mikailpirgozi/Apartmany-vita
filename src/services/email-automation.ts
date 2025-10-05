@@ -319,7 +319,7 @@ function generateCheckOutFollowupTemplate(): EmailTemplate {
           <h2 style="color: #1f2937; margin-bottom: 20px;">Ako ste spokojní s pobytom?</h2>
           
           <div style="margin: 30px 0;">
-            <a href="https://g.page/apartmanyvita/review" style="background: #10b981; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
+            <a href="https://g.page/apartmanvita/review" style="background: #10b981; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
               ⭐ Napísať recenziu na Google
             </a>
           </div>
@@ -358,7 +358,7 @@ function generateCheckOutFollowupTemplate(): EmailTemplate {
       Ďakujeme za pobyt v Apartmánoch Vita! 🙏
       
       Dúfame, že ste si pobyt užili a radi by sme vás poprosili o recenziu na Google:
-      https://g.page/apartmanyvita/review
+      https://g.page/apartmanvita/review
       
       EXKLUZÍVNA PONUKA:
       10% zľava na ďalšiu rezerváciu

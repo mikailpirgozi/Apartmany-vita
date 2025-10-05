@@ -27,9 +27,9 @@ export function generateOrganizationData() {
       addressCountry: 'SK'
     },
     sameAs: [
-      'https://www.facebook.com/apartmanyvita',
-      'https://www.instagram.com/apartmanyvita',
-      'https://www.booking.com/apartmanyvita'
+      'https://www.facebook.com/apartmanvita',
+      'https://www.instagram.com/apartmanvita',
+      'https://www.booking.com/apartmanvita'
     ]
   }
 }

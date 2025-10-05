@@ -37,8 +37,8 @@ export function OrganizationStructuredData() {
       addressCountry: 'SK'
     },
     sameAs: [
-      'https://www.facebook.com/apartmanyvita',
-      'https://www.instagram.com/apartmanyvita'
+      'https://www.facebook.com/apartmanvita',
+      'https://www.instagram.com/apartmanvita'
     ]
   }
 

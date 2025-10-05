@@ -154,7 +154,7 @@ export function GoogleReviews() {
         <div className="text-center space-y-4">
           <Button asChild size="lg">
             <Link 
-              href="https://g.page/apartmanyvita/review" 
+              href="https://g.page/apartmanvita/review" 
               target="_blank"
               rel="noopener noreferrer"
               className="gap-2"
