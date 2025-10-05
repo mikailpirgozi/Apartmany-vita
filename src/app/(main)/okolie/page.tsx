@@ -267,11 +267,21 @@ export default function OkoliePage() {
                   Exkluzívna výhoda pre našich hostí: V prízemí budovy sa nachádza naša vlastná prémiová kaviareň. 
                   V papučkách si môžete zájsť na čerstvo praženú kávu, domáce koláčiky, kvalitné drinky a brutálne naložené ranajky!
                 </p>
-                <Button asChild size="sm" variant="default" className="bg-amber-600 hover:bg-amber-700">
-                  <Link href="https://www.praziarnicka.sk" target="_blank" rel="noopener noreferrer">
-                    Pozrieť menu Pražiarničky
-                  </Link>
-                </Button>
+                <p className="text-sm font-medium text-amber-900 dark:text-amber-100 mb-3">
+                  Pre hostí apartmánov: 9,90€ dospelý / 5,90€ dieťa
+                </p>
+                <div className="flex gap-2 flex-wrap">
+                  <Button asChild size="sm" variant="default" className="bg-amber-600 hover:bg-amber-700">
+                    <Link href="/ranajky">
+                      Zobraziť menu ranajok
+                    </Link>
+                  </Button>
+                  <Button asChild size="sm" variant="outline" className="border-amber-600">
+                    <Link href="https://www.praziarnicka.sk" target="_blank" rel="noopener noreferrer">
+                      Navštíviť web
+                    </Link>
+                  </Button>
+                </div>
               </div>
             </div>
           </div>

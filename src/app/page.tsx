@@ -56,6 +56,54 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* Breakfast Section */}
+      <section className="py-16">
+        <div className="container">
+          <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 rounded-2xl p-8 md:p-12 border-2 border-amber-300 dark:border-amber-700">
+            <div className="max-w-4xl mx-auto">
+              <div className="text-center mb-8">
+                <h2 className="text-3xl font-bold mb-4 text-amber-900 dark:text-amber-100">
+                  ☕ Ranajky v Pražiarničke
+                </h2>
+                <p className="text-lg text-amber-800 dark:text-amber-200">
+                  Brutálne naložené ranajky priamo v budove! V papučkách si môžete zájsť na čerstvo praženú kávu, 
+                  domáce koláčiky a výborné raňajky.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div className="bg-white dark:bg-gray-900 rounded-lg p-6 text-center">
+                  <p className="text-sm text-amber-800 dark:text-amber-200 mb-2">Pre hostí apartmánov</p>
+                  <p className="text-4xl font-bold text-amber-900 dark:text-amber-100">9,90€</p>
+                  <p className="text-sm text-amber-800 dark:text-amber-200">dospelý</p>
+                </div>
+                <div className="bg-white dark:bg-gray-900 rounded-lg p-6 text-center">
+                  <p className="text-sm text-amber-800 dark:text-amber-200 mb-2">Pre hostí apartmánov</p>
+                  <p className="text-4xl font-bold text-amber-900 dark:text-amber-100">5,90€</p>
+                  <p className="text-sm text-amber-800 dark:text-amber-200">dieťa</p>
+                </div>
+              </div>
+
+              <div className="text-center space-y-4">
+                <p className="text-amber-800 dark:text-amber-200 font-medium">
+                  ✨ Možnosť donášky priamo do apartmánu!
+                </p>
+                <div className="flex justify-center gap-4 flex-wrap">
+                  <Button asChild size="lg" className="bg-amber-600 hover:bg-amber-700">
+                    <Link href="/ranajky">Zobraziť menu</Link>
+                  </Button>
+                  <Button asChild size="lg" variant="outline" className="border-amber-600 text-amber-900 dark:text-amber-100">
+                    <Link href="https://www.praziarnicka.sk" target="_blank" rel="noopener noreferrer">
+                      Navštíviť Pražiarničku
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="py-16">
         <div className="container">
