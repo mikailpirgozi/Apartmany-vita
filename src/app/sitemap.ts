@@ -3,17 +3,13 @@ import { MetadataRoute } from 'next';
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = 'https://www.apartmanvita.sk';
   
-  // Static pages
+  // Static pages (only public pages that should be indexed)
   const staticPages = [
     '',
     '/apartments',
     '/booking',
     '/contact',
     '/about',
-    '/auth/signin',
-    '/auth/signup',
-    '/terms-of-service',
-    '/privacy-policy',
   ];
 
   // Apartment slugs

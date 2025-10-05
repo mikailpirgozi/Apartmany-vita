@@ -24,13 +24,35 @@ export const metadata: Metadata = {
   },
   description: APP_DESCRIPTION,
   keywords: [
-    "apartmány Lučenec",
-    "ubytovanie Lučenec",
-    "centrum Lučenec",
-    "luxusné apartmány",
-    "rezervácia ubytovanie",
-    "apartmány vita",
-    "prenájom apartmán",
+    // Primary keywords (s diakritikou)
+    "apartmány Trenčín",
+    "apartmán Trenčín",
+    "ubytovanie Trenčín",
+    "prenájom apartmán Trenčín",
+    "apartmány Vita",
+    "apartmán Vita Trenčín",
+    "ubytovanie v centre Trenčína",
+    "luxusné apartmány Trenčín",
+    "moderné ubytovanie Trenčín",
+    
+    // Secondary keywords (bez diakritiky)
+    "apartmany Trencin",
+    "apartman Trencin",
+    "ubytovanie Trencin",
+    "prenajom apartman Trencin",
+    "apartmany Vita Trencin",
+    
+    // Long-tail keywords
+    "najlepšie apartmány v Trenčíne",
+    "apartmán s parkovaním Trenčín",
+    "apartmán s kuchynkou Trenčín",
+    "víkendové ubytovanie Trenčín",
+    "business apartmán Trenčín",
+    
+    // Branded keywords
+    "Apartmán Vita Lite Trenčín",
+    "Apartmán Vita Design Trenčín",
+    "Apartmán Vita Deluxe Trenčín",
   ],
   authors: [{ name: APP_NAME }],
   creator: APP_NAME,

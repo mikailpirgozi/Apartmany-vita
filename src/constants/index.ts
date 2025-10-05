@@ -22,8 +22,8 @@ export const CONTACT_INFO = {
 
 // Social media links
 export const SOCIAL_LINKS = {
-  facebook: "https://facebook.com/apartmanvita",
-  instagram: "https://instagram.com/apartmanvita",
+  facebook: "https://www.facebook.com/p/Apartm%C3%A1ny-Vita-Tren%C4%8D%C3%ADn-61558947693181/",
+  instagram: "https://www.instagram.com/apartman_vita_trencin/",
   google: "https://g.page/apartmanvita"
 }
 
