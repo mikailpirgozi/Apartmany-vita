@@ -15,8 +15,8 @@ export const CONTACT_INFO = {
     country: "Slovensko"
   },
   coordinates: {
-    lat: 48.8951,
-    lng: 18.0447
+    lat: 48.894161,
+    lng: 18.039158
   }
 }
 
