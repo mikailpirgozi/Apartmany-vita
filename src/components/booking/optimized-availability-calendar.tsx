@@ -799,15 +799,8 @@ function generateCalendarDays(
     // For available dates: check if next day is START of reservation
     let isCheckoutDay = false;
     if (isAvailable && isNextDayBooked) {
-      // Check if day after next is also booked (to see if next day is START of reservation)
-      const dayAfterNext = new Date(date);
-      dayAfterNext.setDate(dayAfterNext.getDate() + 2);
-      const dayAfterNextStr = format(dayAfterNext, 'yyyy-MM-dd');
-      const isDayAfterNextBooked = availability?.booked?.includes(dayAfterNextStr) || false;
-      
-      // Next day is START of reservation if day after next is NOT booked (single day reservation)
-      // OR if we just assume next day is start (we can't tell for sure without more data)
-      // For simplicity: if next day is booked, this is a potential checkout day
+      // If next day is booked, this is a potential checkout day
+      // (we can use this day as check-in and next day as check-out)
       isCheckoutDay = true;
     }
     
