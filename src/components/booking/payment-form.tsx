@@ -42,6 +42,13 @@ interface PaymentFormProps {
     nights: number;
   };
   extrasTotal: number;
+  breakfastData?: {
+    wantsBreakfast: boolean;
+    adults: number;
+    children: number;
+    delivery: boolean;
+    specialRequests: string;
+  };
   totalPrice: number;
   onSuccess?: (bookingId: string) => void;
   onBack?: () => void;
@@ -102,7 +109,8 @@ export function PaymentForm(props: PaymentFormProps) {
               cityTax: 0,
               nights: props.availability?.nights || 1
             },
-            extrasTotal: props.extrasTotal
+            extrasTotal: props.extrasTotal,
+            breakfastData: props.breakfastData
         };
 
         console.log('📤 Sending payment data:', JSON.stringify(paymentData, null, 2));

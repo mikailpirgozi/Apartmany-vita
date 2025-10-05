@@ -68,6 +68,14 @@ type ExtrasFormData = {
   tourBooking: boolean;
 };
 
+type BreakfastFormData = {
+  wantsBreakfast: boolean;
+  adults: number;
+  children: number;
+  delivery: boolean;
+  specialRequests: string;
+};
+
 interface BookingFlowProps {
   apartment: Apartment;
   bookingData: {
@@ -146,6 +154,13 @@ export function BookingFlow2Step({ apartment, bookingData, availability, initial
     groceryShopping: false,
     tourBooking: false
   });
+  const [breakfastData, setBreakfastData] = useState<BreakfastFormData>({
+    wantsBreakfast: false,
+    adults: bookingData.guests,
+    children: bookingData.children,
+    delivery: false,
+    specialRequests: ''
+  });
   const [paymentState, setPaymentState] = useState<PaymentState | null>(null);
 
   // Contact form - use consistent default values to prevent hydration mismatch
@@ -211,8 +226,15 @@ export function BookingFlow2Step({ apartment, bookingData, availability, initial
     return total + (selectedExtras[service.id] ? service.price : 0);
   }, 0);
 
-  // Total price = subtotal - stay discount - loyalty discount + extras
-  const totalPrice = currentSubtotal - currentStayDiscount - currentLoyaltyDiscount + extrasTotal;
+  // Calculate breakfast total
+  const BREAKFAST_ADULT_PRICE = 9.90;
+  const BREAKFAST_CHILD_PRICE = 5.90;
+  const breakfastTotal = breakfastData.wantsBreakfast 
+    ? (breakfastData.adults * BREAKFAST_ADULT_PRICE) + (breakfastData.children * BREAKFAST_CHILD_PRICE)
+    : 0;
+
+  // Total price = subtotal - stay discount - loyalty discount + extras + breakfast
+  const totalPrice = currentSubtotal - currentStayDiscount - currentLoyaltyDiscount + extrasTotal + breakfastTotal;
 
   const handleNextStep = async () => {
     console.log('🚀 handleNextStep called, current step:', currentStep);
@@ -401,6 +423,13 @@ export function BookingFlow2Step({ apartment, bookingData, availability, initial
                           </div>
                         )}
                         
+                        {breakfastTotal > 0 && (
+                          <div className="flex justify-between text-amber-600">
+                            <span>Ranajky ({breakfastData.adults + breakfastData.children} osôb)</span>
+                            <span>+{breakfastTotal.toFixed(2)}€</span>
+                          </div>
+                        )}
+                        
                         <Separator />
                         
                         <div className="flex justify-between text-lg font-bold text-green-600">
@@ -468,6 +497,149 @@ export function BookingFlow2Step({ apartment, bookingData, availability, initial
                       </div>
                     ))}
                   </div>
+                </CardContent>
+              </Card>
+
+              {/* Breakfast Section */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <span className="text-2xl">☕</span>
+                    Ranajky v Pražiarničke
+                  </CardTitle>
+                  <p className="text-sm text-muted-foreground">
+                    Čerstvo pražená káva a brutálne naložené ranajky priamo v budove
+                  </p>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {/* Main checkbox */}
+                  <div className="flex items-start space-x-3">
+                    <Checkbox
+                      id="wantsBreakfast"
+                      checked={breakfastData.wantsBreakfast}
+                      onCheckedChange={(checked) =>
+                        setBreakfastData(prev => ({
+                          ...prev,
+                          wantsBreakfast: checked === true
+                        }))
+                      }
+                    />
+                    <div className="flex-1">
+                      <label htmlFor="wantsBreakfast" className="cursor-pointer">
+                        <div className="font-medium">Chcem ranajky</div>
+                        <p className="text-xs text-gray-600 mt-1">
+                          Objednajte si ranajky vopred a užite si ich v Pražiarničke alebo s donáškou
+                        </p>
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* Breakfast details - shown when checkbox is checked */}
+                  {breakfastData.wantsBreakfast && (
+                    <div className="pl-7 space-y-4 border-l-2 border-amber-200">
+                      {/* Number of people */}
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="text-sm font-medium mb-2 block">
+                            Dospelí (9,90€/osoba)
+                          </label>
+                          <Input
+                            type="number"
+                            min="0"
+                            max="10"
+                            value={breakfastData.adults}
+                            onChange={(e) =>
+                              setBreakfastData(prev => ({
+                                ...prev,
+                                adults: parseInt(e.target.value) || 0
+                              }))
+                            }
+                          />
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium mb-2 block">
+                            Deti (5,90€/dieťa)
+                          </label>
+                          <Input
+                            type="number"
+                            min="0"
+                            max="10"
+                            value={breakfastData.children}
+                            onChange={(e) =>
+                              setBreakfastData(prev => ({
+                                ...prev,
+                                children: parseInt(e.target.value) || 0
+                              }))
+                            }
+                          />
+                        </div>
+                      </div>
+
+                      {/* Delivery option */}
+                      <div className="flex items-start space-x-3">
+                        <Checkbox
+                          id="breakfastDelivery"
+                          checked={breakfastData.delivery}
+                          onCheckedChange={(checked) =>
+                            setBreakfastData(prev => ({
+                              ...prev,
+                              delivery: checked === true
+                            }))
+                          }
+                        />
+                        <div className="flex-1">
+                          <label htmlFor="breakfastDelivery" className="cursor-pointer">
+                            <div className="font-medium text-sm">Donáška do apartmánu</div>
+                            <p className="text-xs text-gray-600 mt-1">
+                              Ranajky vám doručíme priamo do apartmánu (zadarmo)
+                            </p>
+                          </label>
+                        </div>
+                      </div>
+
+                      {/* Special requests */}
+                      <div>
+                        <label className="text-sm font-medium mb-2 block">
+                          Špeciálne požiadavky (voliteľné)
+                        </label>
+                        <Input
+                          placeholder="Napr. bez laktózy, vegetariánske..."
+                          value={breakfastData.specialRequests}
+                          onChange={(e) =>
+                            setBreakfastData(prev => ({
+                              ...prev,
+                              specialRequests: e.target.value
+                            }))
+                          }
+                        />
+                      </div>
+
+                      {/* Price summary */}
+                      <div className="bg-amber-50 p-3 rounded-md">
+                        <div className="flex justify-between text-sm mb-1">
+                          <span>Dospelí ({breakfastData.adults} × 9,90€)</span>
+                          <span className="font-medium">{(breakfastData.adults * BREAKFAST_ADULT_PRICE).toFixed(2)}€</span>
+                        </div>
+                        {breakfastData.children > 0 && (
+                          <div className="flex justify-between text-sm mb-1">
+                            <span>Deti ({breakfastData.children} × 5,90€)</span>
+                            <span className="font-medium">{(breakfastData.children * BREAKFAST_CHILD_PRICE).toFixed(2)}€</span>
+                          </div>
+                        )}
+                        <div className="border-t border-amber-200 mt-2 pt-2 flex justify-between font-bold text-amber-900">
+                          <span>Celkom ranajky</span>
+                          <span>{breakfastTotal.toFixed(2)}€</span>
+                        </div>
+                      </div>
+
+                      {/* Info */}
+                      <div className="text-xs text-gray-600 space-y-1">
+                        <p>🕐 Čas podávania: 7:00 - 13:00</p>
+                        <p>📍 Pražiarnička by Caffe Vita - priamo v budove</p>
+                        <p>🔗 <a href="/ranajky" target="_blank" className="text-blue-600 hover:underline">Zobraziť celé menu</a></p>
+                      </div>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
@@ -623,6 +795,7 @@ export function BookingFlow2Step({ apartment, bookingData, availability, initial
                       nights: initialPricing.nights
                     }}
                     extrasTotal={extrasTotal}
+                    breakfastData={breakfastData.wantsBreakfast ? breakfastData : undefined}
                     totalPrice={totalPrice}
                     onSuccess={(bookingId) => setPaymentState({ success: true, bookingId })}
                     onBack={handlePrevStep}
@@ -683,6 +856,13 @@ export function BookingFlow2Step({ apartment, bookingData, availability, initial
                         </div>
                       )}
                       
+                      {breakfastTotal > 0 && (
+                        <div className="flex justify-between text-amber-600">
+                          <span>Ranajky ({breakfastData.adults + breakfastData.children} osôb)</span>
+                          <span>+{breakfastTotal.toFixed(2)}€</span>
+                        </div>
+                      )}
+                      
                       <Separator className="my-3" />
                       
                       <div className="flex justify-between text-lg font-bold">
@@ -721,6 +901,7 @@ export function BookingFlow2Step({ apartment, bookingData, availability, initial
                         nights: initialPricing.nights
                       }}
                       extrasTotal={extrasTotal}
+                      breakfastData={breakfastData.wantsBreakfast ? breakfastData : undefined}
                       totalPrice={totalPrice}
                       onSuccess={(bookingId) => setPaymentState({ success: true, bookingId })}
                     />
