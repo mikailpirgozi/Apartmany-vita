@@ -15,6 +15,8 @@ interface UserWithCompanyData {
   phone: string | null
   dateOfBirth: Date | null
   image: string | null
+  country: string | null
+  city: string | null
   companyName: string | null
   companyId: string | null
   companyVat: string | null
