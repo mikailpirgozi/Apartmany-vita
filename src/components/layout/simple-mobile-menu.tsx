@@ -56,24 +56,24 @@ export function SimpleMobileMenu({ navigation, isLoggedIn, userName, userEmail }
         <Menu className="h-5 w-5" />
       </button>
 
-      {/* Overlay - behind menu, lower z-index */}
+      {/* Overlay - behind menu */}
       {isOpen && (
-        <>
-          <div
-            className="fixed inset-0 bg-black/60 z-[100] md:hidden animate-in fade-in duration-200"
-            onClick={() => setIsOpen(false)}
-            aria-hidden="true"
-          />
+        <div
+          className="fixed inset-0 bg-black/60 z-[9998] md:hidden transition-opacity duration-200"
+          onClick={() => setIsOpen(false)}
+          aria-hidden="true"
+        />
+      )}
 
-          {/* Slideout Menu - above overlay with animation */}
-          <div
-            className={`fixed top-0 right-0 h-full w-[280px] sm:w-[320px] bg-white dark:bg-gray-900 shadow-2xl z-[200] md:hidden transform transition-transform duration-300 ease-in-out overflow-hidden ${
-              isOpen ? 'translate-x-0' : 'translate-x-full'
-            }`}
-            role="dialog"
-            aria-modal="true"
-            aria-label="Mobile navigation menu"
-          >
+      {/* Slideout Menu - ALWAYS above overlay with highest z-index */}
+      <div
+        className={`fixed top-0 right-0 h-full w-[280px] sm:w-[320px] bg-white dark:bg-gray-900 shadow-2xl z-[9999] md:hidden transform transition-transform duration-300 ease-in-out overflow-hidden ${
+          isOpen ? 'translate-x-0' : 'translate-x-full'
+        }`}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Mobile navigation menu"
+      >
             <div className="flex flex-col h-full">
               {/* Header */}
               <div className="flex items-center justify-between px-6 py-4 border-b bg-gray-50 dark:bg-gray-800">
@@ -180,9 +180,7 @@ export function SimpleMobileMenu({ navigation, isLoggedIn, userName, userEmail }
                 </div>
               </div>
             </div>
-          </div>
-        </>
-      )}
+      </div>
     </div>
   )
 }
