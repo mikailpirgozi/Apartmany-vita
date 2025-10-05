@@ -3,6 +3,12 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   /* config options here */
   
+  // Disable minification for readable HTML output (only for development)
+  // WARNING: This will increase bundle size significantly - use only for debugging
+  compiler: {
+    removeConsole: false,
+  },
+  
   // Experimental features
   experimental: {
     optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],

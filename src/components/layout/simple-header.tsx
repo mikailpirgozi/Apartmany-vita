@@ -17,6 +17,7 @@ export function SimpleHeader() {
     { name: 'Domov', href: '/' },
     { name: 'Apartmány', href: '/apartments' },
     { name: 'Rezervácia', href: '/booking' },
+    { name: 'FAQ', href: '/faq' },
     { name: 'Kontakt', href: '/contact' },
   ]
 

@@ -4,6 +4,7 @@ import { ApartmentDetails } from '@/components/apartment/apartment-details'
 import { ApartmentAmenities } from '@/components/apartment/apartment-amenities'
 import { BookingWidget } from '@/components/booking/booking-widget'
 import { RoomStructuredData } from '@/components/seo/room-structured-data'
+import { Breadcrumbs } from '@/components/layout/breadcrumbs'
 import { getApartmentBySlug } from '@/services/apartments'
 import { getApartmentSeo } from '@/services/seo'
 import { apartmentSeoToMetadata } from '@/lib/seo-helpers'
@@ -66,6 +67,14 @@ export default async function ApartmentPage({ params, searchParams }: ApartmentP
     <div className="container py-8">
       {/* Room Structured Data for SEO */}
       <RoomStructuredData apartment={apartmentForSchema} />
+      
+      {/* Breadcrumbs for navigation and SEO */}
+      <Breadcrumbs 
+        items={[
+          { name: 'Apartmány', url: 'https://apartmanvita.sk/apartments' },
+          { name: apartment.name, url: `https://apartmanvita.sk/apartments/${apartment.slug}` },
+        ]} 
+      />
       
       {/* H1 heading for SEO - visible and optimized */}
       <h1 className="text-3xl font-bold mb-6">{apartment.name} - Apartmány Vita Trenčín</h1>
