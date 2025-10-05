@@ -788,10 +788,20 @@ function generateCalendarDays(
     }
     
     // NEW: Detect checkout days - available date where next day is booked
+    // OR a booked date that can be selected as check-out in range mode
     const nextDay = new Date(date);
     nextDay.setDate(nextDay.getDate() + 1);
     const nextDayStr = format(nextDay, 'yyyy-MM-dd');
-    const isCheckoutDay = isAvailable && (availability?.booked?.includes(nextDayStr) || false);
+    let isCheckoutDay = isAvailable && (availability?.booked?.includes(nextDayStr) || false);
+    
+    // ALSO mark as checkout day if it's a booked date that's selectable as check-out
+    if (!isCheckoutDay && isBooked && isRangeSelectionMode && selectingRange) {
+      // If this booked date can be selected as check-out, mark it as checkout day
+      const canBeCheckout = isDateSelectableInRange(date, selectingRange, availability);
+      if (canBeCheckout) {
+        isCheckoutDay = true;
+      }
+    }
     
     // STRICT: Only use real Beds24 prices - NO FALLBACKS
     const price = availability?.prices?.[dateStr] || 0;
