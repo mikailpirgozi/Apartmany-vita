@@ -226,11 +226,12 @@ export function BookingFlow2Step({ apartment, bookingData, availability, initial
     return total + (selectedExtras[service.id] ? service.price : 0);
   }, 0);
 
-  // Calculate breakfast total
+  // Calculate breakfast total (per night)
   const BREAKFAST_ADULT_PRICE = 9.90;
   const BREAKFAST_CHILD_PRICE = 5.90;
+  const breakfastPerNight = (breakfastData.adults * BREAKFAST_ADULT_PRICE) + (breakfastData.children * BREAKFAST_CHILD_PRICE);
   const breakfastTotal = breakfastData.wantsBreakfast 
-    ? (breakfastData.adults * BREAKFAST_ADULT_PRICE) + (breakfastData.children * BREAKFAST_CHILD_PRICE)
+    ? breakfastPerNight * initialPricing.nights
     : 0;
 
   // Total price = subtotal - stay discount - loyalty discount + extras + breakfast
@@ -425,7 +426,7 @@ export function BookingFlow2Step({ apartment, bookingData, availability, initial
                         
                         {breakfastTotal > 0 && (
                           <div className="flex justify-between text-amber-600">
-                            <span>Ranajky ({breakfastData.adults + breakfastData.children} osôb)</span>
+                            <span>Ranajky ({breakfastData.adults + breakfastData.children} osôb × {initialPricing.nights} {initialPricing.nights === 1 ? 'noc' : initialPricing.nights < 5 ? 'noci' : 'nocí'})</span>
                             <span>+{breakfastTotal.toFixed(2)}€</span>
                           </div>
                         )}
@@ -626,8 +627,11 @@ export function BookingFlow2Step({ apartment, bookingData, availability, initial
                             <span className="font-medium">{(breakfastData.children * BREAKFAST_CHILD_PRICE).toFixed(2)}€</span>
                           </div>
                         )}
+                        <div className="text-sm text-amber-700 mb-1">
+                          Za 1 noc: {breakfastPerNight.toFixed(2)}€
+                        </div>
                         <div className="border-t border-amber-200 mt-2 pt-2 flex justify-between font-bold text-amber-900">
-                          <span>Celkom ranajky</span>
+                          <span>Celkom za {initialPricing.nights} {initialPricing.nights === 1 ? 'noc' : initialPricing.nights < 5 ? 'noci' : 'nocí'}</span>
                           <span>{breakfastTotal.toFixed(2)}€</span>
                         </div>
                       </div>
@@ -858,7 +862,7 @@ export function BookingFlow2Step({ apartment, bookingData, availability, initial
                       
                       {breakfastTotal > 0 && (
                         <div className="flex justify-between text-amber-600">
-                          <span>Ranajky ({breakfastData.adults + breakfastData.children} osôb)</span>
+                          <span>Ranajky ({breakfastData.adults + breakfastData.children} osôb × {initialPricing.nights} {initialPricing.nights === 1 ? 'noc' : initialPricing.nights < 5 ? 'noci' : 'nocí'})</span>
                           <span>+{breakfastTotal.toFixed(2)}€</span>
                         </div>
                       )}
