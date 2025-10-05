@@ -9,7 +9,7 @@ import { Slider } from '@/components/ui/slider'
 import { Badge } from '@/components/ui/badge'
 import { SearchFilters } from '@/types'
 import { AMENITIES } from '@/constants'
-import { X } from 'lucide-react'
+import { X, ChevronDown, ChevronUp } from 'lucide-react'
 
 interface ApartmentFiltersProps {
   onFilterChange: (filters: SearchFilters) => void
@@ -23,6 +23,26 @@ export function ApartmentFilters({ onFilterChange, className }: ApartmentFilters
     floor: [],
     amenities: []
   })
+
+  // State for collapsible sections
+  const [expandedSections, setExpandedSections] = useState<{
+    price: boolean
+    size: boolean
+    floor: boolean
+    amenities: boolean
+  }>({
+    price: false,
+    size: false,
+    floor: false,
+    amenities: false
+  })
+
+  const toggleSection = (section: keyof typeof expandedSections) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }))
+  }
 
   const updateFilter = <K extends keyof SearchFilters>(
     key: K,
@@ -82,118 +102,177 @@ export function ApartmentFilters({ onFilterChange, className }: ApartmentFilters
         </div>
       </CardHeader>
       
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-4">
         {/* Price Range */}
-        <div>
-          <Label className="text-sm font-medium">Cenové rozpätie (€/noc)</Label>
-          <div className="mt-2">
-            <Button
-              variant="outline"
-              className="w-full justify-start"
-              data-testid="filter-price"
-              onClick={() => {/* This will be handled by the actual filter implementation */}}
-            >
-              Cena: €{filters.priceRange[0]} - €{filters.priceRange[1]}
-            </Button>
-            <div className="mt-2 space-y-2">
-              <div>
-                <Label htmlFor="price-min" className="text-xs">Min cena</Label>
-                <input
-                  id="price-min"
-                  data-testid="price-min"
-                  type="number"
-                  value={filters.priceRange[0]}
-                  onChange={(e) => updateFilter('priceRange', [parseInt(e.target.value) || 0, filters.priceRange[1]])}
-                  className="w-full p-2 border rounded"
-                  min="0"
-                  max="200"
-                />
+        <div className="border-b border-border pb-4">
+          <Button
+            variant="ghost"
+            className="w-full justify-between p-0 h-auto font-medium"
+            onClick={() => toggleSection('price')}
+          >
+            <span>Cenové rozpätie (€/noc)</span>
+            {expandedSections.price ? (
+              <ChevronUp className="h-4 w-4" />
+            ) : (
+              <ChevronDown className="h-4 w-4" />
+            )}
+          </Button>
+          
+          {expandedSections.price && (
+            <div className="mt-3 space-y-3">
+              <div className="text-sm text-muted-foreground">
+                Cena: €{filters.priceRange[0]} - €{filters.priceRange[1]}
               </div>
-              <div>
-                <Label htmlFor="price-max" className="text-xs">Max cena</Label>
-                <input
-                  id="price-max"
-                  data-testid="price-max"
-                  type="number"
-                  value={filters.priceRange[1]}
-                  onChange={(e) => updateFilter('priceRange', [filters.priceRange[0], parseInt(e.target.value) || 200])}
-                  className="w-full p-2 border rounded"
-                  min="0"
-                  max="200"
-                />
+              <div className="space-y-2">
+                <div>
+                  <Label htmlFor="price-min" className="text-xs">Min cena</Label>
+                  <input
+                    id="price-min"
+                    data-testid="price-min"
+                    type="number"
+                    value={filters.priceRange[0]}
+                    onChange={(e) => updateFilter('priceRange', [parseInt(e.target.value) || 0, filters.priceRange[1]])}
+                    className="w-full p-2 border rounded text-sm"
+                    min="0"
+                    max="200"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="price-max" className="text-xs">Max cena</Label>
+                  <input
+                    id="price-max"
+                    data-testid="price-max"
+                    type="number"
+                    value={filters.priceRange[1]}
+                    onChange={(e) => updateFilter('priceRange', [filters.priceRange[0], parseInt(e.target.value) || 200])}
+                    className="w-full p-2 border rounded text-sm"
+                    min="0"
+                    max="200"
+                  />
+                </div>
               </div>
-              <Button
-                variant="default"
-                size="sm"
-                className="w-full"
-                data-testid="apply-filters"
-                onClick={() => {/* Apply filters */}}
-              >
-                Aplikovať filtre
-              </Button>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Size Range */}
-        <div>
-          <Label className="text-sm font-medium">Rozloha (m²)</Label>
-          <div className="mt-2">
-            <Slider
-              value={filters.size}
-              onValueChange={(value) => updateFilter('size', value as [number, number])}
-              max={150}
-              min={0}
-              step={5}
-              className="w-full"
-            />
-            <div className="flex justify-between text-sm text-muted-foreground mt-1">
-              <span>{filters.size[0]}m²</span>
-              <span>{filters.size[1]}m²</span>
+        <div className="border-b border-border pb-4">
+          <Button
+            variant="ghost"
+            className="w-full justify-between p-0 h-auto font-medium"
+            onClick={() => toggleSection('size')}
+          >
+            <span>Rozloha (m²)</span>
+            {expandedSections.size ? (
+              <ChevronUp className="h-4 w-4" />
+            ) : (
+              <ChevronDown className="h-4 w-4" />
+            )}
+          </Button>
+          
+          {expandedSections.size && (
+            <div className="mt-3">
+              <Slider
+                value={filters.size}
+                onValueChange={(value) => updateFilter('size', value as [number, number])}
+                max={150}
+                min={0}
+                step={5}
+                className="w-full"
+              />
+              <div className="flex justify-between text-sm text-muted-foreground mt-1">
+                <span>{filters.size[0]}m²</span>
+                <span>{filters.size[1]}m²</span>
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Floor Selection */}
-        <div>
-          <Label className="text-sm font-medium mb-3 block">Poschodie</Label>
-          <div className="flex gap-2">
-            {[1, 2].map(floor => (
-              <Button
-                key={floor}
-                variant={filters.floor.includes(floor) ? "default" : "outline"}
-                size="sm"
-                onClick={() => toggleArrayFilter('floor', floor)}
-                className="flex-1"
-              >
-                {floor}. poschodie
-              </Button>
-            ))}
-          </div>
+        <div className="border-b border-border pb-4">
+          <Button
+            variant="ghost"
+            className="w-full justify-between p-0 h-auto font-medium"
+            onClick={() => toggleSection('floor')}
+          >
+            <span>Poschodie</span>
+            {expandedSections.floor ? (
+              <ChevronUp className="h-4 w-4" />
+            ) : (
+              <ChevronDown className="h-4 w-4" />
+            )}
+          </Button>
+          
+          {expandedSections.floor && (
+            <div className="mt-3">
+              <div className="flex gap-2">
+                {[1, 2].map(floor => (
+                  <Button
+                    key={floor}
+                    variant={filters.floor.includes(floor) ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => toggleArrayFilter('floor', floor)}
+                    className="flex-1"
+                  >
+                    {floor}. poschodie
+                  </Button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Amenities */}
-        <div>
-          <Label className="text-sm font-medium mb-3 block">Vybavenie</Label>
-          <div className="space-y-3">
-            {AMENITIES.slice(0, 8).map(amenity => (
-              <div key={amenity.id} className="flex items-center space-x-2">
-                <Checkbox
-                  id={amenity.id}
-                  checked={filters.amenities.includes(amenity.id)}
-                  onCheckedChange={() => toggleArrayFilter('amenities', amenity.id)}
-                />
-                <Label htmlFor={amenity.id} className="text-sm font-normal cursor-pointer">
-                  {amenity.name}
-                </Label>
+        <div className="border-b border-border pb-4">
+          <Button
+            variant="ghost"
+            className="w-full justify-between p-0 h-auto font-medium"
+            onClick={() => toggleSection('amenities')}
+          >
+            <span>Vybavenie</span>
+            {expandedSections.amenities ? (
+              <ChevronUp className="h-4 w-4" />
+            ) : (
+              <ChevronDown className="h-4 w-4" />
+            )}
+          </Button>
+          
+          {expandedSections.amenities && (
+            <div className="mt-3">
+              <div className="space-y-3">
+                {AMENITIES.slice(0, 8).map(amenity => (
+                  <div key={amenity.id} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={amenity.id}
+                      checked={filters.amenities.includes(amenity.id)}
+                      onCheckedChange={() => toggleArrayFilter('amenities', amenity.id)}
+                    />
+                    <Label htmlFor={amenity.id} className="text-sm font-normal cursor-pointer">
+                      {amenity.name}
+                    </Label>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </div>
+          )}
+        </div>
+
+        {/* Apply Filters Button */}
+        <div className="pt-4">
+          <Button
+            variant="default"
+            size="sm"
+            className="w-full"
+            data-testid="apply-filters"
+            onClick={() => {/* Apply filters */}}
+          >
+            Aplikovať filtre
+          </Button>
         </div>
 
         {/* Active Filters Summary */}
         {hasActiveFilters && (
-          <div>
+          <div className="pt-2">
             <Label className="text-sm font-medium mb-2 block">Aktívne filtre</Label>
             <div className="flex flex-wrap gap-1">
               {filters.priceRange[0] > 0 && (

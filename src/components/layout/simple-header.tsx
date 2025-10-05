@@ -2,8 +2,7 @@
 
 import Link from 'next/link'
 import { useSession } from 'next-auth/react'
-import { Phone, Home } from 'lucide-react'
-import { CONTACT_INFO } from '@/constants'
+import { Home } from 'lucide-react'
 import { SimpleMobileMenu } from './simple-mobile-menu'
 import { SimpleUserMenu } from './simple-user-menu'
 
@@ -52,10 +51,6 @@ export function SimpleHeader() {
 
         {/* Desktop Actions */}
         <div className="hidden md:flex items-center space-x-4">
-          <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-            <Phone className="h-4 w-4 text-brand-accent" />
-            <span>{CONTACT_INFO.phone}</span>
-          </div>
           <Link
             href="/apartments"
             className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium bg-brand-accent hover:bg-brand-accent-dark text-white rounded-md transition-colors"

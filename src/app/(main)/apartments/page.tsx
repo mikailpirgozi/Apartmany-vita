@@ -38,32 +38,34 @@ export default async function ApartmentsPage({ searchParams }: ApartmentsPagePro
   const hasSearchParams = !!(checkIn && checkOut && guests)
   
   return (
-    <div className="container py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-4">Naše apartmány</h1>
-        <p className="text-muted-foreground max-w-2xl">
-          Vyberte si z našich krásne zariadených apartmánov v historickom centre Trenčína. 
-          Každý apartmán ponúka jedinečné vybavenie a komfort pre váš pobyt.
-        </p>
-      </div>
+    <div className="min-h-screen bg-background">
+      <div className="container py-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold mb-4">Naše apartmány</h1>
+          <p className="text-muted-foreground max-w-2xl">
+            Vyberte si z našich krásne zariadených apartmánov v historickom centre Trenčína. 
+            Každý apartmán ponúka jedinečné vybavenie a komfort pre váš pobyt.
+          </p>
+        </div>
 
-      {/* Search Form */}
-      <div className="mb-8">
-        <ApartmentSearch 
-          initialValues={{
-            checkIn,
-            checkOut,
-            guests,
-            children: params.children ? parseInt(params.children) : 0
-          }}
+        {/* Search Form */}
+        <div className="mb-8">
+          <ApartmentSearch 
+            initialValues={{
+              checkIn,
+              checkOut,
+              guests,
+              children: params.children ? parseInt(params.children) : 0
+            }}
+          />
+        </div>
+
+        {/* Filters and Results */}
+        <ApartmentsWithFilters 
+          initialApartments={apartments}
+          hasSearchParams={hasSearchParams}
         />
       </div>
-
-      {/* Filters and Results */}
-      <ApartmentsWithFilters 
-        initialApartments={apartments}
-        hasSearchParams={hasSearchParams}
-      />
     </div>
   )
 }

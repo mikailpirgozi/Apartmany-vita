@@ -19,14 +19,16 @@ export function ApartmentsWithFilters({
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+    <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 min-h-0">
       {/* Filters Sidebar */}
-      <div className="lg:col-span-1">
-        <ApartmentFilters onFilterChange={handleFilterChange} />
+      <div className="lg:col-span-1 relative">
+        <div className="sticky top-24">
+          <ApartmentFilters onFilterChange={handleFilterChange} />
+        </div>
       </div>
       
       {/* Search Results */}
-      <div className="lg:col-span-3">
+      <div className="lg:col-span-3 min-h-0">
         <ApartmentSearchResults 
           initialApartments={initialApartments}
           hasSearchParams={hasSearchParams}
