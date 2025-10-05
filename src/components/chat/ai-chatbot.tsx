@@ -100,7 +100,7 @@ export function AIChatbot() {
       console.error('Chat error:', error)
       setMessages(prev => [...prev, {
         id: Date.now().toString(),
-        text: 'Prepáčte, nastala chyba. Skúste to prosím neskôr alebo nás kontaktujte priamo na +421-900-123-456.',
+        text: 'Prepáčte, nastala chyba. Skúste to prosím neskôr alebo nás kontaktujte priamo na +421-940-728-676.',
         isBot: true,
         timestamp: new Date()
       }])

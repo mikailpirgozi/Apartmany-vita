@@ -5,9 +5,9 @@ export const APP_URL = "https://apartmanyvita.sk"
 
 // Contact information
 export const CONTACT_INFO = {
-  phone: "+421 900 123 456",
+  phone: "+421 940 728 676",
   email: "info@apartmanyvita.sk",
-  whatsapp: "421900123456",
+  whatsapp: "421940728676",
   address: {
     street: "Štúrovo námestie 132/16",
     city: "Trenčín",

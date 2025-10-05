@@ -15,7 +15,7 @@ export function generateOrganizationData() {
     logo: 'https://apartmanyvita.sk/images/logo.png',
     contactPoint: {
       '@type': 'ContactPoint',
-      telephone: '+421-900-123-456',
+      telephone: '+421-940-728-676',
       contactType: 'customer service',
       availableLanguage: ['Slovak', 'English', 'German', 'Hungarian', 'Polish']
     },
@@ -141,7 +141,7 @@ export function generateApartmentStructuredData(apartment: Apartment) {
     provider: {
       '@type': 'Organization',
       name: 'Apartmány Vita',
-      telephone: '+421-900-123-456',
+      telephone: '+421-940-728-676',
       email: 'info@apartmanyvita.sk'
     }
   }

@@ -158,7 +158,7 @@ export function ProfileForm({ user, onUpdate }: ProfileFormProps) {
                     <FormItem>
                       <FormLabel>Telefónne číslo</FormLabel>
                       <FormControl>
-                        <Input placeholder="+421 900 123 456" {...field} />
+                        <Input placeholder="+421 940 728 676" {...field} />
                       </FormControl>
                       <FormDescription>
                         Telefónne číslo pre kontakt v prípade potreby

@@ -569,8 +569,8 @@ export function BookingDetailClient({ bookingId }: BookingDetailClientProps) {
             <CardContent className="space-y-3">
               <div className="flex items-center gap-2 text-sm">
                 <Phone className="h-4 w-4 text-muted-foreground" />
-                <a href="tel:+421900123456" className="hover:underline">
-                  +421 900 123 456
+                <a href="tel:+421940728676" className="hover:underline">
+                  +421 940 728 676
                 </a>
               </div>
               <div className="flex items-center gap-2 text-sm">

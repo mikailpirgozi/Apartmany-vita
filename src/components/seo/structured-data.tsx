@@ -21,11 +21,11 @@ export function OrganizationStructuredData() {
     '@type': 'Organization',
     name: 'Apartmány Vita',
     description: 'Luxusné apartmány v centre Lučenca',
-    url: 'https://apartmanyvita.sk',
-    logo: 'https://apartmanyvita.sk/logo.png',
+    url: 'https://www.apartmanvita.sk',
+    logo: 'https://www.apartmanvita.sk/logo.png',
     contactPoint: {
       '@type': 'ContactPoint',
-      telephone: '+421-900-123-456',
+      telephone: '+421-940-728-676',
       contactType: 'customer service',
       availableLanguage: ['Slovak', 'English', 'German', 'Hungarian', 'Polish']
     },
@@ -52,7 +52,7 @@ export function LocalBusinessStructuredData() {
     name: 'Apartmány Vita',
     description: 'Luxusné apartmány v centre Lučenca',
     image: [
-      'https://apartmanyvita.sk/og-default.jpg'
+      'https://www.apartmanvita.sk/og-default.jpg'
     ],
     address: {
       '@type': 'PostalAddress',
@@ -67,9 +67,9 @@ export function LocalBusinessStructuredData() {
       latitude: 48.3314,
       longitude: 19.6649
     },
-    telephone: '+421-900-123-456',
+    telephone: '+421-940-728-676',
     email: 'info@apartmanyvita.sk',
-    url: 'https://apartmanyvita.sk',
+    url: 'https://www.apartmanvita.sk',
     priceRange: '€€',
     starRating: {
       '@type': 'Rating',

@@ -80,11 +80,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="sk" suppressHydrationWarning>
-      <head>
+      <body className={`${inter.variable} font-sans antialiased`} suppressHydrationWarning>
+        {/* Structured Data - must be in body for proper rendering */}
         <OrganizationStructuredData />
         <LocalBusinessStructuredData />
-      </head>
-      <body className={`${inter.variable} font-sans antialiased`} suppressHydrationWarning>
+        
         <QueryClientProvider>
           <AuthProvider>
             <div className="min-h-screen flex flex-col">

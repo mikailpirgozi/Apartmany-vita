@@ -1,129 +1,211 @@
-# 🚨 Utility Scripts - Apartmány Vita
+# Scripts & Utilities 🛠️
 
-Tento adresár obsahuje pomocné skripty pre development, deployment a testovanie.
+Pomocné skripty a nástroje pre Apartmány Vita aplikáciu.
 
-## 📁 Port Enforcement Scripts
+---
 
-### `port-checker.js`
-- **Účel**: Kontroluje a uvoľňuje port 3000 pred spustením aplikácie
-- **Použitie**: `node scripts/port-checker.js`
-- **Funkcie**:
-  - Detekuje procesy používajúce port 3000
-  - Automaticky ich ukončí (kill -9)
-  - Zabezpečí dostupnosť portu 3000
+## 📋 Dostupné skripty
 
-### `pre-commit-port-check.js`
-- **Účel**: Kontroluje konfiguráciu pred každým commitom
-- **Použitie**: `node scripts/pre-commit-port-check.js`
-- **Funkcie**:
-  - Kontroluje package.json scripts
-  - Kontroluje environment súbory
-  - Zabráni commitnutiu nesprávnej konfigurácie
+### 1. OG Image Generator
+**Súbor:** `create-og-image.html`
 
-## 📁 Database & Deployment Scripts
+**Účel:** Vytvorenie Open Graph obrázka (1200×630px) pre social media sharing
 
-### `test-database-connection.js`
-- **Účel**: Testuje či je DATABASE_URL správne nakonfigurovaná
-- **Použitie**: 
-  ```bash
-  # Test current environment
-  node scripts/test-database-connection.js
-  
-  # Test specific DATABASE_URL
-  DATABASE_URL="postgresql://..." node scripts/test-database-connection.js
-  ```
-- **Výstup**:
-  - ✅ Success: DATABASE_URL je validná a pripravená
-  - ❌ Failure: Zobrazí validačné chyby a návod na opravu
+**Použitie:**
+```bash
+# Otvor v prehliadači
+open scripts/create-og-image.html
 
-### `verify-production.sh`
-- **Účel**: Komplexná verifikácia production deploymentu
-- **Použitie**: 
-  ```bash
-  # Test production
-  ./scripts/verify-production.sh https://apartmany-vita.vercel.app
-  
-  # Test preview
-  ./scripts/verify-production.sh https://apartmany-vita-preview.vercel.app
-  ```
-- **Testy**:
-  - Homepage a apartment pages
-  - API endpoints (health, apartments, Beds24)
-  - Environment variables konfigurácia
-  - Database connectivity
-  - Stripe integrácia
-- **Výstup**:
-  - ✅ All tests passed - Produkcia je pripravená
-  - ❌ Tests failed - Zobrazí konkrétne problémy a troubleshooting kroky
+# Alebo dvojklik na súbor
+```
 
-## 🚀 Integrácia
+**Kroky:**
+1. Otvor súbor v prehliadači
+2. Klikni "Stiahnuť ako PNG"
+3. Premenuj na `og-default.jpg`
+4. Nahraj do `/public/og-default.jpg`
+5. Commit a push
 
-### Package.json Scripts
+**Alternatívy:**
+- Canva: https://www.canva.com/create/facebook-posts/
+- Figma: Template 1200×630px
+- Photoshop/GIMP
+
+---
+
+### 2. Port Checker
+**Súbor:** `port-checker.js`
+
+**Účel:** Overenie že aplikácia beží na porte 3000
+
+**Použitie:**
+```bash
+node scripts/port-checker.js
+```
+
+---
+
+### 3. Pre-commit Port Check
+**Súbor:** `pre-commit-port-check.js`
+
+**Účel:** Git hook na overenie portu pred commitom
+
+**Nastavenie:**
+```bash
+# Pridaj do .git/hooks/pre-commit
+chmod +x scripts/pre-commit-port-check.js
+```
+
+---
+
+### 4. Hotfix SQL Script
+**Súbor:** `hotfix-add-columns.sql`
+
+**Účel:** Manuálne pridanie stĺpcov do databázy
+
+**Použitie:**
+```bash
+# Railway CLI
+railway run psql < scripts/hotfix-add-columns.sql
+
+# Alebo cez Railway dashboard
+# Database → Query → paste SQL
+```
+
+---
+
+### 5. Apply Migration
+**Súbor:** `apply-migration.sh`
+
+**Účel:** Aplikovanie Prisma migrácií na produkciu
+
+**Použitie:**
+```bash
+chmod +x scripts/apply-migration.sh
+./scripts/apply-migration.sh
+```
+
+---
+
+## 🌱 SEO Seed
+
+### Option A: API Endpoint (odporúčané)
+```bash
+# Po deploy na Railway, zavolaj:
+curl -X POST https://www.apartmanvita.sk/api/admin/seo/seed \
+  -H "Authorization: Bearer YOUR_ADMIN_TOKEN"
+```
+
+### Option B: Lokálne (vyžaduje DATABASE_URL)
+```bash
+# Nastav DATABASE_URL
+export DATABASE_URL="postgresql://..."
+
+# Spusti seed
+pnpm tsx prisma/seed-seo.ts
+```
+
+### Option C: Cez Admin Panel
+1. Prihlás sa: `/admin/seo`
+2. Manuálne vytvor SEO záznamy pre každú stránku
+3. Použiť dáta z `prisma/seed-seo.ts` ako template
+
+---
+
+## 📦 Package Scripts
+
+V `package.json`:
+
 ```json
 {
   "scripts": {
-    "port-check": "node scripts/port-checker.js",
-    "dev:safe": "npm run port-check && npm run dev:force"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate deploy",
+    "prisma:studio": "prisma studio",
+    "seed:seo": "tsx prisma/seed-seo.ts"
   }
 }
 ```
 
-### Git Hooks (voliteľné)
+**Použitie:**
 ```bash
-# Pre-commit hook
-echo "node scripts/pre-commit-port-check.js" > .git/hooks/pre-commit
-chmod +x .git/hooks/pre-commit
+pnpm dev              # Spusti dev server
+pnpm build            # Build pre produkciu
+pnpm prisma:generate  # Generuj Prisma Client
+pnpm prisma:migrate   # Aplikuj migrácie
+pnpm prisma:studio    # Otvor Prisma Studio
+pnpm seed:seo         # Seed SEO dáta (vyžaduje DATABASE_URL)
 ```
 
-## 🤖 Automatické vs. Manuálne Scripts
+---
 
-### Automatické (spúšťajú sa same)
-- `port-checker.js` - Pri `npm run dev`
-- `pre-commit-port-check.js` - Pri git commit (ak sú nastavené hooks)
+## 🔧 Maintenance Scripts
 
-### Manuálne (spustiť pred/po deploymente)
-- `test-database-connection.js` - Pred deploymentom na overenie DATABASE_URL
-- `verify-production.sh` - Po deploymente na overenie že všetko funguje
-
-## ⚠️ Dôležité poznámky
-
-1. **Nikdy nemení porty** v týchto skriptoch
-2. **Vždy používaj `npm run dev:safe`** na spustenie aplikácie
-3. **Ak sa aplikácia spustí na inom porte**, okamžite ju zastav a skontroluj konfiguráciu
-4. **Pred deploymentom na Vercel** spusti `test-database-connection.js` s production DATABASE_URL
-5. **Po deploymente na Vercel** spusti `verify-production.sh` na overenie
-
-## 🔧 Troubleshooting
-
-### Port 3000 je stále obsadený
+### Clear Beds24 Cache
 ```bash
-# Manuálne ukončenie (macOS/Linux)
-lsof -ti:3000 | xargs kill -9
-
-# Manuálne ukončenie (Windows)
-netstat -ano | findstr :3000
-taskkill /F /PID <PID>
+curl -X POST https://www.apartmanvita.sk/api/beds24/clear-cache
 ```
 
-### Pre-commit check zlyhá
-1. Skontroluj package.json scripts
-2. Skontroluj .env.local súbor
-3. Spusti `npm run dev:safe` namiesto `npm run dev`
+### Test Availability API
+```bash
+node test-availability-api.js
+```
 
-### Database connection test fails
-1. Skontroluj formát DATABASE_URL (musí začínať `postgresql://` alebo `prisma://`)
-2. Overte že credentials sú správne
-3. Testuj connection pomocou `psql` alebo database client
+### Debug Script
+```bash
+./test-debug.sh
+```
 
-### Production verification fails
-1. Skontroluj Vercel deployment logs
-2. Overte environment variables vo Vercel dashboard
-3. Otestuj `/api/test-env` endpoint pre detaily
-4. Prečítaj `VERCEL_PRODUCTION_FIX.md` pre kompletný troubleshooting guide
+---
 
-## 📚 Súvisiace dokumenty
+## 📚 Dokumentácia
 
-- `VERCEL_PRODUCTION_FIX.md` - Kompletný Vercel deployment guide
-- `VERCEL_QUICK_FIX.md` - Rýchly 5-minútový fix
-- `PRODUCTION_ISSUE_SUMMARY.md` - Analýza a riešenie production problémov
-- `PORT_3000_ENFORCEMENT.md` - Port 3000 enforcement dokumentácia
+- **API_DOCUMENTATION.md** - API endpointy
+- **GOOGLE_SEARCH_CONSOLE_SETUP.md** - Google Search Console setup
+- **SEO_FINAL_CHECKLIST.md** - SEO checklist
+- **DEPLOYMENT_CHECKLIST_ADMIN.md** - Deploy checklist
+
+---
+
+## 🆘 Troubleshooting
+
+### Problém: "DATABASE_URL not found"
+**Riešenie:**
+```bash
+# Lokálne
+export DATABASE_URL="postgresql://..."
+
+# Alebo použi .env súbor
+echo "DATABASE_URL=postgresql://..." >> .env
+```
+
+### Problém: "Permission denied"
+**Riešenie:**
+```bash
+chmod +x scripts/*.sh
+```
+
+### Problém: "Module not found"
+**Riešenie:**
+```bash
+pnpm install
+pnpm prisma generate
+```
+
+---
+
+## 📞 Support
+
+Ak narazíš na problém:
+1. Skontroluj dokumentáciu v `/docs`
+2. Overiť že všetky env variables sú nastavené
+3. Skontroluj Railway logs: `railway logs`
+4. Test lokálne pred deploy
+
+---
+
+**Posledná aktualizácia:** 5. október 2025

@@ -532,7 +532,7 @@ export function BookingFlow2Step({ apartment, bookingData, availability, initial
                           <FormItem>
                             <FormLabel>Telefón *</FormLabel>
                             <FormControl>
-                              <Input placeholder="+421 900 123 456" {...field} />
+                              <Input placeholder="+421 940 728 676" {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>

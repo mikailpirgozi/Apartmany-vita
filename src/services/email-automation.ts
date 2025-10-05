@@ -177,7 +177,7 @@ function generateBookingConfirmationTemplate(booking: Booking): EmailTemplate {
               <li>Check-in kód vám pošleme 24 hodín pred príchodom</li>
               <li>Apartmán sa nachádza na Štúrovom námestí 132/16</li>
               <li>Parkovanie: verejné parkovisko 50m od budovy</li>
-              <li>Pri problémoch volajte: +421-900-123-456</li>
+              <li>Pri problémoch volajte: +421-940-728-676</li>
             </ul>
           </div>
 
@@ -187,9 +187,9 @@ function generateBookingConfirmationTemplate(booking: Booking): EmailTemplate {
               Ak máte akékoľvek otázky, neváhajte nás kontaktovať
             </p>
             <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
-              <a href="tel:+421900123456" style="background: #10b981; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">📞 Zavolať</a>
+              <a href="tel:+421940728676" style="background: #10b981; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">📞 Zavolať</a>
               <a href="mailto:info@apartmanyvita.sk" style="background: #6b7280; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">✉️ Email</a>
-              <a href="https://wa.me/421900123456" style="background: #25d366; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">💬 WhatsApp</a>
+              <a href="https://wa.me/421940728676" style="background: #25d366; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">💬 WhatsApp</a>
             </div>
           </div>
         </div>
@@ -222,7 +222,7 @@ function generateBookingConfirmationTemplate(booking: Booking): EmailTemplate {
       - Check-in kód vám pošleme 24 hodín pred príchodom
       - Apartmán: Štúrovo námestie 132/16, Trenčín
       - Parkovanie: verejné parkovisko 50m od budovy
-      - Kontakt: +421-900-123-456
+      - Kontakt: +421-940-728-676
       
       Tešíme sa na vašu návštevu!
       
@@ -276,8 +276,8 @@ function generateCheckInInstructionsTemplate(booking: Booking): EmailTemplate {
           
           <div style="text-align: center; margin-top: 30px;">
             <p style="color: #6b7280;">Potrebujete pomoc?</p>
-            <a href="tel:+421900123456" style="background: #10b981; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin: 0 10px;">Zavolať</a>
-            <a href="https://wa.me/421900123456" style="background: #25d366; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin: 0 10px;">WhatsApp</a>
+            <a href="tel:+421940728676" style="background: #10b981; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin: 0 10px;">Zavolať</a>
+            <a href="https://wa.me/421940728676" style="background: #25d366; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin: 0 10px;">WhatsApp</a>
           </div>
         </div>
       </div>
@@ -298,7 +298,7 @@ function generateCheckInInstructionsTemplate(booking: Booking): EmailTemplate {
       Verejné parkovisko 50m od apartmánu
       Parkovné: €1/hod, €8/deň
       
-      Potrebujete pomoc? Volajte +421-900-123-456
+      Potrebujete pomoc? Volajte +421-940-728-676
       
       Tešíme sa na vás!
     `

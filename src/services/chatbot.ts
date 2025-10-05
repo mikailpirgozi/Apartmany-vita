@@ -37,7 +37,7 @@ INFORMÁCIE O APARTMÁNOCH VITA:
 - Check-in: 15:00, Check-out: 11:00 (flexibilný čas možný)
 - 24/7 prístup s elektronickými zámkami
 - Parkovanie: verejné parkovisko 50m od apartmánov
-- Kontakt: +421-900-123-456, info@apartmanyvita.sk
+- Kontakt: +421-940-728-676, info@apartmanyvita.sk
 
 CENNÍK A ZĽAVY:
 - Registrovaní zákazníci: 5% zľava
@@ -76,7 +76,7 @@ export async function getChatbotResponse(
   try {
     if (!process.env.OPENAI_API_KEY) {
       return {
-        message: 'Prepáčte, chatbot momentálne nie je dostupný. Kontaktujte nás prosím na +421-900-123-456 alebo info@apartmanyvita.sk',
+        message: 'Prepáčte, chatbot momentálne nie je dostupný. Kontaktujte nás prosím na +421-940-728-676 alebo info@apartmanyvita.sk',
         suggestions: ['Kontaktovať telefonicky', 'Poslať email', 'Rezervovať online']
       }
     }
@@ -169,7 +169,7 @@ export async function getChatbotResponse(
     console.error('Chatbot error:', error)
     
     return {
-      message: 'Nastala technická chyba. Prosím kontaktujte nás priamo na +421-900-123-456 alebo info@apartmanyvita.sk',
+      message: 'Nastala technická chyba. Prosím kontaktujte nás priamo na +421-940-728-676 alebo info@apartmanyvita.sk',
       suggestions: ['Kontaktovať telefonicky', 'Poslať email', 'Skúsiť neskôr']
     }
   }

@@ -116,7 +116,7 @@ export function generateOrganizationJsonLd(
       latitude: "48.3314",
       longitude: "19.6649",
     },
-    telephone: "+421123456789",
+    telephone: "+421940728676",
     priceRange: "€€",
     amenityFeature: [
       {

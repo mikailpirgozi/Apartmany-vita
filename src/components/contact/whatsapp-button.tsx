@@ -13,7 +13,7 @@ interface WhatsAppButtonProps {
 
 export function WhatsAppButton({ 
   message, 
-  phoneNumber = '421900123456',
+  phoneNumber = '421940728676',
   variant = 'floating',
   className 
 }: WhatsAppButtonProps) {
@@ -149,7 +149,7 @@ export function WhatsAppFloatingButtons() {
       <WhatsAppButton variant="floating" />
       {/* Phone button as alternative */}
       <Button
-        onClick={() => window.open('tel:+421900123456', '_self')}
+        onClick={() => window.open('tel:+421940728676', '_self')}
         className="fixed bottom-40 right-6 z-40 bg-blue-500 hover:bg-blue-600 rounded-full w-14 h-14 shadow-lg hover:shadow-xl transition-all duration-200"
         aria-label="Zavolať"
       >

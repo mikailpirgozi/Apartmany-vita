@@ -355,7 +355,7 @@ function generateBookingConfirmationTemplate(booking: BookingWithDetails): Email
           
           <p><strong>Kontakt:</strong><br>
           Email: info@apartmanyvita.sk<br>
-          Telefón: +421 900 123 456</p>
+          Telefón: +421 940 728 676</p>
           
           <a href="https://apartmanyvita.sk/booking/${booking.id}" class="button">
             Zobraziť rezerváciu online
@@ -387,7 +387,7 @@ function generateBookingConfirmationTemplate(booking: BookingWithDetails): Email
     - Celková cena: €${booking.totalPrice}
     
     Adresa: Štúrovo námestie 132/16, 911 01 Trenčín
-    Kontakt: info@apartmanyvita.sk, +421 900 123 456
+    Kontakt: info@apartmanyvita.sk, +421 940 728 676
     
     Tešíme sa na vašu návštevu!
     
@@ -455,7 +455,7 @@ function generateCheckInInstructionsTemplate(booking: BookingWithDetails): Email
             
             <div class="step">
               <strong>4. Kľúče:</strong><br>
-              Kľúče si vyzdvihnete osobne pri príchode. Zazvonite na zvonček "Apartmány Vita" alebo zavolajte +421 900 123 456.
+              Kľúče si vyzdvihnete osobne pri príchode. Zazvonite na zvonček "Apartmány Vita" alebo zavolajte +421 940 728 676.
             </div>
           </div>
           
@@ -463,7 +463,7 @@ function generateCheckInInstructionsTemplate(booking: BookingWithDetails): Email
             <strong>Dôležité:</strong><br>
             • Majte so sebou doklad totožnosti<br>
             • Platba prebehne automaticky z vašej karty<br>
-            • Pri probléme volajte +421 900 123 456
+            • Pri probléme volajte +421 940 728 676
           </div>
           
           <p>Tešíme sa na vašu návštevu a želáme vám príjemný pobyt v Trenčíne!</p>
@@ -487,7 +487,7 @@ function generateCheckInInstructionsTemplate(booking: BookingWithDetails): Email
     3. Parkovanie: Bezplatne na námestí
     4. Kľúče: Vyzdvihnutie osobne, zvonček "Apartmány Vita"
     
-    Kontakt: +421 900 123 456
+    Kontakt: +421 940 728 676
     
     Tešíme sa na vašu návštevu!
   `;
