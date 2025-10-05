@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Clear cache for this apartment (all date ranges)
-    await availabilityCache.clearPattern(`${apartment}:*`);
+    await availabilityCache.invalidatePattern(`${apartment}:*`);
     
     console.log(`✅ Cache cleared for apartment: ${apartment}`);
     

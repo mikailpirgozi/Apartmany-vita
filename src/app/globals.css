@@ -167,6 +167,12 @@
       touch-action: manipulation;
     }
   }
+  
+  /* Z-index hierarchy - prevent overlay conflicts */
+  /* Header: z-40, Overlay: z-60, Mobile Menu: z-70 */
+  header {
+    position: relative;
+  }
 }
 
 @layer utilities {

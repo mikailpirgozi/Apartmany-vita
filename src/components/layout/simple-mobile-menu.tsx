@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Menu, Phone, Mail, Home, LogIn, UserPlus, X } from 'lucide-react'
 import { CONTACT_INFO } from '@/constants'
@@ -15,9 +15,29 @@ interface SimpleMobileMenuProps {
 /**
  * Simple mobile menu without Radix UI
  * Pure HTML/CSS/Tailwind - NO hydration issues
+ * Fixed z-index hierarchy and body scroll lock
  */
 export function SimpleMobileMenu({ navigation, isLoggedIn, userName, userEmail }: SimpleMobileMenuProps) {
   const [isOpen, setIsOpen] = useState(false)
+
+  // Lock body scroll when menu is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden'
+      document.body.style.position = 'fixed'
+      document.body.style.width = '100%'
+    } else {
+      document.body.style.overflow = ''
+      document.body.style.position = ''
+      document.body.style.width = ''
+    }
+
+    return () => {
+      document.body.style.overflow = ''
+      document.body.style.position = ''
+      document.body.style.width = ''
+    }
+  }, [isOpen])
 
   return (
     <div className="md:hidden">
@@ -30,19 +50,23 @@ export function SimpleMobileMenu({ navigation, isLoggedIn, userName, userEmail }
         <Menu className="h-5 w-5" />
       </button>
 
-      {/* Overlay */}
+      {/* Overlay - z-[60] to be above header (z-50) but below menu */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-50 md:hidden"
+          className="fixed inset-0 bg-black/50 z-[60] md:hidden"
           onClick={() => setIsOpen(false)}
+          aria-hidden="true"
         />
       )}
 
-      {/* Slideout Menu */}
+      {/* Slideout Menu - z-[70] to be above everything */}
       <div
-        className={`fixed top-0 right-0 h-full w-[280px] sm:w-[320px] bg-background shadow-xl z-50 transform transition-transform duration-300 ease-in-out md:hidden ${
+        className={`fixed top-0 right-0 h-full w-[280px] sm:w-[320px] bg-background shadow-2xl z-[70] transform transition-transform duration-300 ease-in-out md:hidden ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Mobile navigation menu"
       >
         <div className="flex flex-col h-full">
           {/* Header */}
