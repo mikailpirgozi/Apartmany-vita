@@ -171,6 +171,11 @@ export async function GET(
       }
     });
 
+    // Fetch breakfast order separately (if exists)
+    const breakfastOrder = await prisma.breakfastOrder.findFirst({
+      where: { bookingId: id }
+    });
+
     if (!booking) {
       return NextResponse.json(
         { error: 'Booking not found' },
@@ -205,7 +210,13 @@ export async function GET(
       extras: booking.extras?.map((extra) => ({
         ...extra,
         price: toNumber(extra.price)
-      }))
+      })),
+      breakfastOrder: breakfastOrder ? {
+        ...breakfastOrder,
+        adultPrice: toNumber(breakfastOrder.adultPrice),
+        childPrice: toNumber(breakfastOrder.childPrice),
+        totalPrice: toNumber(breakfastOrder.totalPrice)
+      } : null
     };
 
     return NextResponse.json({

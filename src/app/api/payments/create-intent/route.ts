@@ -39,7 +39,14 @@ const createPaymentIntentSchema = z.object({
     cityTax: z.number(),
     nights: z.number()
   }),
-  extrasTotal: z.number().min(0)
+  extrasTotal: z.number().min(0),
+  breakfastData: z.object({
+    wantsBreakfast: z.boolean(),
+    adults: z.number().min(0),
+    children: z.number().min(0),
+    delivery: z.boolean(),
+    specialRequests: z.string()
+  }).optional()
 });
 
 export async function POST(request: NextRequest) {
@@ -128,6 +135,37 @@ export async function POST(request: NextRequest) {
         user: true
       }
     });
+
+    // Create breakfast order if requested
+    if (validatedData.breakfastData?.wantsBreakfast) {
+      const BREAKFAST_ADULT_PRICE = 9.90;
+      const BREAKFAST_CHILD_PRICE = 5.90;
+      
+      const breakfastTotal = 
+        (validatedData.breakfastData.adults * BREAKFAST_ADULT_PRICE) +
+        (validatedData.breakfastData.children * BREAKFAST_CHILD_PRICE);
+
+      await prisma.breakfastOrder.create({
+        data: {
+          bookingId: booking.id,
+          adults: validatedData.breakfastData.adults,
+          children: validatedData.breakfastData.children,
+          adultPrice: BREAKFAST_ADULT_PRICE,
+          childPrice: BREAKFAST_CHILD_PRICE,
+          totalPrice: breakfastTotal,
+          delivery: validatedData.breakfastData.delivery,
+          specialRequests: validatedData.breakfastData.specialRequests || null
+        }
+      });
+
+      console.log('✅ Breakfast order created:', {
+        bookingId: booking.id,
+        adults: validatedData.breakfastData.adults,
+        children: validatedData.breakfastData.children,
+        total: breakfastTotal,
+        delivery: validatedData.breakfastData.delivery
+      });
+    }
 
     // Create Stripe Checkout Session with automatic tax
     const checkoutResult = await createCheckoutSession({
