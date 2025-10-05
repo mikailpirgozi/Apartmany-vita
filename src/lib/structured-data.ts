@@ -57,7 +57,7 @@ export function generateLocalBusinessData() {
       latitude: 48.8951,
       longitude: 18.0447
     },
-    telephone: '+421-900-123-456',
+    telephone: '+421-940-728-676',
     email: 'info@apartmanyvita.sk',
     url: 'https://apartmanyvita.sk',
     priceRange: '€45-€95',

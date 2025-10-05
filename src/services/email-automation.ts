@@ -371,7 +371,7 @@ function generateCheckOutFollowupTemplate(): EmailTemplate {
       
       Apartmány Vita
       info@apartmanyvita.sk
-      +421-900-123-456
+      +421-940-728-676
     `
   }
 }

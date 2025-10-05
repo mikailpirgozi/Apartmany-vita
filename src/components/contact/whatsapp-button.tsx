@@ -91,7 +91,7 @@ export function BookingWhatsAppButton({
   checkIn,
   checkOut,
   guests,
-  phoneNumber = '421900123456'
+  phoneNumber = '421940728676'
 }: BookingWhatsAppButtonProps) {
   const generateBookingMessage = () => {
     let message = `Ahoj! Mám záujem o rezerváciu apartmánu "${apartmentName}"`
@@ -125,7 +125,7 @@ interface ContactWhatsAppButtonProps {
 
 export function ContactWhatsAppButton({
   subject = 'info',
-  phoneNumber = '421900123456'
+  phoneNumber = '421940728676'
 }: ContactWhatsAppButtonProps) {
   const messages = {
     booking: 'Ahoj! Chcel by som si rezervovať apartmán v Apartmánoch Vita. Môžete mi pomôcť?',

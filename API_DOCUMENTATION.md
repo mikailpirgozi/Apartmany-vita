@@ -126,7 +126,7 @@ Vytvorí novú rezerváciu v Beds24.
   "firstName": "John",
   "lastName": "Doe",
   "email": "john@example.com",
-  "phone": "+421900123456",
+  "phone": "+421940728676",
   "price": 425
 }
 ```
@@ -174,7 +174,7 @@ Vytvorí Stripe payment intent.
     "firstName": "John",
     "lastName": "Doe",
     "email": "john@example.com",
-    "phone": "+421900123456",
+    "phone": "+421940728676",
     "country": "Slovakia",
     "city": "Bratislava"
   },
@@ -216,7 +216,7 @@ Odošle kontaktnú správu.
 {
   "name": "John Doe",
   "email": "john@example.com",
-  "phone": "+421900123456", // optional
+  "phone": "+421940728676", // optional
   "subject": "Otázka",
   "message": "Text správy"
 }
