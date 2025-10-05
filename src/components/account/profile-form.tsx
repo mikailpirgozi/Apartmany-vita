@@ -22,6 +22,9 @@ const profileSchema = z.object({
   email: z.string().email('Neplatný email'),
   phone: z.string().optional(),
   dateOfBirth: z.date().optional(),
+  // Address information
+  country: z.string().optional(),
+  city: z.string().optional(),
   // Company information
   companyName: z.string().min(2, 'Názov firmy musí mať aspoň 2 znaky').optional().or(z.literal('')),
   companyId: z.string().regex(/^\d{8}$/, 'IČO musí mať presne 8 číslic').optional().or(z.literal('')),
@@ -37,6 +40,8 @@ interface User {
   email: string
   phone: string | null
   dateOfBirth: Date | null
+  country: string | null
+  city: string | null
   companyName: string | null
   companyId: string | null
   companyVat: string | null
@@ -58,6 +63,8 @@ export function ProfileForm({ user, onUpdate }: ProfileFormProps) {
       email: user.email,
       phone: user.phone || '',
       dateOfBirth: user.dateOfBirth || undefined,
+      country: user.country || '',
+      city: user.city || '',
       companyName: user.companyName || '',
       companyId: user.companyId || '',
       companyVat: user.companyVat || '',
@@ -78,6 +85,8 @@ export function ProfileForm({ user, onUpdate }: ProfileFormProps) {
           name: data.name,
           phone: data.phone,
           dateOfBirth: data.dateOfBirth?.toISOString(),
+          country: data.country,
+          city: data.city,
           companyName: data.companyName || undefined,
           companyId: data.companyId || undefined,
           companyVat: data.companyVat || undefined,
@@ -212,6 +221,42 @@ export function ProfileForm({ user, onUpdate }: ProfileFormProps) {
                     </FormItem>
                   )}
                 />
+
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="country"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Krajina</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Slovakia" {...field} />
+                        </FormControl>
+                        <FormDescription>
+                          Krajina vášho bydliska
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="city"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Mesto</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Bratislava" {...field} />
+                        </FormControl>
+                        <FormDescription>
+                          Mesto vášho bydliska
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
               </TabsContent>
 
               <TabsContent value="company" className="space-y-6 mt-6">
