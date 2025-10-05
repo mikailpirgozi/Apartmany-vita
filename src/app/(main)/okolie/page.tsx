@@ -13,7 +13,8 @@ import {
   Castle,
   Church,
   Mountain,
-  Camera
+  Camera,
+  Coffee
 } from 'lucide-react'
 
 export const metadata: Metadata = {
@@ -97,14 +98,18 @@ const restaurants: Array<{
   priceRange: string
   description: string
   highlight: boolean
+  link?: string
+  specialNote?: string
 }> = [
   {
     name: 'Pražiarnička by Caffe Vita',
-    type: 'Kaviareň',
-    distance: '2 min pešo',
+    type: 'Prémiová kaviareň',
+    distance: 'Priamo v budove! 🏠',
     priceRange: '€€',
-    description: 'Prémiová kaviareň s čerstvo praženou kávou. Výborné espresso, cappuccino a domáce dezerty.',
+    description: 'Naša vlastná prémiová kaviareň priamo v prízemí budovy apartmánov! V papučkách si môžete zájsť na čerstvo praženú kávu, domáce koláčiky, kvalitné drinky a brutálne naložené ranajky. Perfektné miesto na ranné prebudenie alebo popoludňajšiu kávu s výhľadom na námestie.',
     highlight: true,
+    link: 'https://www.praziarnicka.sk',
+    specialNote: '⭐ Exkluzívna výhoda pre hostí apartmánov - káva na dosah ruky!',
   },
   {
     name: 'Speranza',
@@ -238,15 +243,38 @@ export default function OkoliePage() {
             Naša poloha
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <p className="text-lg mb-4">
-            <strong>Štúrovo námestie 132/16, 911 01 Trenčín</strong>
-          </p>
-          <p className="text-muted-foreground">
-            Nachádzame sa priamo na Štúrovom námestí v historickom centre mesta. 
-            Trenčiansky hrad je vzdialený len 5 minút pešo, hlavné námestie 2 minúty. 
-            V okolí je množstvo reštaurácií, kaviarní a obchodov.
-          </p>
+        <CardContent className="space-y-4">
+          <div>
+            <p className="text-lg mb-2">
+              <strong>Štúrovo námestie 132/16, 911 01 Trenčín</strong>
+            </p>
+            <p className="text-muted-foreground">
+              Nachádzame sa priamo na Štúrovom námestí v historickom centre mesta. 
+              Trenčiansky hrad je vzdialený len 5 minút pešo, hlavné námestie 2 minúty. 
+              V okolí je množstvo reštaurácií, kaviarní a obchodov.
+            </p>
+          </div>
+          
+          {/* Pražiarnička Highlight */}
+          <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 border-2 border-amber-300 dark:border-amber-700 rounded-lg p-4">
+            <div className="flex items-start gap-3">
+              <Coffee className="h-6 w-6 text-amber-600 dark:text-amber-400 mt-1 flex-shrink-0" />
+              <div className="flex-1">
+                <h3 className="font-bold text-lg mb-2 text-amber-900 dark:text-amber-100">
+                  ☕ Pražiarnička by Caffe Vita - priamo v budove!
+                </h3>
+                <p className="text-sm text-amber-800 dark:text-amber-200 mb-3">
+                  Exkluzívna výhoda pre našich hostí: V prízemí budovy sa nachádza naša vlastná prémiová kaviareň. 
+                  V papučkách si môžete zájsť na čerstvo praženú kávu, domáce koláčiky, kvalitné drinky a brutálne naložené ranajky!
+                </p>
+                <Button asChild size="sm" variant="default" className="bg-amber-600 hover:bg-amber-700">
+                  <Link href="https://www.praziarnicka.sk" target="_blank" rel="noopener noreferrer">
+                    Pozrieť menu Pražiarničky
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
@@ -324,14 +352,28 @@ export default function OkoliePage() {
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-2">
+              <CardContent className="space-y-3">
                 <p className="text-sm text-muted-foreground">
                   {restaurant.description}
                 </p>
+                {restaurant.specialNote && (
+                  <div className="bg-primary/10 border border-primary/20 rounded-lg p-3">
+                    <p className="text-sm font-medium text-primary">
+                      {restaurant.specialNote}
+                    </p>
+                  </div>
+                )}
                 <div className="flex items-center gap-2 text-sm">
                   <MapPin className="h-4 w-4 text-muted-foreground" />
                   <span>{restaurant.distance}</span>
                 </div>
+                {restaurant.link && (
+                  <Button asChild size="sm" className="w-full">
+                    <Link href={restaurant.link} target="_blank" rel="noopener noreferrer">
+                      Navštíviť web
+                    </Link>
+                  </Button>
+                )}
               </CardContent>
             </Card>
           ))}

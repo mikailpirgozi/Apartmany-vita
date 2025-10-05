@@ -82,7 +82,7 @@ Ideálna voľba pre tých, ktorí hľadajú kvalitné ubytovanie v centre Trenč
     {
       name: 'Deluxe Apartmán',
       slug: 'deluxe-apartman',
-      description: `Deluxe Apartmán je naša najluxusnejšia a najpriestrannejšia ponuka - 70 m² prémiového bývania v absolútnom centre Trenčína. Tento apartmán na druhom poschodí je ideálny pre väčšie rodiny, skupiny priateľov alebo náročných hostí, ktorí očakávajú maximálny komfort a luxus.
+      description: `Deluxe Apartmán je naša najluxusnejšia a najpriestrannejšia ponuka - 105 m² prémiového bývania v absolútnom centre Trenčína. Tento apartmán na druhom poschodí je ideálny pre väčšie rodiny, skupiny priateľov alebo náročných hostí, ktorí očakávajú maximálny komfort a luxus.
 
 Apartmán sa nachádza na Štúrovom námestí, v srdci historického centra Trenčína, s výnimočným výhľadom na mesto a okolie. Všetky hlavné atrakcie, reštaurácie, kaviarne a obchody sú v bezprostrednej blízkosti. Trenčiansky hrad, symbol mesta, je vzdialený len pár minút pešo.
 
@@ -96,7 +96,7 @@ Technické vybavenie je na najvyššej úrovni - rýchle WiFi pripojenie zadarmo
 
 Deluxe Apartmán je perfektná voľba pre rodiny s deťmi, skupiny priateľov alebo náročných hostí, ktorí chcú zažiť Trenčín v luxuse a pohodlí. Ideálny aj pre dlhodobé pobyty, obchodné cesty alebo špeciálne príležitosti.`,
       floor: 2,
-      size: 70,
+      size: 105,
       maxGuests: 6,
       maxChildren: 4,
       images: [
@@ -109,8 +109,8 @@ Deluxe Apartmán je perfektná voľba pre rodiny s deťmi, skupiny priateľov al
       basePrice: 100,
       isActive: true,
       beds24Id: '161445',
-      seoTitle: 'Deluxe Apartmán Trenčín – Luxusný apartmán pre 6 osôb',
-      seoDescription: 'Luxusný Deluxe Apartmán 70m² v centre Trenčína. 2 spálne, klimatizácia, balkón, parkovanie. Ideálny pre rodiny až 6 osôb. Rezervujte!',
+      seoTitle: 'Deluxe Apartmán Trenčín – Luxusný apartmán 105m² pre 6 osôb',
+      seoDescription: 'Luxusný Deluxe Apartmán 105m² v centre Trenčína. 2 spálne, klimatizácia, balkón, parkovanie. Ideálny pre rodiny až 6 osôb. Rezervujte!',
       seoKeywords: ['deluxe apartmán trenčín', 'luxusný apartmán trenčín', 'apartmán pre 6 osôb trenčín', 'apartmán 2 spálne trenčín', 'rodinný apartmán trenčín centrum']
     }
   ]
