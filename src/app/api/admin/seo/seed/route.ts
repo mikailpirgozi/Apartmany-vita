@@ -142,10 +142,10 @@ const seoData = [
   },
 ];
 
-export async function POST(request: Request) {
+export async function POST() {
   try {
     // Check admin authentication
-    const adminCheck = await isAdmin(request);
+    const adminCheck = await isAdmin();
     if (!adminCheck) {
       return NextResponse.json(
         { error: 'Unauthorized - Admin access required' },
