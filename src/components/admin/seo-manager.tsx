@@ -351,7 +351,7 @@ export function SeoManager() {
                   }
                   maxLength={160}
                   rows={3}
-                  placeholder="Moderné apartmány v centre Lučenca..."
+                  placeholder="Moderné apartmány v centre Trenčína..."
                 />
                 <div className="text-xs text-muted-foreground">
                   {formData.metaDescription.length}/160
@@ -376,7 +376,7 @@ export function SeoManager() {
                   onChange={(e) =>
                     setFormData({ ...formData, h1Heading: e.target.value })
                   }
-                  placeholder="Luxusné apartmány v srdci Lučenca"
+                  placeholder="Luxusné apartmány v srdci Trenčína"
                 />
               </div>
 

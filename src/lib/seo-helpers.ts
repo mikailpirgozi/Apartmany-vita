@@ -116,7 +116,7 @@ export function generateOrganizationJsonLd(
     "@context": "https://schema.org",
     "@type": "LodgingBusiness",
     name: "Apartmány Vita",
-    description: "Moderné apartmány v centre Lučenca",
+    description: "Moderné apartmány v centre Trenčína",
     url: baseUrl,
     logo: `${baseUrl}/logo.png`,
     address: {
