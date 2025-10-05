@@ -54,7 +54,7 @@ export async function GET() {
   }
 
   // Count issues
-  const issues = Object.entries(results).filter(([_, data]) => 
+  const issues = Object.entries(results).filter(([, data]) => 
     data.exists && (data.hasNewline || data.hasWhitespace)
   );
 

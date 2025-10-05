@@ -10,8 +10,6 @@ import type { SeoData, ApartmentSeoData } from "@/services/seo";
  * Convert SeoData to Next.js Metadata object
  */
 export function seoDataToMetadata(seo: SeoData): Metadata {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://www.apartmanvita.sk";
-  
   // Generate hreflang alternates for multi-language support
   const languages = seo.alternateUrls || {
     sk: seo.canonicalUrl,
