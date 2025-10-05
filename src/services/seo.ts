@@ -210,7 +210,10 @@ function generateApartmentJsonLd(
  * Map database SeoMetadata to SeoData
  */
 function mapSeoMetadataToSeoData(seo: SeoMetadata): SeoData {
-  const canonicalUrl = seo.canonicalUrl || `${BASE_URL}/${seo.locale}/${seo.pageSlug}`;
+  // For home page, don't append /home to URL
+  const pagePath = seo.pageSlug === 'home' ? '' : `/${seo.pageSlug}`;
+  const localePrefix = seo.locale === DEFAULT_LOCALE ? "" : `/${seo.locale}`;
+  const canonicalUrl = seo.canonicalUrl || `${BASE_URL}${localePrefix}${pagePath}`;
   
   return {
     metaTitle: seo.metaTitle,
@@ -236,7 +239,10 @@ function mapSeoMetadataToSeoData(seo: SeoMetadata): SeoData {
  */
 function generateDefaultSeo(pageSlug: string, locale: string): SeoData {
   const defaults = DEFAULT_SEO[pageSlug] || DEFAULT_SEO.home;
-  const canonicalUrl = `${BASE_URL}/${locale}/${pageSlug}`;
+  // For home page, don't append /home to URL
+  const pagePath = pageSlug === 'home' ? '' : `/${pageSlug}`;
+  const localePrefix = locale === DEFAULT_LOCALE ? "" : `/${locale}`;
+  const canonicalUrl = `${BASE_URL}${localePrefix}${pagePath}`;
 
   return {
     metaTitle: defaults?.metaTitle || "Apartmány Vita Lučenec",

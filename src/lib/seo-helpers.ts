@@ -10,10 +10,27 @@ import type { SeoData, ApartmentSeoData } from "@/services/seo";
  * Convert SeoData to Next.js Metadata object
  */
 export function seoDataToMetadata(seo: SeoData): Metadata {
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://www.apartmanvita.sk";
+  
+  // Generate hreflang alternates for multi-language support
+  const languages = seo.alternateUrls || {
+    sk: seo.canonicalUrl,
+    en: seo.canonicalUrl.replace('/sk/', '/en/'),
+    de: seo.canonicalUrl.replace('/sk/', '/de/'),
+    hu: seo.canonicalUrl.replace('/sk/', '/hu/'),
+    pl: seo.canonicalUrl.replace('/sk/', '/pl/'),
+  };
+
   return {
     title: seo.metaTitle,
     description: seo.metaDescription,
     keywords: seo.metaKeywords,
+    authors: [{ name: 'Apartmány Vita' }],
+    creator: 'Apartmány Vita',
+    publisher: 'Apartmány Vita',
+    verification: {
+      google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || '',
+    },
     openGraph: {
       title: seo.ogTitle,
       description: seo.ogDescription,
@@ -36,7 +53,7 @@ export function seoDataToMetadata(seo: SeoData): Metadata {
     },
     alternates: {
       canonical: seo.canonicalUrl,
-      languages: seo.alternateUrls,
+      languages,
     },
     robots: {
       index: true,
