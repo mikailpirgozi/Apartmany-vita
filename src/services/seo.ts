@@ -5,7 +5,8 @@
  */
 
 import { prisma } from "@/lib/db";
-import type { SeoMetadata, Apartment, Prisma } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
+import type { Apartment, SeoMetadata } from "@/types";
 
 // ==================== TYPES ====================
 
@@ -192,7 +193,7 @@ function generateApartmentJsonLd(
       "@type": "QuantitativeValue",
       maxValue: apartment.maxGuests,
     },
-    amenityFeature: apartment.amenities.map((amenity: string) => ({
+    amenityFeature: apartment.amenities.map((amenity) => ({
       "@type": "LocationFeatureSpecification",
       name: amenity,
     })),

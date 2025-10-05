@@ -27,6 +27,7 @@ const STATIC_APARTMENTS: Apartment[] = [
       'https://images.unsplash.com/photo-1560448204-603b3fc33ddc?w=800&h=600&fit=crop&crop=center'
     ],
     isActive: true,
+    seoKeywords: ['deluxe', 'apartmán', 'lučenec', 'luxusné', 'ubytovanie'],
     createdAt: new Date(),
     updatedAt: new Date()
   },
@@ -45,6 +46,7 @@ const STATIC_APARTMENTS: Apartment[] = [
       'https://images.unsplash.com/photo-1560448204-603b3fc33ddc?w=800&h=600&fit=crop&crop=center'
     ],
     isActive: true,
+    seoKeywords: ['lite', 'apartmán', 'lučenec', 'balkón', 'ubytovanie'],
     createdAt: new Date(),
     updatedAt: new Date()
   },
@@ -63,6 +65,7 @@ const STATIC_APARTMENTS: Apartment[] = [
       'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop&crop=center'
     ],
     isActive: true,
+    seoKeywords: ['design', 'apartmán', 'lučenec', 'moderný', 'dizajn'],
     createdAt: new Date(),
     updatedAt: new Date()
   }

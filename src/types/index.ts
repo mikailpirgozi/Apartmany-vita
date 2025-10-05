@@ -29,9 +29,37 @@ export interface Apartment {
   amenities: string[]
   basePrice: number | Decimal
   isActive: boolean
+  beds24Id?: string | null
+  seoTitle?: string | null
+  seoDescription?: string | null
+  seoKeywords: string[]
+  ogImage?: string | null
   createdAt: Date
   updatedAt: Date
   bookings?: Booking[]
+}
+
+export interface SeoMetadata {
+  id: string
+  pageSlug: string
+  locale: string
+  metaTitle: string
+  metaDescription: string
+  metaKeywords: string[]
+  ogTitle?: string | null
+  ogDescription?: string | null
+  ogImage?: string | null
+  ogType: string
+  twitterCard: string
+  twitterTitle?: string | null
+  twitterDescription?: string | null
+  twitterImage?: string | null
+  canonicalUrl?: string | null
+  alternateUrls?: unknown
+  jsonLd?: unknown
+  h1Heading?: string | null
+  createdAt: Date
+  updatedAt: Date
 }
 
 export interface Booking {

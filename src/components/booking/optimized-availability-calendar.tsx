@@ -49,6 +49,7 @@ interface CalendarDay {
   isCurrentMonth: boolean;
   isAvailable: boolean;
   isBooked: boolean;
+  isCheckoutDay: boolean; // NEW: True if this is a checkout day (available, but next day is booked)
   price: number;
   isSelected: boolean;
   isInRange: boolean;
@@ -604,7 +605,7 @@ function CalendarDayCell({
       onMouseLeave={onLeave}
       disabled={!day.isAvailable || !day.isCurrentMonth || day.isPast}
       className={cn(
-        "w-full aspect-square min-h-[44px] sm:min-h-[48px] p-0.5 sm:p-1 text-xs sm:text-sm rounded transition-all relative group flex flex-col items-center justify-center",
+        "w-full aspect-square min-h-[44px] sm:min-h-[48px] p-0.5 sm:p-1 text-xs sm:text-sm rounded transition-all relative group flex flex-col items-center justify-center overflow-hidden",
         "hover:scale-102 focus:outline-none focus:ring-1 focus:ring-primary touch-manipulation",
         {
           // Base styles
@@ -613,9 +614,13 @@ function CalendarDayCell({
           // Past days
           "bg-gray-100 text-gray-400 cursor-not-allowed": day.isPast,
           
-          // Available days - jasné zelené pozadie
+          // NEW: Checkout days - split green/red gradient
+          "border border-orange-400 font-medium text-green-900": 
+            day.isCheckoutDay && day.isCurrentMonth && !day.isSelected && !day.isInRange && !day.isPast,
+          
+          // Available days - jasné zelené pozadie (only if NOT checkout day)
           "hover:bg-green-100 border border-green-300 text-green-900 bg-green-50 font-medium": 
-            day.isAvailable && day.isCurrentMonth && !day.isSelected && !day.isInRange && !day.isPast,
+            day.isAvailable && day.isCurrentMonth && !day.isSelected && !day.isInRange && !day.isPast && !day.isCheckoutDay,
           
           // Booked days - jasné červené pozadie
           "bg-red-100 text-red-900 border border-red-300 cursor-not-allowed font-medium": 
@@ -643,15 +648,28 @@ function CalendarDayCell({
           "bg-gray-200 text-gray-500 cursor-not-allowed": isRangeSelectionMode && !day.isAvailable && day.isCurrentMonth && !day.isPast && !day.isBooked
         }
       )}
+      style={day.isCheckoutDay && day.isCurrentMonth && !day.isSelected && !day.isInRange && !day.isPast ? {
+        background: 'linear-gradient(135deg, #dcfce7 0%, #dcfce7 50%, #fee2e2 50%, #fee2e2 100%)'
+      } : undefined}
     >
       {/* Day number - responzívny */}
-      <span className="text-xs sm:text-sm font-bold leading-none mb-0.5">
+      <span className={cn("text-xs sm:text-sm font-bold leading-none mb-0.5 relative z-10", {
+        "text-green-900": day.isCheckoutDay && !day.isSelected,
+        "text-white": day.isSelected
+      })}>
         {format(day.date, 'd')}
       </span>
       
+      {/* NEW: Checkout day indicator */}
+      {day.isCheckoutDay && day.isCurrentMonth && !day.isPast && !day.isSelected && (
+        <span className="text-[7px] sm:text-[8px] font-bold leading-none text-orange-700 relative z-10 mt-0.5">
+          Check-out
+        </span>
+      )}
+      
       {/* Price - responzívny a kompaktný */}
-      {day.price && day.isAvailable && day.isCurrentMonth && !day.isPast && (
-        <span className={cn("text-[9px] sm:text-[10px] font-bold leading-none whitespace-nowrap", {
+      {day.price && day.isAvailable && day.isCurrentMonth && !day.isPast && !day.isCheckoutDay && (
+        <span className={cn("text-[9px] sm:text-[10px] font-bold leading-none whitespace-nowrap relative z-10", {
           "text-green-700": !day.isSelected && !day.isInRange,
           "text-white": day.isSelected,
           "text-blue-700": day.isInRange && !day.isSelected
@@ -736,6 +754,12 @@ function generateCalendarDays(
     let isAvailable = availability?.available?.includes(dateStr) || false;
     const isBooked = availability?.booked?.includes(dateStr) || false;
     
+    // NEW: Detect checkout days - available date where next day is booked
+    const nextDay = new Date(date);
+    nextDay.setDate(nextDay.getDate() + 1);
+    const nextDayStr = format(nextDay, 'yyyy-MM-dd');
+    const isCheckoutDay = isAvailable && !isBooked && (availability?.booked?.includes(nextDayStr) || false);
+    
     // STRICT: Only use real Beds24 prices - NO FALLBACKS
     const price = availability?.prices?.[dateStr] || 0;
     // If no price from Beds24, don't show price (will show €0 or empty)
@@ -795,6 +819,7 @@ function generateCalendarDays(
       isCurrentMonth,
       isAvailable,
       isBooked,
+      isCheckoutDay,
       price,
       isSelected,
       isInRange,
@@ -845,8 +870,8 @@ function isDateSelectableInRange(
     if (daysInCurrentMonth.length > 0) {
       return daysInCurrentMonth.every(checkDate => {
         const dateStr = format(checkDate, 'yyyy-MM-dd');
-        return availability.available?.includes(dateStr) && 
-               !availability.booked?.includes(dateStr);
+        // FIXED: Check-out day can be check-in day of another reservation
+        return !availability.booked?.includes(dateStr);
       });
     }
     
@@ -861,10 +886,10 @@ function isDateSelectableInRange(
   const days = eachDayOfInterval({ start: from, end: to });
   const stayDays = days.slice(0, -1); // Exclude checkout day
   
+  // FIXED: Check-out day can be check-in day of another reservation
   return stayDays.every(checkDate => {
     const dateStr = format(checkDate, 'yyyy-MM-dd');
-    return availability.available?.includes(dateStr) && 
-           !availability.booked?.includes(dateStr);
+    return !availability.booked?.includes(dateStr);
   });
 }
 
@@ -884,11 +909,14 @@ function isValidRange(
   const days = eachDayOfInterval({ start: from, end: to });
   const stayDays = days.slice(0, -1); // Exclude checkout day
   
+  // FIXED: Check-out day of one reservation can be check-in day of another
+  // We only check if the stay days (excluding checkout) are NOT booked
   return stayDays.every(date => {
     const dateStr = format(date, 'yyyy-MM-dd');
-    // Musí byť dostupný A nesmie byť rezervovaný
-    return availability.available?.includes(dateStr) && 
-           !availability.booked?.includes(dateStr);
+    // CRITICAL: A date is valid if it's NOT in the booked array
+    // The booked array contains only check-in days of existing reservations
+    // So if 10.10 is booked (someone's check-in), we can still use 10.10 as our check-out
+    return !availability.booked?.includes(dateStr);
   });
 }
 
@@ -919,8 +947,8 @@ function isValidCrossMonthRange(
     if (daysWithData.length > 0) {
       return daysWithData.every(date => {
         const dateStr = format(date, 'yyyy-MM-dd');
-        return currentAvailability.available?.includes(dateStr) && 
-               !currentAvailability.booked?.includes(dateStr);
+        // FIXED: Check-out day can be check-in day of another reservation
+        return !currentAvailability.booked?.includes(dateStr);
       });
     }
   }

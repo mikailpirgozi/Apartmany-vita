@@ -202,7 +202,7 @@ export async function GET(
         ...booking.apartment,
         basePrice: toNumber(booking.apartment.basePrice)
       },
-      extras: booking.extras?.map(extra => ({
+      extras: booking.extras?.map((extra) => ({
         ...extra,
         price: toNumber(extra.price)
       }))

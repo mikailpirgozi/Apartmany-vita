@@ -22,6 +22,7 @@ const STATIC_APARTMENTS: Apartment[] = [
     amenities: ['wifi', 'kitchen', 'tv', 'heating', 'washer', 'elevator', 'parking'],
     basePrice: 105, // NOTE: Real prices come from Beds24 API
     isActive: true,
+    seoKeywords: ['design', 'apartmán', 'lučenec', 'moderný', 'dizajn'],
     createdAt: new Date('2024-01-01'),
     updatedAt: new Date('2024-01-01')
   },
@@ -44,6 +45,7 @@ const STATIC_APARTMENTS: Apartment[] = [
     amenities: ['wifi', 'kitchen', 'tv', 'heating', 'washer', 'dishwasher', 'balcony', 'elevator', 'parking'],
     basePrice: 75, // NOTE: Real prices come from Beds24 API
     isActive: true,
+    seoKeywords: ['lite', 'apartmán', 'lučenec', 'balkón', 'ubytovanie'],
     createdAt: new Date('2024-01-01'),
     updatedAt: new Date('2024-01-01')
   },
@@ -65,6 +67,7 @@ const STATIC_APARTMENTS: Apartment[] = [
     amenities: ['wifi', 'kitchen', 'tv', 'heating', 'washer', 'dishwasher', 'balcony', 'elevator', 'parking', 'aircon'],
     basePrice: 100, // NOTE: Real prices come from Beds24 API
     isActive: true,
+    seoKeywords: ['deluxe', 'apartmán', 'lučenec', 'luxusné', 'ubytovanie'],
     createdAt: new Date('2024-01-01'),
     updatedAt: new Date('2024-01-01')
   }
@@ -78,13 +81,13 @@ export async function getApartments(): Promise<Apartment[]> {
       orderBy: { createdAt: 'asc' }
     })
     
-    return apartments.map(apt => ({
+    return apartments.map((apt) => ({
       ...apt,
       basePrice: Number(apt.basePrice)
     }))
   } catch (error) {
     console.warn('Database not available, using static apartment data:', error);
-    return STATIC_APARTMENTS.filter(apt => apt.isActive);
+    return STATIC_APARTMENTS.filter((apt) => apt.isActive);
   }
 }
 
@@ -166,7 +169,7 @@ export async function searchApartments(filters: Partial<SearchFilters>): Promise
     // Amenities filter (array contains check)
     let filteredApartments = apartments
     if (filters.amenities && filters.amenities.length > 0) {
-      filteredApartments = apartments.filter(apt => 
+      filteredApartments = apartments.filter((apt) => 
         filters.amenities!.every(amenity => apt.amenities.includes(amenity))
       )
     }
@@ -178,14 +181,14 @@ export async function searchApartments(filters: Partial<SearchFilters>): Promise
   } catch (error) {
     console.warn('Database not available, using static data with filters:', error);
     // Apply filters to static data
-    let apartments = STATIC_APARTMENTS.filter(apt => apt.isActive);
+    let apartments = STATIC_APARTMENTS.filter((apt) => apt.isActive);
     
     if (filters.maxGuests) {
-      apartments = apartments.filter(apt => apt.maxGuests >= filters.maxGuests!);
+      apartments = apartments.filter((apt) => apt.maxGuests >= filters.maxGuests!);
     }
     
     if (filters.amenities && filters.amenities.length > 0) {
-      apartments = apartments.filter(apt => 
+      apartments = apartments.filter((apt) => 
         filters.amenities!.every(amenity => apt.amenities.includes(amenity))
       );
     }
@@ -217,7 +220,7 @@ export async function getAvailableApartments(
     }));
   } catch (err) {
     console.warn('Database not available, using static apartments for availability check', err);
-    apartments = STATIC_APARTMENTS.filter(apt => apt.isActive && apt.maxGuests >= guests);
+    apartments = STATIC_APARTMENTS.filter((apt) => apt.isActive && apt.maxGuests >= guests);
   }
   
   const availableApartments: Apartment[] = []
@@ -234,7 +237,7 @@ export async function getAvailableApartments(
   
   if (!hasBeds24Config) {
     console.warn('⚠️ BEDS24 not configured, returning database apartments without availability check');
-    return apartments.map(apt => ({
+    return apartments.map((apt) => ({
       ...apt,
       basePrice: Number(apt.basePrice)
     }))
