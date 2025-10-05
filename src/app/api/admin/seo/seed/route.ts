@@ -68,7 +68,7 @@ const seoData = [
     pageSlug: 'contact',
     locale: 'sk',
     metaTitle: 'Kontakt - Apartmány Vita',
-    metaDescription: 'Kontaktujte nás pre rezervácie a otázky. Sme tu pre vás 24/7. Telefón: +421-948-123-456, Email: info@apartmanyvita.sk',
+    metaDescription: 'Kontaktujte nás pre rezervácie a otázky. Sme tu pre vás 24/7. Telefón: +421-948-123-456, Email: info@apartmanvita.sk',
     metaKeywords: ['kontakt', 'apartmány vita', 'lučenec', 'rezervácia', 'telefón', 'email'],
     ogType: 'website',
     ogTitle: 'Kontakt - Apartmány Vita',

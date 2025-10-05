@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
     
     return NextResponse.json(
       { 
-        message: 'Nastala technická chyba. Prosím kontaktujte nás priamo na +421-900-123-456 alebo info@apartmanyvita.sk',
+        message: 'Nastala technická chyba. Prosím kontaktujte nás priamo na +421-900-123-456 alebo info@apartmanvita.sk',
         suggestions: ['Kontaktovať telefonicky', 'Poslať email', 'Skúsiť neskôr']
       },
       { status: 500 }

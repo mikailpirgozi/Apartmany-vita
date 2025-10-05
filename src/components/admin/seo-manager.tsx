@@ -387,7 +387,7 @@ export function SeoManager() {
                   onChange={(e) =>
                     setFormData({ ...formData, ogImage: e.target.value })
                   }
-                  placeholder="https://apartmanyvita.sk/og-default.jpg"
+                  placeholder="https://apartmanvita.sk/og-default.jpg"
                 />
               </div>
 
@@ -398,7 +398,7 @@ export function SeoManager() {
                   onChange={(e) =>
                     setFormData({ ...formData, canonicalUrl: e.target.value })
                   }
-                  placeholder="https://apartmanyvita.sk/sk/home"
+                  placeholder="https://apartmanvita.sk/sk/home"
                 />
               </div>
 

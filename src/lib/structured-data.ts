@@ -11,8 +11,8 @@ export function generateOrganizationData() {
     '@type': 'Organization',
     name: 'Apartmány Vita',
     description: 'Luxusné apartmány v centre Trenčína',
-    url: 'https://apartmanyvita.sk',
-    logo: 'https://apartmanyvita.sk/images/logo.png',
+    url: 'https://apartmanvita.sk',
+    logo: 'https://apartmanvita.sk/images/logo.png',
     contactPoint: {
       '@type': 'ContactPoint',
       telephone: '+421-940-728-676',
@@ -41,8 +41,8 @@ export function generateLocalBusinessData() {
     name: 'Apartmány Vita',
     description: 'Luxusné apartmány na Štúrovom námestí v Trenčíne',
     image: [
-      'https://apartmanyvita.sk/images/apartments/exterior.jpg',
-      'https://apartmanyvita.sk/images/apartments/interior.jpg'
+      'https://apartmanvita.sk/images/apartments/exterior.jpg',
+      'https://apartmanvita.sk/images/apartments/interior.jpg'
     ],
     address: {
       '@type': 'PostalAddress',
@@ -58,8 +58,8 @@ export function generateLocalBusinessData() {
       longitude: 18.0447
     },
     telephone: '+421-940-728-676',
-    email: 'info@apartmanyvita.sk',
-    url: 'https://apartmanyvita.sk',
+    email: 'info@apartmanvita.sk',
+    url: 'https://apartmanvita.sk',
     priceRange: '€45-€95',
     starRating: {
       '@type': 'Rating',
@@ -142,7 +142,7 @@ export function generateApartmentStructuredData(apartment: Apartment) {
       '@type': 'Organization',
       name: 'Apartmány Vita',
       telephone: '+421-940-728-676',
-      email: 'info@apartmanyvita.sk'
+      email: 'info@apartmanvita.sk'
     }
   }
 }
@@ -153,12 +153,12 @@ export function generateWebSiteStructuredData() {
     '@type': 'WebSite',
     name: 'Apartmány Vita',
     description: 'Luxusné apartmány v centre Trenčína',
-    url: 'https://apartmanyvita.sk',
+    url: 'https://apartmanvita.sk',
     potentialAction: {
       '@type': 'SearchAction',
       target: {
         '@type': 'EntryPoint',
-        urlTemplate: 'https://apartmanyvita.sk/apartments?q={search_term_string}'
+        urlTemplate: 'https://apartmanvita.sk/apartments?q={search_term_string}'
       },
       'query-input': 'required name=search_term_string'
     },
@@ -167,7 +167,7 @@ export function generateWebSiteStructuredData() {
       name: 'Apartmány Vita',
       logo: {
         '@type': 'ImageObject',
-        url: 'https://apartmanyvita.sk/images/logo.png'
+        url: 'https://apartmanvita.sk/images/logo.png'
       }
     },
     inLanguage: ['sk', 'en', 'de', 'hu', 'pl']

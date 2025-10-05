@@ -68,7 +68,7 @@ export function LocalBusinessStructuredData() {
       longitude: 19.6649
     },
     telephone: '+421-940-728-676',
-    email: 'info@apartmanyvita.sk',
+    email: 'info@apartmanvita.sk',
     url: 'https://www.apartmanvita.sk',
     priceRange: '€€',
     starRating: {

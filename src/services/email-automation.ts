@@ -20,7 +20,7 @@ export async function sendBookingConfirmationEmail(booking: Booking, user: User)
     const template = generateBookingConfirmationTemplate(booking)
     
     await resend.emails.send({
-      from: 'Apartmány Vita <reservations@apartmanyvita.sk>',
+      from: 'Apartmány Vita <reservations@apartmanvita.sk>',
       to: [user.email],
       subject: template.subject,
       html: template.html,
@@ -44,7 +44,7 @@ export async function sendCheckInInstructionsEmail(booking: Booking, user: User)
     const template = generateCheckInInstructionsTemplate(booking)
     
     await resend.emails.send({
-      from: 'Apartmány Vita <info@apartmanyvita.sk>',
+      from: 'Apartmány Vita <info@apartmanvita.sk>',
       to: [user.email],
       subject: template.subject,
       html: template.html,
@@ -68,7 +68,7 @@ export async function sendCheckOutFollowupEmail(booking: Booking, user: User): P
     const template = generateCheckOutFollowupTemplate()
     
     await resend.emails.send({
-      from: 'Apartmány Vita <info@apartmanyvita.sk>',
+      from: 'Apartmány Vita <info@apartmanvita.sk>',
       to: [user.email],
       subject: template.subject,
       html: template.html,
@@ -99,7 +99,7 @@ export async function sendPromotionalEmail(
   for (const recipient of recipients) {
     try {
       await resend.emails.send({
-        from: 'Apartmány Vita <newsletter@apartmanyvita.sk>',
+        from: 'Apartmány Vita <newsletter@apartmanvita.sk>',
         to: [recipient],
         subject,
         html: content,
@@ -188,7 +188,7 @@ function generateBookingConfirmationTemplate(booking: Booking): EmailTemplate {
             </p>
             <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
               <a href="tel:+421940728676" style="background: #10b981; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">📞 Zavolať</a>
-              <a href="mailto:info@apartmanyvita.sk" style="background: #6b7280; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">✉️ Email</a>
+              <a href="mailto:info@apartmanvita.sk" style="background: #6b7280; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">✉️ Email</a>
               <a href="https://wa.me/421940728676" style="background: #25d366; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">💬 WhatsApp</a>
             </div>
           </div>
@@ -227,7 +227,7 @@ function generateBookingConfirmationTemplate(booking: Booking): EmailTemplate {
       Tešíme sa na vašu návštevu!
       
       Apartmány Vita
-      info@apartmanyvita.sk
+      info@apartmanvita.sk
       +421-900-123-456
     `
   }
@@ -342,14 +342,14 @@ function generateCheckOutFollowupTemplate(): EmailTemplate {
           </div>
           
           <div style="margin: 40px 0;">
-            <a href="https://apartmanyvita.sk" style="background: #6b7280; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">
+            <a href="https://apartmanvita.sk" style="background: #6b7280; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">
               Rezervovať znovu
             </a>
           </div>
           
           <p style="color: #6b7280; font-size: 14px;">
             Ak máte akékoľvek pripomienky alebo návrhy, neváhajte nás kontaktovať na 
-            <a href="mailto:info@apartmanyvita.sk" style="color: #10b981;">info@apartmanyvita.sk</a>
+            <a href="mailto:info@apartmanvita.sk" style="color: #10b981;">info@apartmanvita.sk</a>
           </p>
         </div>
       </div>
@@ -365,12 +365,12 @@ function generateCheckOutFollowupTemplate(): EmailTemplate {
       Kód: VITA10
       Platnosť do: ${new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toLocaleDateString('sk-SK')}
       
-      Rezervovať znovu: https://apartmanyvita.sk
+      Rezervovať znovu: https://apartmanvita.sk
       
       Ďakujeme za vašu návštevu!
       
       Apartmány Vita
-      info@apartmanyvita.sk
+      info@apartmanvita.sk
       +421-940-728-676
     `
   }

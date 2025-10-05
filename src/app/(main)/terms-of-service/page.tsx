@@ -53,10 +53,10 @@ export default function TermsOfServicePage() {
                 <p className="text-gray-700">IČ DPH: SK2120035951</p>
                 <p className="text-gray-700">Sídlo: Saratovská 7388/1B, 911 08 Trenčín, Slovensko</p>
                 <p className="text-gray-700 mt-4">
-                  E-mail: <a href="mailto:info@apartmanyvita.sk" className="text-blue-600 hover:underline">info@apartmanyvita.sk</a>
+                  E-mail: <a href="mailto:info@apartmanvita.sk" className="text-blue-600 hover:underline">info@apartmanvita.sk</a>
                 </p>
                 <p className="text-gray-700">
-                  Web: <a href="https://apartmanyvita.sk" className="text-blue-600 hover:underline">apartmanyvita.sk</a>
+                  Web: <a href="https://apartmanvita.sk" className="text-blue-600 hover:underline">apartmanvita.sk</a>
                 </p>
               </div>
 
@@ -240,13 +240,13 @@ export default function TermsOfServicePage() {
 
               <h3 className="text-xl font-semibold text-gray-800 mb-3 mt-6">5.2 Ako stornovať rezerváciu</h3>
               <ol className="list-decimal pl-6 space-y-2 text-gray-700">
-                <li>Prihláste sa do svojho účtu na apartmanyvita.sk</li>
+                <li>Prihláste sa do svojho účtu na apartmanvita.sk</li>
                 <li>Prejdite do sekcie &quot;Moje rezervácie&quot;</li>
                 <li>Kliknite na &quot;Stornovať rezerváciu&quot;</li>
                 <li>Potvrdenie o storne obdržíte e-mailom</li>
               </ol>
               <p className="text-gray-700 mt-4">
-                Alternatívne nás môžete kontaktovať e-mailom na <a href="mailto:info@apartmanyvita.sk" className="text-blue-600 hover:underline">info@apartmanyvita.sk</a>
+                Alternatívne nás môžete kontaktovať e-mailom na <a href="mailto:info@apartmanvita.sk" className="text-blue-600 hover:underline">info@apartmanvita.sk</a>
               </p>
 
               <h3 className="text-xl font-semibold text-gray-800 mb-3 mt-6">5.3 Zmena rezervácie</h3>
@@ -530,8 +530,8 @@ export default function TermsOfServicePage() {
                 <p className="font-semibold text-gray-900 text-lg mb-4">P2 invest s.r.o.</p>
                 <div className="space-y-2 text-gray-700">
                   <p>📍 Saratovská 7388/1B, 911 08 Trenčín, Slovensko</p>
-                  <p>📧 E-mail: <a href="mailto:info@apartmanyvita.sk" className="text-blue-600 hover:underline font-semibold">info@apartmanyvita.sk</a></p>
-                  <p>🌐 Web: <a href="https://apartmanyvita.sk" className="text-blue-600 hover:underline">apartmanyvita.sk</a></p>
+                  <p>📧 E-mail: <a href="mailto:info@apartmanvita.sk" className="text-blue-600 hover:underline font-semibold">info@apartmanvita.sk</a></p>
+                  <p>🌐 Web: <a href="https://apartmanvita.sk" className="text-blue-600 hover:underline">apartmanvita.sk</a></p>
                   <p>🏢 IČO: 47992701</p>
                   <p>💼 IČ DPH: SK2120035951</p>
                 </div>

@@ -23,9 +23,9 @@ function getResendClient(): Resend | null {
 }
 
 // Email configuration
-const FROM_EMAIL = 'Apartmány Vita <reservations@apartmanyvita.sk>';
-const REPLY_TO_EMAIL = 'info@apartmanyvita.sk';
-const ADMIN_EMAIL = 'admin@apartmanyvita.sk';
+const FROM_EMAIL = 'Apartmány Vita <reservations@apartmanvita.sk>';
+const REPLY_TO_EMAIL = 'info@apartmanvita.sk';
+const ADMIN_EMAIL = 'admin@apartmanvita.sk';
 
 export interface BookingWithDetails extends Booking {
   user: User;
@@ -354,17 +354,17 @@ function generateBookingConfirmationTemplate(booking: BookingWithDetails): Email
           911 01 Trenčín</p>
           
           <p><strong>Kontakt:</strong><br>
-          Email: info@apartmanyvita.sk<br>
+          Email: info@apartmanvita.sk<br>
           Telefón: +421 940 728 676</p>
           
-          <a href="https://apartmanyvita.sk/booking/${booking.id}" class="button">
+          <a href="https://apartmanvita.sk/booking/${booking.id}" class="button">
             Zobraziť rezerváciu online
           </a>
         </div>
         
         <div class="footer">
           <p>Apartmány Vita | Štúrovo námestie 132/16 | 911 01 Trenčín</p>
-          <p>www.apartmanyvita.sk | info@apartmanyvita.sk</p>
+          <p>www.apartmanvita.sk | info@apartmanvita.sk</p>
         </div>
       </div>
     </body>
@@ -387,7 +387,7 @@ function generateBookingConfirmationTemplate(booking: BookingWithDetails): Email
     - Celková cena: €${booking.totalPrice}
     
     Adresa: Štúrovo námestie 132/16, 911 01 Trenčín
-    Kontakt: info@apartmanyvita.sk, +421 940 728 676
+    Kontakt: info@apartmanvita.sk, +421 940 728 676
     
     Tešíme sa na vašu návštevu!
     

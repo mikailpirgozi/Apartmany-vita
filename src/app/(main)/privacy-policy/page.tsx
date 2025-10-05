@@ -64,7 +64,7 @@ export default function PrivacyPolicyPage() {
                 <p className="text-gray-700">IČ DPH: SK2120035951</p>
                 <p className="text-gray-700">Sídlo: Saratovská 7388/1B, 911 08 Trenčín, Slovensko</p>
                 <p className="text-gray-700 mt-4">
-                  E-mail: <a href="mailto:info@apartmanyvita.sk" className="text-blue-600 hover:underline">info@apartmanyvita.sk</a>
+                  E-mail: <a href="mailto:info@apartmanvita.sk" className="text-blue-600 hover:underline">info@apartmanvita.sk</a>
                 </p>
               </div>
             </section>
@@ -274,7 +274,7 @@ export default function PrivacyPolicyPage() {
               </div>
 
               <p className="text-gray-700 mt-6">
-                Pre uplatnenie vašich práv nás kontaktujte na: <a href="mailto:info@apartmanyvita.sk" className="text-blue-600 hover:underline font-semibold">info@apartmanyvita.sk</a>
+                Pre uplatnenie vašich práv nás kontaktujte na: <a href="mailto:info@apartmanvita.sk" className="text-blue-600 hover:underline font-semibold">info@apartmanvita.sk</a>
               </p>
             </section>
 
@@ -340,7 +340,7 @@ export default function PrivacyPolicyPage() {
                 <p className="font-semibold text-gray-900 text-lg mb-4">P2 invest s.r.o.</p>
                 <div className="space-y-2 text-gray-700">
                   <p>📍 Saratovská 7388/1B, 911 08 Trenčín, Slovensko</p>
-                  <p>📧 E-mail: <a href="mailto:info@apartmanyvita.sk" className="text-blue-600 hover:underline font-semibold">info@apartmanyvita.sk</a></p>
+                  <p>📧 E-mail: <a href="mailto:info@apartmanvita.sk" className="text-blue-600 hover:underline font-semibold">info@apartmanvita.sk</a></p>
                   <p>🏢 IČO: 47992701</p>
                   <p>💼 IČ DPH: SK2120035951</p>
                 </div>

@@ -240,8 +240,8 @@ Distributed under the MIT License. See `LICENSE` for more information.
 ## 📞 Contact
 
 **Apartmány Vita**
-- 📧 Email: info@apartmanyvita.sk
-- 🌐 Website: [apartmanyvita.sk](https://apartmanyvita.sk)
+- 📧 Email: info@apartmanvita.sk
+- 🌐 Website: [apartmanvita.sk](https://apartmanvita.sk)
 - 📍 Address: Štúrovo námestie 132/16, 911 01 Trenčín
 
 **Developer**

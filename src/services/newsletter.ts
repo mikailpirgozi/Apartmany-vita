@@ -44,7 +44,7 @@ export async function subscribeToNewsletter(
     const welcomeEmailContent = getWelcomeEmailContent(language)
     
     await resend.emails.send({
-      from: 'Apartmány Vita <newsletter@apartmanyvita.sk>',
+      from: 'Apartmány Vita <newsletter@apartmanvita.sk>',
       to: [email],
       subject: welcomeEmailContent.subject,
       html: welcomeEmailContent.html,
@@ -112,7 +112,7 @@ export async function sendNewsletterEmail(emailData: NewsletterEmail): Promise<{
     const results = await Promise.allSettled(
       emailData.recipients.map(recipient =>
         resend.emails.send({
-          from: 'Apartmány Vita <newsletter@apartmanyvita.sk>',
+          from: 'Apartmány Vita <newsletter@apartmanvita.sk>',
           to: [recipient],
           subject: emailData.subject,
           html: emailData.content
@@ -167,7 +167,7 @@ function getWelcomeEmailContent(language: string) {
             </div>
             
             <div style="text-align: center; margin-top: 40px;">
-              <a href="https://apartmanyvita.sk" style="background: #10b981; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold;">Navštíviť web</a>
+              <a href="https://apartmanvita.sk" style="background: #10b981; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold;">Navštíviť web</a>
             </div>
           </div>
           
@@ -176,7 +176,7 @@ function getWelcomeEmailContent(language: string) {
               Apartmány Vita | Štúrovo námestie 132/16, 911 01 Trenčín
             </p>
             <p style="color: #6b7280; margin: 10px 0 0 0; font-size: 12px;">
-              <a href="mailto:newsletter@apartmanyvita.sk?subject=Unsubscribe" style="color: #6b7280;">Odhlásiť odber</a>
+              <a href="mailto:newsletter@apartmanvita.sk?subject=Unsubscribe" style="color: #6b7280;">Odhlásiť odber</a>
             </p>
           </div>
         </div>
@@ -190,7 +190,7 @@ function getWelcomeEmailContent(language: string) {
         📅 Novinky a informácie o podujatiach
         💡 Tipy pre váš pobyt v Trenčíne
         
-        Navštívte náš web: https://apartmanyvita.sk
+        Navštívte náš web: https://apartmanvita.sk
         
         Apartmány Vita
         Štúrovo námestie 132/16, 911 01 Trenčín
@@ -224,7 +224,7 @@ function getWelcomeEmailContent(language: string) {
             </div>
             
             <div style="text-align: center; margin-top: 40px;">
-              <a href="https://apartmanyvita.sk/en" style="background: #10b981; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold;">Visit Website</a>
+              <a href="https://apartmanvita.sk/en" style="background: #10b981; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold;">Visit Website</a>
             </div>
           </div>
           
@@ -233,7 +233,7 @@ function getWelcomeEmailContent(language: string) {
               Vita Apartments | Štúrovo námestie 132/16, 911 01 Trenčín
             </p>
             <p style="color: #6b7280; margin: 10px 0 0 0; font-size: 12px;">
-              <a href="mailto:newsletter@apartmanyvita.sk?subject=Unsubscribe" style="color: #6b7280;">Unsubscribe</a>
+              <a href="mailto:newsletter@apartmanvita.sk?subject=Unsubscribe" style="color: #6b7280;">Unsubscribe</a>
             </p>
           </div>
         </div>
@@ -247,7 +247,7 @@ function getWelcomeEmailContent(language: string) {
         📅 News and event information
         💡 Tips for your stay in Trenčín
         
-        Visit our website: https://apartmanyvita.sk/en
+        Visit our website: https://apartmanvita.sk/en
         
         Vita Apartments
         Štúrovo námestie 132/16, 911 01 Trenčín

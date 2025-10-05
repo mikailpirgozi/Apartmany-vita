@@ -1,12 +1,12 @@
 // App constants
 export const APP_NAME = "Apartmány Vita"
 export const APP_DESCRIPTION = "Luxusné apartmány v centre Trenčína"
-export const APP_URL = "https://apartmanyvita.sk"
+export const APP_URL = "https://apartmanvita.sk"
 
 // Contact information
 export const CONTACT_INFO = {
   phone: "+421 940 728 676",
-  email: "info@apartmanyvita.sk",
+  email: "info@apartmanvita.sk",
   whatsapp: "421940728676",
   address: {
     street: "Štúrovo námestie 132/16",
@@ -22,9 +22,9 @@ export const CONTACT_INFO = {
 
 // Social media links
 export const SOCIAL_LINKS = {
-  facebook: "https://facebook.com/apartmanyvita",
-  instagram: "https://instagram.com/apartmanyvita",
-  google: "https://g.page/apartmanyvita"
+  facebook: "https://facebook.com/apartmanvita",
+  instagram: "https://instagram.com/apartmanvita",
+  google: "https://g.page/apartmanvita"
 }
 
 // Apartment amenities

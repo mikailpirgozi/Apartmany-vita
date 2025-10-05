@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
 
     // Send email to admin
     await sendEmail({
-      to: process.env.ADMIN_EMAIL || 'info@apartmanyvita.sk',
+      to: process.env.ADMIN_EMAIL || 'info@apartmanvita.sk',
       subject: `Kontaktný formulár: ${validatedData.subject}`,
       text: emailContent,
       html: emailContent.replace(/\n/g, '<br>')
@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
       
       ---
       Apartmány Vita
-      ${process.env.NEXT_PUBLIC_APP_URL || 'https://apartmanyvita.sk'}
+      ${process.env.NEXT_PUBLIC_APP_URL || 'https://apartmanvita.sk'}
     `
 
     await sendEmail({
