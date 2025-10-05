@@ -788,24 +788,26 @@ function generateCalendarDays(
     }
     
     // NEW: Detect checkout days
-    // A day is a checkout day if:
-    // 1. It's available AND next day is START of a reservation (next day booked, day after next NOT booked)
-    // 2. OR it's a booked date that is START of a reservation (prev day NOT booked)
-    const nextDay = new Date(date);
-    nextDay.setDate(nextDay.getDate() + 1);
-    const nextDayStr = format(nextDay, 'yyyy-MM-dd');
-    const isNextDayBooked = availability?.booked?.includes(nextDayStr) || false;
+    // CRITICAL: A day is checkout day ONLY in these cases:
+    // 1. User already selected check-in (selectingRange exists) AND this is available date before booked date
+    // 2. OR it's a booked date that is START of a reservation (can be used as our check-out)
     
-    // For available dates: check if next day is START of reservation
     let isCheckoutDay = false;
-    if (isAvailable && isNextDayBooked) {
-      // If next day is booked, this is a potential checkout day
-      // (we can use this day as check-in and next day as check-out)
-      isCheckoutDay = true;
+    
+    // Case 1: Available date that can be checkout (ONLY if user already selected check-in)
+    if (isAvailable && isRangeSelectionMode && selectingRange) {
+      const nextDay = new Date(date);
+      nextDay.setDate(nextDay.getDate() + 1);
+      const nextDayStr = format(nextDay, 'yyyy-MM-dd');
+      const isNextDayBooked = availability?.booked?.includes(nextDayStr) || false;
+      
+      // Show as checkout day if next day is booked (same-day turnover possible)
+      if (isNextDayBooked) {
+        isCheckoutDay = true;
+      }
     }
     
-    // CRITICAL: ALSO mark booked dates as checkout days ONLY if they are the START of a reservation
-    // (previous day is NOT booked = this is check-in day of existing reservation)
+    // Case 2: Booked date that is START of reservation (can be used as our check-out)
     if (!isCheckoutDay && isBooked) {
       // Check if previous day is NOT booked (this is the first day of reservation)
       const prevDay = new Date(date);
