@@ -804,11 +804,37 @@ function generateCalendarDays(
     if (isRangeSelectionMode && selectingRange) {
       // Allow both available dates AND booked dates (for check-out)
       const canSelectAsCheckout = isBooked && isDateSelectableInRange(date, selectingRange, availability);
+      
+      // DEBUG: Log for 10.10
+      if (dateStr === '2025-10-10') {
+        console.log('🔍 DEBUG range selection for 2025-10-10:', {
+          dateStr,
+          isRangeSelectionMode,
+          hasSelectingRange: !!selectingRange,
+          selectingRangeDate: selectingRange ? format(selectingRange, 'yyyy-MM-dd') : null,
+          isBooked,
+          canSelectAsCheckout,
+          isAvailableBefore: isAvailable
+        });
+      }
+      
       if (isAvailable) {
         isAvailable = isDateSelectableInRange(date, selectingRange, availability);
       } else if (canSelectAsCheckout) {
         // Make booked date "available" for selection as check-out
         isAvailable = true;
+        
+        // DEBUG: Log when we make it available
+        if (dateStr === '2025-10-10') {
+          console.log('✅ Making 2025-10-10 available as check-out!');
+        }
+      }
+      
+      // DEBUG: Log final state for 10.10
+      if (dateStr === '2025-10-10') {
+        console.log('🔍 DEBUG final state for 2025-10-10:', {
+          isAvailableAfter: isAvailable
+        });
       }
     }
     
