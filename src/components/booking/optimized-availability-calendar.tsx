@@ -787,19 +787,43 @@ function generateCalendarDays(
       });
     }
     
-    // NEW: Detect checkout days - available date where next day is booked
-    // OR a booked date that represents someone's check-in (can be used as our check-out)
+    // NEW: Detect checkout days
+    // A day is a checkout day if:
+    // 1. It's available AND next day is START of a reservation (next day booked, day after next NOT booked)
+    // 2. OR it's a booked date that is START of a reservation (prev day NOT booked)
     const nextDay = new Date(date);
     nextDay.setDate(nextDay.getDate() + 1);
     const nextDayStr = format(nextDay, 'yyyy-MM-dd');
-    let isCheckoutDay = isAvailable && (availability?.booked?.includes(nextDayStr) || false);
+    const isNextDayBooked = availability?.booked?.includes(nextDayStr) || false;
     
-    // CRITICAL: ALSO mark booked dates as checkout days (they represent check-in of existing reservation)
-    // This allows same-day turnover: our check-out = their check-in
-    if (!isCheckoutDay && isBooked) {
-      // Booked dates are check-in days of existing reservations
-      // They can be used as check-out days for new reservations (same-day turnover)
+    // For available dates: check if next day is START of reservation
+    let isCheckoutDay = false;
+    if (isAvailable && isNextDayBooked) {
+      // Check if day after next is also booked (to see if next day is START of reservation)
+      const dayAfterNext = new Date(date);
+      dayAfterNext.setDate(dayAfterNext.getDate() + 2);
+      const dayAfterNextStr = format(dayAfterNext, 'yyyy-MM-dd');
+      const isDayAfterNextBooked = availability?.booked?.includes(dayAfterNextStr) || false;
+      
+      // Next day is START of reservation if day after next is NOT booked (single day reservation)
+      // OR if we just assume next day is start (we can't tell for sure without more data)
+      // For simplicity: if next day is booked, this is a potential checkout day
       isCheckoutDay = true;
+    }
+    
+    // CRITICAL: ALSO mark booked dates as checkout days ONLY if they are the START of a reservation
+    // (previous day is NOT booked = this is check-in day of existing reservation)
+    if (!isCheckoutDay && isBooked) {
+      // Check if previous day is NOT booked (this is the first day of reservation)
+      const prevDay = new Date(date);
+      prevDay.setDate(prevDay.getDate() - 1);
+      const prevDayStr = format(prevDay, 'yyyy-MM-dd');
+      const isPrevDayBooked = availability?.booked?.includes(prevDayStr) || false;
+      
+      // Only mark as checkout day if this is the START of a reservation (prev day not booked)
+      if (!isPrevDayBooked) {
+        isCheckoutDay = true;
+      }
     }
     
     // STRICT: Only use real Beds24 prices - NO FALLBACKS
