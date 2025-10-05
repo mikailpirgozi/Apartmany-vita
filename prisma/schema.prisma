@@ -53,6 +53,10 @@ model User {
   preferences   Json?
   isAdmin       Boolean   @default(false)
   
+  // Address information
+  country       String?
+  city          String?
+  
   // Company information
   companyName    String?
   companyId      String?  // IČO

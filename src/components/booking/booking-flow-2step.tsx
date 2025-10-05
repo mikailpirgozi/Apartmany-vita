@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -176,6 +176,50 @@ export function BookingFlow2Step({ apartment, bookingData, availability, initial
       needsInvoice: false
     }
   });
+
+  // Fetch user profile data if logged in
+  const { data: userProfile } = useQuery({
+    queryKey: ['user-profile', session?.user?.id],
+    queryFn: async () => {
+      if (!session?.user?.id) return null;
+      
+      const response = await fetch('/api/user/profile');
+      if (!response.ok) {
+        throw new Error('Failed to fetch user profile');
+      }
+      
+      const data = await response.json();
+      return data.user;
+    },
+    enabled: !!session?.user?.id,
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+  });
+
+  // Auto-fill contact form with user profile data when available
+  useEffect(() => {
+    if (userProfile && session?.user) {
+      // Split name into firstName and lastName if available
+      const nameParts = userProfile.name?.split(' ') || [];
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.slice(1).join(' ') || '';
+
+      // Pre-fill form with user data
+      contactForm.reset({
+        firstName: firstName,
+        lastName: lastName,
+        email: userProfile.email || session.user.email || '',
+        phone: userProfile.phone || '',
+        country: userProfile.country || 'Slovakia', // Use saved country or default
+        city: userProfile.city || '', // Use saved city
+        needsInvoice: !!userProfile.companyName, // Auto-check if user has company info
+        companyName: userProfile.companyName || '',
+        companyId: userProfile.companyId || '',
+        companyVat: userProfile.companyVat || '',
+        companyAddress: userProfile.companyAddress || '',
+        specialRequests: ''
+      });
+    }
+  }, [userProfile, session, contactForm]);
 
   // Fetch pricing with loyalty discount if user is logged in
   const { data: availabilityWithLoyalty } = useQuery<Beds24AvailabilityResponse | null>({
@@ -656,6 +700,16 @@ export function BookingFlow2Step({ apartment, bookingData, availability, initial
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
+                  {/* Info banner when user is logged in and data is pre-filled */}
+                  {session?.user && userProfile && (
+                    <Alert className="mb-4 bg-green-50 border-green-200">
+                      <Check className="h-4 w-4 text-green-600" />
+                      <AlertDescription className="text-green-800">
+                        Vaše údaje boli automaticky predvyplnené z profilu. Môžete ich upraviť podľa potreby.
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                  
                   <Form {...contactForm}>
                     <form className="space-y-4">
                       <div className="grid grid-cols-2 gap-4">
