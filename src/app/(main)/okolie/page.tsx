@@ -90,82 +90,129 @@ const attractions = [
   },
 ]
 
-const restaurants = [
+const restaurants: Array<{
+  name: string
+  type: string
+  distance: string
+  priceRange: string
+  description: string
+  highlight: boolean
+}> = [
   {
-    name: 'Reštaurácia Pohoda',
-    type: 'Slovenská kuchyňa',
-    distance: '1 min pešo',
-    priceRange: '€€',
-    description: 'Tradičné slovenské jedlá v modernom podaní. Výborné denné menu.',
-  },
-  {
-    name: 'Pizzeria La Piazza',
-    type: 'Talianska kuchyňa',
+    name: 'Pražiarnička by Caffe Vita',
+    type: 'Kaviareň',
     distance: '2 min pešo',
     priceRange: '€€',
-    description: 'Autentická talianska pizza pečená v kamennej peci.',
+    description: 'Prémiová kaviareň s čerstvo praženou kávou. Výborné espresso, cappuccino a domáce dezerty.',
+    highlight: true,
   },
   {
-    name: 'Café Sládkovič',
-    type: 'Kaviareň',
+    name: 'Speranza',
+    type: 'Talianska reštaurácia',
     distance: '3 min pešo',
-    priceRange: '€',
-    description: 'Útulná kaviareň s výbornou kávou a domácimi zákuskami.',
+    priceRange: '€€',
+    description: 'Autentická talianska kuchyňa s čerstvými ingredienciami. Pizza, pasta a talianske víno.',
+    highlight: false,
   },
   {
-    name: 'Bistro U Jakuba',
-    type: 'Medzinárodná kuchyňa',
+    name: 'Fellini Shisha & Cocktail Bar',
+    type: 'Cocktail bar',
     distance: '4 min pešo',
-    priceRange: '€€€',
-    description: 'Moderná reštaurácia s denným menu a večernými špeciálmi.',
+    priceRange: '€€',
+    description: 'Moderný bar s širokým výberom koktailov a shishy. Ideálne pre večerné posedenie.',
+    highlight: false,
+  },
+  {
+    name: 'Atrio',
+    type: 'Reštaurácia & Café',
+    distance: '3 min pešo',
+    priceRange: '€€',
+    description: 'Štýlová reštaurácia s medzinárodnou kuchyňou. Denné menu a à la carte.',
+    highlight: false,
+  },
+  {
+    name: 'Steps',
+    type: 'Reštaurácia & Bar',
+    distance: '2 min pešo',
+    priceRange: '€€',
+    description: 'Moderná reštaurácia v centre s výbornou kuchyňou a príjemnou atmosférou.',
+    highlight: false,
   },
 ]
 
-const shops = [
+const shops: Array<{
+  name: string
+  type: string
+  distance: string
+  openingHours: string
+  description: string
+}> = [
+  {
+    name: 'Coop Jednota (Prior)',
+    type: 'Supermarket',
+    distance: '2 min pešo',
+    openingHours: '7:00-20:00',
+    description: 'Supermarket v obchodnom centre Prior. Kompletný sortiment potravín.',
+  },
   {
     name: 'Tesco',
     type: 'Supermarket',
     distance: '3 min pešo',
     openingHours: '7:00-21:00',
+    description: 'Veľký supermarket s широkým výberom potravín a drogérie.',
   },
   {
     name: 'Billa',
     type: 'Supermarket',
     distance: '5 min pešo',
     openingHours: '7:00-20:00',
-  },
-  {
-    name: 'Kaufland',
-    type: 'Hypermarket',
-    distance: '10 min autom',
-    openingHours: '7:00-21:00',
+    description: 'Kvalitný supermarket s čerstvými potravinami.',
   },
   {
     name: 'Lekáreň Dr.Max',
     type: 'Lekáreň',
     distance: '2 min pešo',
     openingHours: '8:00-19:00',
+    description: 'Lekáreň v centre s широkým sortimentom liekov a drogérie.',
   },
 ]
 
-const transport = [
+const transport: Array<{
+  icon: typeof Train
+  name: string
+  distance: string
+  description: string
+  highlight: boolean
+  link?: string
+}> = [
   {
     icon: Train,
     name: 'Vlakové nádražie',
     distance: '10 min pešo',
     description: 'Priame spojenia do Bratislavy, Žiliny a ďalších miest.',
+    highlight: false,
   },
   {
     icon: Car,
     name: 'Autobusová stanica',
     distance: '8 min pešo',
     description: 'Regionálne a medzinárodné autobusové spojenia.',
+    highlight: false,
   },
   {
     icon: Car,
     name: 'Parkovanie',
     distance: 'Pri apartmánoch',
     description: 'Bezplatné parkovanie pre hostí priamo pri budove.',
+    highlight: false,
+  },
+  {
+    icon: Car,
+    name: 'BlackRent - Autopožičovňa',
+    distance: '5 min pešo',
+    description: 'Profesionálna autopožičovňa s moderným vozovým parkom. Online rezervácia na blackrent.sk.',
+    highlight: true,
+    link: 'https://www.blackrent.sk',
   },
 ]
 
@@ -259,14 +306,22 @@ export default function OkoliePage() {
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {restaurants.map((restaurant, index) => (
-            <Card key={index}>
+            <Card 
+              key={index}
+              className={restaurant.highlight ? 'border-primary shadow-md' : ''}
+            >
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div>
                     <CardTitle className="text-xl">{restaurant.name}</CardTitle>
                     <CardDescription>{restaurant.type}</CardDescription>
                   </div>
-                  <Badge variant="outline">{restaurant.priceRange}</Badge>
+                  <div className="flex flex-col gap-2 items-end">
+                    <Badge variant="outline">{restaurant.priceRange}</Badge>
+                    {restaurant.highlight && (
+                      <Badge variant="default" className="text-xs">Odporúčame</Badge>
+                    )}
+                  </div>
                 </div>
               </CardHeader>
               <CardContent className="space-y-2">
@@ -298,6 +353,9 @@ export default function OkoliePage() {
                 <CardDescription>{shop.type}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-2 text-sm">
+                {shop.description && (
+                  <p className="text-muted-foreground mb-2">{shop.description}</p>
+                )}
                 <div className="flex items-center gap-2">
                   <MapPin className="h-4 w-4 text-muted-foreground" />
                   <span>{shop.distance}</span>
@@ -313,23 +371,38 @@ export default function OkoliePage() {
       </section>
 
       {/* Transport */}
-      <section className="max-w-4xl mx-auto mb-16">
+      <section className="max-w-6xl mx-auto mb-16">
         <h2 className="text-3xl font-bold mb-8 text-center">
           Doprava a dostupnosť
         </h2>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {transport.map((item, index) => (
-            <Card key={index}>
+            <Card 
+              key={index}
+              className={item.highlight ? 'border-primary shadow-lg bg-primary/5' : ''}
+            >
               <CardHeader>
-                <item.icon className="h-8 w-8 text-primary mb-2" />
+                <div className="flex items-start justify-between">
+                  <item.icon className="h-8 w-8 text-primary mb-2" />
+                  {item.highlight && (
+                    <Badge variant="default">Odporúčame</Badge>
+                  )}
+                </div>
                 <CardTitle className="text-lg">{item.name}</CardTitle>
                 <CardDescription>{item.distance}</CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="space-y-3">
                 <p className="text-sm text-muted-foreground">
                   {item.description}
                 </p>
+                {item.link && (
+                  <Button asChild size="sm" className="w-full">
+                    <Link href={item.link} target="_blank" rel="noopener noreferrer">
+                      Navštíviť web
+                    </Link>
+                  </Button>
+                )}
               </CardContent>
             </Card>
           ))}
