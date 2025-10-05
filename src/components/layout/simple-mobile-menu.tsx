@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import Link from 'next/link'
 import { Menu, Phone, Mail, Home, LogIn, UserPlus, X } from 'lucide-react'
 import { CONTACT_INFO } from '@/constants'
@@ -13,12 +14,18 @@ interface SimpleMobileMenuProps {
 }
 
 /**
- * Simple mobile menu - FINAL VERSION
- * Overlay and menu rendered conditionally when open
- * Proper z-index stacking with Portal-like behavior
+ * Simple mobile menu - FINAL VERSION with React Portal
+ * Menu and overlay rendered at document.body level (outside header)
+ * This fixes z-index stacking context issues
  */
 export function SimpleMobileMenu({ navigation, isLoggedIn, userName, userEmail }: SimpleMobileMenuProps) {
   const [isOpen, setIsOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
+
+  // Ensure component is mounted (client-side only)
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   // Lock body scroll when menu is open - preserve scroll position
   useEffect(() => {
@@ -45,36 +52,25 @@ export function SimpleMobileMenu({ navigation, isLoggedIn, userName, userEmail }
     }
   }, [isOpen])
 
-  return (
+  // Portal content - renders at document.body level
+  const menuContent = mounted && isOpen ? createPortal(
     <>
-      {/* Menu Button - always visible on mobile */}
-      <button
-        onClick={() => setIsOpen(true)}
-        className="md:hidden inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-accent"
-        aria-label="Open menu"
+      {/* Overlay backdrop */}
+      <div
+        className="fixed inset-0 bg-black/60 md:hidden"
+        style={{ zIndex: 9998 }}
+        onClick={() => setIsOpen(false)}
+        aria-hidden="true"
+      />
+
+      {/* Menu Panel */}
+      <div
+        className="fixed top-0 right-0 bottom-0 w-[280px] sm:w-[320px] bg-white dark:bg-gray-900 shadow-2xl md:hidden"
+        style={{ zIndex: 9999 }}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Mobile navigation menu"
       >
-        <Menu className="h-5 w-5" />
-      </button>
-
-      {/* Menu Overlay + Panel - only render when open */}
-      {isOpen && (
-        <>
-          {/* Overlay backdrop */}
-          <div
-            className="fixed inset-0 bg-black/60 md:hidden"
-            style={{ zIndex: 9998 }}
-            onClick={() => setIsOpen(false)}
-            aria-hidden="true"
-          />
-
-          {/* Menu Panel */}
-          <div
-            className="fixed top-0 right-0 bottom-0 w-[280px] sm:w-[320px] bg-white dark:bg-gray-900 shadow-2xl md:hidden"
-            style={{ zIndex: 9999 }}
-            role="dialog"
-            aria-modal="true"
-            aria-label="Mobile navigation menu"
-          >
             <div className="flex flex-col h-full overflow-hidden">
               {/* Header */}
               <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
@@ -181,9 +177,24 @@ export function SimpleMobileMenu({ navigation, isLoggedIn, userName, userEmail }
                 </div>
               </div>
             </div>
-          </div>
-        </>
-      )}
+      </div>
+    </>,
+    document.body
+  ) : null
+
+  return (
+    <>
+      {/* Menu Button - stays in header */}
+      <button
+        onClick={() => setIsOpen(true)}
+        className="md:hidden inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-accent"
+        aria-label="Open menu"
+      >
+        <Menu className="h-5 w-5" />
+      </button>
+
+      {/* Menu content rendered via Portal at body level */}
+      {menuContent}
     </>
   )
 }
