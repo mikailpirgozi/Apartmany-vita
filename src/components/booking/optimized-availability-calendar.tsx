@@ -751,14 +751,17 @@ function generateCalendarDays(
   return days.map(date => {
     const dateStr = format(date, 'yyyy-MM-dd');
     const isCurrentMonth = date.getMonth() === currentMonth.getMonth();
-    let isAvailable = availability?.available?.includes(dateStr) || false;
+    
+    // FIXED: A date is available if it's NOT in the booked array AND has a price
     const isBooked = availability?.booked?.includes(dateStr) || false;
+    const hasPrice = (availability?.prices?.[dateStr] || 0) > 0;
+    let isAvailable = !isBooked && hasPrice;
     
     // NEW: Detect checkout days - available date where next day is booked
     const nextDay = new Date(date);
     nextDay.setDate(nextDay.getDate() + 1);
     const nextDayStr = format(nextDay, 'yyyy-MM-dd');
-    const isCheckoutDay = isAvailable && !isBooked && (availability?.booked?.includes(nextDayStr) || false);
+    const isCheckoutDay = isAvailable && (availability?.booked?.includes(nextDayStr) || false);
     
     // STRICT: Only use real Beds24 prices - NO FALLBACKS
     const price = availability?.prices?.[dateStr] || 0;
@@ -834,7 +837,13 @@ function isDateSelectable(date: Date, availability?: AvailabilityData): boolean 
   if (isBefore(date, new Date())) return false;
   
   const dateStr = format(date, 'yyyy-MM-dd');
-  return availability?.available?.includes(dateStr) || false;
+  
+  // FIXED: A date is selectable if it's NOT in the booked array
+  // The booked array contains only check-in days of existing reservations
+  // So if 10.10 is booked (someone's check-in), we can still select 9.10 for check-in with 10.10 as check-out
+  if (!availability) return false;
+  
+  return !availability.booked?.includes(dateStr);
 }
 
 // Funkcia pre kontrolu či je dátum selectable v range mode

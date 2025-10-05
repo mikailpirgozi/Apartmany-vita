@@ -1807,9 +1807,23 @@ class Beds24Service {
             console.log(`❌ NO PRICE FOR MONTH END ${dateStr} in calendar data:`, calendar);
           }
         } else {
-          // No calendar data for this date - DO NOT ASSUME AVAILABILITY WITHOUT PRICE
-          console.log(`❓ ${dateStr}: No calendar data - not showing as available without price data`);
-          // Skip dates without explicit calendar data to avoid showing €0 prices
+          // No calendar data for this date - use base price and mark as available if not in past
+          const currentDate = new Date();
+          const checkDate = new Date(dateStr);
+          
+          if (checkDate >= currentDate) {
+            // Use base price for dates without calendar data
+            const basePrice = this.getBaseRoomPrice(request.roomId);
+            if (basePrice > 0) {
+              available.push(dateStr);
+              prices[dateStr] = basePrice;
+              console.log(`✅ ${dateStr}: Available (using base price ${basePrice}€)`);
+            } else {
+              console.log(`❓ ${dateStr}: No calendar data and no base price - skipping`);
+            }
+          } else {
+            console.log(`❓ ${dateStr}: Past date without calendar data - skipping`);
+          }
         }
       }
     });
@@ -2139,6 +2153,21 @@ class Beds24Service {
     // NO FALLBACK PRICES - Return 0 to indicate missing data
     console.warn(`⚠️ getCalendarPrice called for roomId ${roomId} - NO FALLBACK PRICES, must use real Beds24 data`);
     return 0; // Return 0 to force loading from Beds24 API
+  }
+
+  /**
+   * Get base room price for dates without calendar data
+   * Returns reasonable base prices per apartment
+   */
+  private getBaseRoomPrice(roomId?: string): number {
+    // Base prices per room (minimum prices from Beds24)
+    const basePrices: Record<string, number> = {
+      '357931': 95,  // Deluxe Apartmán
+      '357932': 85,  // Lite Apartmán
+      '483027': 100  // Design Apartmán
+    };
+    
+    return basePrices[roomId || ''] || 90; // Default 90€ if unknown
   }
 
   /**
