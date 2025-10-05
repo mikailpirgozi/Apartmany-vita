@@ -123,10 +123,16 @@ export async function createBookingPaymentIntent(data: PaymentIntentData): Promi
 
 /**
  * Create Stripe Checkout Session with automatic tax calculation
- * Tax code txcd_10103100 = Hotel/Accommodation (5% VAT in Slovakia)
+ * Tax code txcd_20030000 = General Services (5% VAT in Slovakia for accommodation)
  */
 export async function createCheckoutSession(data: CheckoutSessionData): Promise<CheckoutSessionResult> {
   try {
+    // Validate Stripe API key
+    if (!stripeSecretKey || stripeSecretKey === 'sk_test_dummy_key_for_build') {
+      console.error('❌ STRIPE_SECRET_KEY is not configured!');
+      throw new Error('Stripe is not properly configured. Please contact support.');
+    }
+
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXTAUTH_URL || 'https://www.apartmanvita.sk';
     
     console.log('🔧 Creating Stripe Checkout Session:', {
@@ -134,7 +140,8 @@ export async function createCheckoutSession(data: CheckoutSessionData): Promise<
       bookingId: data.bookingId,
       apartmentName: data.apartmentName,
       nights: data.nights,
-      baseUrl
+      baseUrl,
+      stripeKeyPrefix: stripeSecretKey.substring(0, 8)
     });
     
     const session = await stripe.checkout.sessions.create({
@@ -156,7 +163,7 @@ export async function createCheckoutSession(data: CheckoutSessionData): Promise<
         },
       ],
       automatic_tax: {
-        enabled: false, // Disabled until Stripe Tax is fully configured
+        enabled: true, // ✅ ENABLED - Stripe Tax is configured for 5% VAT
       },
       customer_email: data.guestEmail,
       metadata: {
@@ -186,15 +193,30 @@ export async function createCheckoutSession(data: CheckoutSessionData): Promise<
   } catch (error) {
     console.error('❌ Error creating checkout session:', error);
     
-    // Log Stripe-specific error details
-    if (error && typeof error === 'object' && 'type' in error) {
-      const stripeError = error as { type: string; message: string; code?: string; param?: string };
-      console.error('Stripe Error Details:', {
-        type: stripeError.type,
-        message: stripeError.message,
-        code: stripeError.code,
-        param: stripeError.param
-      });
+    // Enhanced Stripe error logging
+    if (error && typeof error === 'object') {
+      if ('type' in error) {
+        const stripeError = error as { 
+          type: string; 
+          message: string; 
+          code?: string; 
+          param?: string;
+          raw?: unknown;
+        };
+        console.error('🔴 Stripe Error Details:', {
+          type: stripeError.type,
+          message: stripeError.message,
+          code: stripeError.code,
+          param: stripeError.param,
+          rawError: JSON.stringify(stripeError.raw || {})
+        });
+        
+        // Return more specific error message
+        throw new Error(`Stripe Error: ${stripeError.message} (${stripeError.code || stripeError.type})`);
+      }
+      
+      // Log full error object for debugging
+      console.error('🔴 Full error object:', JSON.stringify(error, Object.getOwnPropertyNames(error)));
     }
     
     throw new Error('Failed to create checkout session');

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 
 export async function GET() {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://apartmanyvita.sk'
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.apartmanvita.sk'
   
   const robots = `User-agent: *
 Allow: /

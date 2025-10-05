@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { getApartments } from '@/services/apartments'
 
 export async function GET() {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://apartmanyvita.sk'
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.apartmanvita.sk'
   
   // Static pages
   const staticPages = [

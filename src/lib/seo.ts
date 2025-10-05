@@ -77,7 +77,7 @@ export function generateMetadata(config: SEOConfig): Metadata {
 }
 
 export function generateApartmentMetadata(apartment: Apartment, locale: string = 'sk'): Metadata {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://apartmanyvita.sk'
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.apartmanvita.sk'
   
   const titles = {
     sk: `${apartment.name} - Apartmány Vita Trenčín`,
@@ -117,7 +117,7 @@ export function generateApartmentMetadata(apartment: Apartment, locale: string =
 }
 
 export function generateHomepageMetadata(locale: string = 'sk'): Metadata {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://apartmanyvita.sk'
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.apartmanvita.sk'
   
   const titles = {
     sk: 'Apartmány Vita - Luxusné ubytovanie v centre Trenčína',

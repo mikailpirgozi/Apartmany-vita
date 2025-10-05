@@ -35,7 +35,7 @@ export interface ApartmentSeoData extends SeoData {
 // ==================== CONSTANTS ====================
 
 const DEFAULT_LOCALE = "sk";
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://apartmanvita.sk";
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://www.apartmanvita.sk";
 
 // Default SEO fallbacks per page
 const DEFAULT_SEO: Record<string, Partial<SeoData>> = {

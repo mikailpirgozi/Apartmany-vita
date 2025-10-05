@@ -178,8 +178,9 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('❌ Error creating payment intent:', error);
 
+    // Zod validation errors
     if (error instanceof z.ZodError) {
-      console.error('Validation error:', error.issues);
+      console.error('🔴 Validation error:', error.issues);
       return NextResponse.json(
         { error: 'Invalid request data', details: error.issues },
         { status: 400 }
@@ -188,20 +189,40 @@ export async function POST(request: NextRequest) {
 
     // Stripe-specific errors
     if (error && typeof error === 'object' && 'type' in error) {
-      const stripeError = error as { type: string; message: string; code?: string };
-      console.error('Stripe error:', stripeError);
+      const stripeError = error as { 
+        type: string; 
+        message: string; 
+        code?: string; 
+        param?: string;
+        raw?: unknown;
+      };
+      console.error('🔴 Stripe error details:', {
+        type: stripeError.type,
+        message: stripeError.message,
+        code: stripeError.code,
+        param: stripeError.param,
+        raw: JSON.stringify(stripeError.raw || {})
+      });
+      
       return NextResponse.json(
         { 
           error: `Stripe error: ${stripeError.message}`,
           code: stripeError.code,
-          type: stripeError.type
+          type: stripeError.type,
+          param: stripeError.param
         },
         { status: 500 }
       );
     }
 
-    // Generic error
+    // Generic error with full details
     const errorMessage = error instanceof Error ? error.message : 'Internal server error';
+    console.error('🔴 Full error:', {
+      message: errorMessage,
+      stack: error instanceof Error ? error.stack : undefined,
+      errorObject: JSON.stringify(error, Object.getOwnPropertyNames(error || {}))
+    });
+    
     return NextResponse.json(
       { error: errorMessage },
       { status: 500 }
